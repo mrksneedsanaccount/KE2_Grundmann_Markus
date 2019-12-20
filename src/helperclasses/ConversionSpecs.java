@@ -22,8 +22,15 @@ public class ConversionSpecs {
     private String operation; // Entweder der Kompressionstyp, oder die N für
     // die Base-N-Kodierung
     private byte[] inputDatasegments;
+
+    public int[] getOffsets() {
+        return offsets;
+    }
+
+    private int[] offsets;
     private ByteArrayOutputStream ByteArrayOutputStream;
     private String alphabetBaseN;
+
 
     public void convertTo(FileTypeSuper input,
                           FileTypeSuper output) {
@@ -130,6 +137,21 @@ public class ConversionSpecs {
                     .get(inputformat.getColourscheme()[i]);
         }
         return offsets;
+    }
+    public void setOffsetsInConversionSpec() {
+        FileTypeSuper inputformat = this.getInputformat();
+        FileTypeSuper outputformat = this.getOutputformat();
+
+        int[] offsets = new int[this
+                .getInputformat().getColourscheme().length];
+
+        for (int i = 0; i < offsets.length; i++) {
+            offsets[i] = outputformat.getColourSchemeMap()
+                    .get(inputformat.getColourscheme()[i])
+                    - inputformat.getColourSchemeMap()
+                    .get(inputformat.getColourscheme()[i]);
+        }
+        this.offsets = offsets;
     }
 
     public void setByteArrayOutputStream(ByteArrayOutputStream byteArrayOutputStream) {

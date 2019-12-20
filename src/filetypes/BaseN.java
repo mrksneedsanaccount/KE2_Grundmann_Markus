@@ -117,6 +117,21 @@ public class BaseN extends FileTypeSuper{
     }
 
     @Override
+    public void calculateChecksum(byte dataByte) {
+
+    }
+
+    @Override
+    long returnChecksum() {
+        return 0;
+    }
+
+    @Override
+    public void calculateChecksumOfPixel(byte[] pixel) {
+
+    }
+
+    @Override
     protected void heightandwidth() {
 
     }

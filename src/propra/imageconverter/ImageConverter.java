@@ -243,6 +243,7 @@ public class ImageConverter {
                 convspec.setInputDatasegments(datasegments);
                 convspec.getOutputformat().setOperation(convspec);
                 convspec.setByteArrayOutputStream(bAOS);
+                convspec.setOffsetsInConversionSpec();
 
                 //Um das KE1 Format nutzen zu können muss noch die Kompression festgelegt werden.
                 if (convspec.getOutputformat().getCompression() == null) {
@@ -266,7 +267,12 @@ public class ImageConverter {
                         case UNCOMPRESSED:
                             if (convspec.getOutputformat()
                                     .getCompression() == UNCOMPRESSED) {
-                                bAOS.write(einfacheFarbkodierungsKonversion.convertColourscheme(convspec));
+//                                bAOS.write(einfacheFarbkodierungsKonversion.convertColourscheme(convspec));
+                                einfacheFarbkodierungsKonversion.convertColourscheme2(convspec);
+
+
+
+
                             } else if (convspec.getOutputformat()
                                     .getCompression() == RLE) {
                                 bAOS.write(RLEConverter.LREconversionMethod(convspec));
@@ -300,14 +306,13 @@ public class ImageConverter {
                             .ausgabeHeaderFertigInitialisieren(convspec.getInputformat());
 
                     //Header zur Ausgabedatei hinzufügen.
-                    OutputStream outputStream;
+                    RandomAccessFile outputStream;
                     try {
                         byte[] outputheader = convspec.getOutputformat()
                                 .buildHeader(inputfile);
-                        outputStream = new FileOutputStream(
-                                convspec.getOutputPath().toFile());
+                        outputStream = new RandomAccessFile(convspec.getOutputPath().toFile(), "rw");
                         outputStream.write(outputheader);
-                        outputStream.write(bAOS.toByteArray());
+//                        outputStream.write(bAOS.toByteArray());
                         outputStream.close();
                         System.out.println("Fertig");
                     } catch (IOException e) {

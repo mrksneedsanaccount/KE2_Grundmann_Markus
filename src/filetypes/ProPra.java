@@ -34,19 +34,13 @@ public class ProPra extends FileTypeSuper {
     // 18 - x Bilddaten
     // (x+1)-y Rest
 
-
-
-
-
-
-
-
-
-
-//    protected byte[] header = new byte[PROPRA_HEADER_OFFSET];
+    //    protected byte[] header = new byte[PROPRA_HEADER_OFFSET];
     protected String[] colourscheme = {"Green", "Blue", "Red"};
     protected Map<String, Integer> colourSchemeMap = Map.of("Green", 0, "Red",
             2, "Blue", 1);
+    private long a = 0;
+    private long b = 1;
+    private long i = 1;
     private String formatkennung = "ProPraWS19";
     private long datensegmentgroesse;
     private int checksum;
@@ -67,6 +61,14 @@ public class ProPra extends FileTypeSuper {
         super(convspec, inputformat);
     }
 
+    @Override
+    public void ausgabeHeaderFertigInitialisieren(FileTypeSuper inputfile) {
+        // TODO Auto-generated method stub
+        datensegmentgroesse = conversionspec.getbOAS().size();
+        checksum = Checksum.calculateChecksumPropra(conversionspec.getbOAS().toByteArray());
+
+
+    }
 
     @Override
     public byte[] buildHeader() {
@@ -95,10 +97,29 @@ public class ProPra extends FileTypeSuper {
         headerbb.putShort(12, height);
         headerbb.put(14, bitsprobildpunkt);
         headerbb.put(15, kompressionstyp);
-        headerbb.putLong(16, datensegmentgroesse);
-        headerbb.putInt(24, checksum);
+        headerbb.putLong(16, conversionspec.getOutputPath().toFile().length()-getHeader().length);
+        headerbb.putInt(24, (int) returnChecksum());
         return headerbb.array();
     }
+
+     public void calculateChecksum(byte dataByte) {
+        a = (a + i + (dataByte & 0xff)) % 65513;
+        b = (b + a) % 65513;
+        i++;
+    }
+
+    public  void calculateChecksumOfPixel(byte[] pixel){
+        for (byte pixelByte : pixel) {
+            calculateChecksum(pixelByte);
+
+        }
+
+    }
+
+
+
+
+
 
     protected void colourSchemeInfo() {
         // TODO Auto-generated method stub
@@ -133,7 +154,7 @@ public class ProPra extends FileTypeSuper {
         super.fehlerausgabe();
         // Dateigröße im Header überprüfen (Prüft, ob Daten fehlen, oder zu
         // viel vorhanden sind.
-        if(kompressionstyp == 0) {
+        if (kompressionstyp == 0) {
             if (height * width * 3 != conversionspec.getInputPath().toFile().length() - PROPRA_HEADER_OFFSET) {
                 System.err.println(
                         "Zu wenige, oder zu viele Datensegmente vorhanden.");
@@ -142,7 +163,7 @@ public class ProPra extends FileTypeSuper {
         }
         // Datensegmentangabe mit Menge der Bilddaten in der Datei abgleichen
 
-        if (headerbb.getLong(16) != conversionspec.getInputPath().toFile().length()-PROPRA_HEADER_OFFSET) {
+        if (headerbb.getLong(16) != conversionspec.getInputPath().toFile().length() - PROPRA_HEADER_OFFSET) {
             System.err.println(
                     "Datensegmentanzahl aus dem Header stimmt nicht mit den Anzahl an Datensegmenten in der Datei überein");
             System.exit(123);
@@ -170,8 +191,6 @@ public class ProPra extends FileTypeSuper {
             System.exit(123);
         }
     }
-
-
 
     public Map<String, Integer> getColourSchemeMap() {
         return colourSchemeMap;
@@ -222,15 +241,6 @@ public class ProPra extends FileTypeSuper {
     }
 
     @Override
-    public void ausgabeHeaderFertigInitialisieren(FileTypeSuper inputfile) {
-        // TODO Auto-generated method stub
-        datensegmentgroesse = conversionspec.getbOAS().size();
-        checksum = Checksum.calculateChecksumPropra(conversionspec.getbOAS().toByteArray());
-
-
-    }
-
-    @Override
 
     protected void heightandwidth() {
         // TODO Auto-generated method stub
@@ -238,6 +248,10 @@ public class ProPra extends FileTypeSuper {
         setWidth(headerbb.getShort(10));
         height = headerbb.getShort(12);
 
+    }
+
+     long returnChecksum() {
+        return (long) (a * Math.pow(2, 16) + b);
     }
 
     @Override

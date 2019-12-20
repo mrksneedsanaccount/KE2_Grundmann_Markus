@@ -104,6 +104,9 @@ public abstract class FileTypeSuper {
 
     }
 
+    public abstract void calculateChecksum(byte dataByte);
+    abstract long returnChecksum();
+   public abstract  void calculateChecksumOfPixel(byte[] pixel);
 
     abstract public byte[] buildHeader();
 

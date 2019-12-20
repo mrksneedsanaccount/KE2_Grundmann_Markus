@@ -91,6 +91,21 @@ public class TGA extends FileTypeSuper {
     }
 
     @Override
+    public void calculateChecksum(byte dataByte) {
+
+    }
+
+    @Override
+    long returnChecksum() {
+        return 0;
+    }
+
+    @Override
+    public void calculateChecksumOfPixel(byte[] pixel) {
+
+    }
+
+    @Override
     public byte[] buildHeader(FileTypeSuper inputfile) {
         // TODO Auto-generated method stub
 

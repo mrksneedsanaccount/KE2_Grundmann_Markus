@@ -351,12 +351,12 @@ public class Huffman {
         // Kodierer
         bb2.rewind();
 
+
         int offset;
         byte buffer1 = bval[bval.length - 1];
         offset = tree.getDiskSpaceOccuppiedByHuffmanTree() % 8;
         ByteBuffer huffmanKomprimierteBilddaten = ByteBuffer.allocate(64 * 1024);
 
-        byte zuKodierendesByte;
         fileChannel3.close();
 //        Inputs inputbyebuffer und outputbytebuffer und leerer StringBuilder??
 
@@ -366,6 +366,8 @@ public class Huffman {
 
         while (bb2.position() < bb2.limit()) { //position mit Integer ersetzen?
             // get Chunk ?
+
+            // Inputs sind ein ByteBuffer,
             stringBuffer.append(encodingTable[(bb2.get()&0xff)]);
             while (stringBuffer.length() > 0) {
                 char stringBinary = stringBuffer.charAt(0);
@@ -375,7 +377,7 @@ public class Huffman {
                 }
                 stringBuffer.deleteCharAt(0);
                 offset--;
-                if (offset < 0) {
+                if (offset < 0) { // Ab hier wird jedes vollständige Byte geoutputted
                     // Propra Prüfsumme
 
                     huffmanKomprimierteBilddaten.put(buffer1);
