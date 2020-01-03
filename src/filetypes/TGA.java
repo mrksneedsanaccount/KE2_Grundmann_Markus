@@ -1,9 +1,10 @@
 package src.filetypes;
 
-import src.helperclasses.ConversionSpecs;
-import src.propra.imageconverter.ImageConverter;
+import src.helperclasses.ProjectConstants;
+import src.helperclasses.ImageFormats;
+import src.propra.conversionfacilitators.CommandLineInterpreter;
 
-import java.util.Map;
+import java.nio.ByteBuffer;
 
 /**
  * Klasse, welche die Metadaten von Objekten im TGA-Format enthält.
@@ -42,12 +43,8 @@ public class TGA extends FileTypeSuper {
     private final short palettenBeginn = 0;
     private final short palettenLaenge = 0;
     private final byte groessePalleteneintrag = 0;
-    private String[] colourscheme = {"Blue", "Green", "Red"};
-    private Map<String, Integer> colourSchemeMap = Map.of("Green", 1, "Red",
-            2, "Blue", 0);
     private byte bildTyp;
     private short xcoord;
-    private short ycoord;
     private byte bildAttributByte = 0x20;
 
 
@@ -56,10 +53,9 @@ public class TGA extends FileTypeSuper {
      *
      * @param convspec Objekt, welches die Informationen über die durchzuführende Operation enthält.
      */
-    public TGA(ConversionSpecs convspec) {
+    public TGA(CommandLineInterpreter convspec) {
         super(convspec);
-        this.conversionspec = convspec;
-        // TODO Auto-generated constructor stub
+        imageFormats = ImageFormats.BGR;
     }
 
 
@@ -69,12 +65,14 @@ public class TGA extends FileTypeSuper {
      * @param convspec    Objekt, welches die Informationen über die durchzuführende Operation enthält.
      * @param inputformat Das Objekt, der Eingabedatei. (Zur Unterscheidung der Eingabe- und Ausgabedateiheader
      */
-    public TGA(ConversionSpecs convspec, FileTypeSuper inputformat) {
+    public TGA(CommandLineInterpreter convspec, FileTypeSuper inputformat) {
         // TODO Auto-generated constructor stub
         super(convspec, inputformat);
-
-        ycoord = getWidth();
+        imageFormats = ImageFormats.BGR;
+        short ycoord = getWidth();
         bildAttributByte = 0x20;
+        setCompressionOutputfile(convspec.getMode());
+
     }
 
     @Override
@@ -96,12 +94,17 @@ public class TGA extends FileTypeSuper {
     }
 
     @Override
-    long returnChecksum() {
+    int returnChecksum() {
         return 0;
     }
 
     @Override
-    public void calculateChecksumOfPixel(byte[] pixel) {
+    public void calculateChecksumOfArray(byte[] pixel) {
+
+    }
+
+    @Override
+    public void calculateChecksumOfByteBuffer(ByteBuffer pixelBuffer, int limit) {
 
     }
 
@@ -111,10 +114,10 @@ public class TGA extends FileTypeSuper {
 
 
         switch (getCompression()) {
-            case ImageConverter.UNCOMPRESSED:
+            case ProjectConstants.UNCOMPRESSED:
                 bildTyp = 2;
                 break;
-            case ImageConverter.RLE:
+            case ProjectConstants.RLE:
                 bildTyp = 10;
                 break;
         }
@@ -129,29 +132,17 @@ public class TGA extends FileTypeSuper {
 
     // Methoden
 
-    @Override
-    public byte[] buildHeader() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    protected void colourSchemeInfo() {
-        // TODO Auto-generated method stub
-        colourscheme = new String[]{"Blue", "Green", "Red"};
-        colourSchemeMap = Map.of("Green", 1, "Red", 2, "Blue", 0);
-
-    }
 
     @Override
-    protected void compression() {
+    protected void setCompressionFromFile() {
         // TODO Auto-generated method stub
         bildTyp = headerbb.get(2);
         switch (bildTyp) {
             case 2:
-                compression = ImageConverter.UNCOMPRESSED;
+                compression = ProjectConstants.UNCOMPRESSED;
                 break;
             case 10:
-                compression = ImageConverter.RLE;
+                compression = ProjectConstants.RLE;
                 break;
         }
 
@@ -174,7 +165,7 @@ public class TGA extends FileTypeSuper {
 
         // Zu wenig Bilddaten
         if (bildTyp == 2) {
-            if (getWidth() * height * 3 > (conversionspec.getInputPath().toFile().length() - TGA_HEADER_OFFSET)) {
+            if (getWidth() * height * 3 > (filepath.toFile().length() - TGA_HEADER_OFFSET)) {
                 System.err.println("zu wenige Bilddaten");
                 System.exit(123);
             }
@@ -182,25 +173,6 @@ public class TGA extends FileTypeSuper {
 
     }
 
-    @Override
-    public Map<String, Integer> getColourSchemeMap() {
-        return colourSchemeMap;
-    }
-
-    @Override
-    public void setColourSchemeMap(Map<String, Integer> colourSchemeMap) {
-        this.colourSchemeMap = colourSchemeMap;
-    }
-
-    @Override
-    public String[] getColourscheme() {
-        return colourscheme;
-    }
-
-    @Override
-    public void setColourscheme(String[] colourscheme) {
-        this.colourscheme = colourscheme;
-    }
 
     public byte[] getHeader() {
         return header;
@@ -211,7 +183,7 @@ public class TGA extends FileTypeSuper {
     }
 
     @Override
-    protected void heightandwidth() {
+    protected void setHeightandWidth() {
         // TODO Auto-generated method stub
 
         setWidth(headerbb.getShort(12));
@@ -219,31 +191,16 @@ public class TGA extends FileTypeSuper {
 
     }
 
-    @Override
-    public void setConversionspec() {
-        // TODO Auto-generated method stub
 
-    }
+    public void setCompressionOutputfile(String mode) {
 
-    /**
-     * @param convspec
-     */
-    @Override
-    public void setOperation(ConversionSpecs convspec) {
-        super.setOperation(convspec);
-
-        if (convspec.getOperation() != null) {//KE1 macht das notwendig
-            switch (convspec.getOperation()) {
-
-                case ImageConverter.UNCOMPRESSED:
-                    bildTyp = 2;
-                    break;
-                case ImageConverter.RLE:
-                    bildTyp = 10;
-                    break;
-            }
+        switch (mode) {
+            case ProjectConstants.UNCOMPRESSED:
+                bildTyp = 2;
+                break;
+            case ProjectConstants.RLE:
+                bildTyp = 10;
+                break;
         }
     }
-
-
 }

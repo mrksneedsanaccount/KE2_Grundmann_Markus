@@ -1,18 +1,20 @@
-package src.filetypes;
+package src.Test;
 
-import src.helperclasses.ConversionSpecs;
+import src.filetypes.FileTypeSuper;
+
+import java.nio.ByteBuffer;
 
 
 /**
  * Klasse ubn der das Alphabet und die Kodierungskänge gespeichert werden
  *
  */
-public class BaseN extends FileTypeSuper{
+public class BaseN extends FileTypeSuper {
     private String alphabet;
     private int kodierungslaenge;
 
     private int basenGroesse;
-    final public static String BASE32HEX = "0123456789ABCDEFGHIJKLMNOPQRSTUV";
+
 
     public BaseN(String alphabet) {
         this.alphabet = alphabet;
@@ -20,15 +22,9 @@ public class BaseN extends FileTypeSuper{
     }
 
     // input ist im Base-N Kodiert
-    public BaseN(ConversionSpecs convspec) {
-        String inputformat = convspec.getInputFormatString();
-        switch (inputformat){
-            case ".base-32":
-                this.alphabet = BASE32HEX;
-                calculateBasenGroesse();
-                break;
-
-        }
+    public BaseN(String suffix, String alphabetstring) {
+        this.alphabet = alphabetstring;
+        calculateBasenGroesse();
 
 
     }
@@ -67,42 +63,15 @@ public class BaseN extends FileTypeSuper{
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    @Override
-    public byte[] buildHeader() {
-        return new byte[0];
-    }
-
     @Override
     public byte[] buildHeader(FileTypeSuper inputfile) {
         return new byte[0];
     }
 
-    @Override
-    protected void colourSchemeInfo() {
 
-    }
 
     @Override
-    protected void compression() {
+    protected void setCompressionFromFile() {
 
     }
 
@@ -122,22 +91,23 @@ public class BaseN extends FileTypeSuper{
     }
 
     @Override
-    long returnChecksum() {
+    int returnChecksum() {
         return 0;
     }
 
     @Override
-    public void calculateChecksumOfPixel(byte[] pixel) {
+    public void calculateChecksumOfArray(byte[] pixel) {
 
     }
 
     @Override
-    protected void heightandwidth() {
+    public void calculateChecksumOfByteBuffer(ByteBuffer pixelBuffer, int limit) {
 
     }
 
     @Override
-    public void setConversionspec() {
+    protected void setHeightandWidth() {
 
     }
+
 }

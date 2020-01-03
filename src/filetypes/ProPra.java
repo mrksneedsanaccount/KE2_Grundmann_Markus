@@ -1,12 +1,12 @@
 package src.filetypes;
 
-import src.helperclasses.ConversionSpecs;
-import src.propra.imageconverter.Checksum;
-import src.propra.imageconverter.ImageConverter;
+import src.helperclasses.ProjectConstants;
+import src.helperclasses.ImageFormats;
+import src.propra.conversionfacilitators.CommandLineInterpreter;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Map;
 
 public class ProPra extends FileTypeSuper {
     // .propra
@@ -34,10 +34,7 @@ public class ProPra extends FileTypeSuper {
     // 18 - x Bilddaten
     // (x+1)-y Rest
 
-    //    protected byte[] header = new byte[PROPRA_HEADER_OFFSET];
-    protected String[] colourscheme = {"Green", "Blue", "Red"};
-    protected Map<String, Integer> colourSchemeMap = Map.of("Green", 0, "Red",
-            2, "Blue", 1);
+
     private long a = 0;
     private long b = 1;
     private long i = 1;
@@ -48,45 +45,28 @@ public class ProPra extends FileTypeSuper {
 
 
     // Konstruktor für die Eingabedatei
-    public ProPra(ConversionSpecs convspec) {
+    public ProPra(CommandLineInterpreter convspec) {
         super(convspec);
+        imageFormats = ImageFormats.GBR;
         // TODO Auto-generated constructor stub
         datensegmentgroesse = headerbb.getLong(16);
         checksum = headerbb.getInt(24);
     }
 
     //Konstruktor für die Ausgabedatei
-    public ProPra(ConversionSpecs convspec, FileTypeSuper inputformat) {
+    public ProPra(CommandLineInterpreter convspec, FileTypeSuper inputformat) {
         // TODO Auto-generated constructor stub
         super(convspec, inputformat);
+        imageFormats = ImageFormats.GBR;
+        setCompressionOutputfile(convspec.getMode());
+
+
     }
 
     @Override
     public void ausgabeHeaderFertigInitialisieren(FileTypeSuper inputfile) {
-        // TODO Auto-generated method stub
-        datensegmentgroesse = conversionspec.getbOAS().size();
-        checksum = Checksum.calculateChecksumPropra(conversionspec.getbOAS().toByteArray());
+        setCompressionOutputfile(super.compression);
 
-
-    }
-
-    @Override
-    public byte[] buildHeader() {
-        headerbb.put("ProPraWS19".getBytes());
-        headerbb.putShort(10, getWidth());
-        headerbb.putShort(12, height);
-        headerbb.put(14, (byte) 24);
-        switch (compression) {
-            case ImageConverter.UNCOMPRESSED:
-                headerbb.put(15, (byte) 0);
-                break;
-            case ImageConverter.RLE:
-                headerbb.put(15, (byte) 1);
-        }
-        headerbb.putLong(conversionspec.getInputPath().toFile().length());
-        headerbb.putInt(Checksum.calculateChecksumPropra(conversionspec.getbOAS().toByteArray()));
-
-        return header;
     }
 
     @Override
@@ -97,18 +77,19 @@ public class ProPra extends FileTypeSuper {
         headerbb.putShort(12, height);
         headerbb.put(14, bitsprobildpunkt);
         headerbb.put(15, kompressionstyp);
-        headerbb.putLong(16, conversionspec.getOutputPath().toFile().length()-getHeader().length);
+        headerbb.putLong(16, filepath.toFile().length() - getHeader().length);
         headerbb.putInt(24, (int) returnChecksum());
         return headerbb.array();
     }
 
-     public void calculateChecksum(byte dataByte) {
-        a = (a + i + (dataByte & 0xff)) % 65513;
+    public void calculateChecksum(byte dataByte) {
+        a = (a + (i + (dataByte & 0xff))) % 65513;
         b = (b + a) % 65513;
         i++;
+
     }
 
-    public  void calculateChecksumOfPixel(byte[] pixel){
+    public void calculateChecksumOfArray(byte[] pixel) {
         for (byte pixelByte : pixel) {
             calculateChecksum(pixelByte);
 
@@ -116,34 +97,13 @@ public class ProPra extends FileTypeSuper {
 
     }
 
+    public void calculateChecksumOfByteBuffer(ByteBuffer pixelBuffer, int limit) {
+        int startingPos = pixelBuffer.limit() - limit;
+        int finalPos = pixelBuffer.limit();
+        byte[] pixelArray = pixelBuffer.array();
+        for (int j = startingPos; j < finalPos; j++) {
+            calculateChecksum(pixelArray[j]);
 
-
-
-
-
-    protected void colourSchemeInfo() {
-        // TODO Auto-generated method stub
-        colourscheme = new String[]{"Green", "Blue", "Red"};
-        colourSchemeMap = Map.of("Green", 0, "Red",
-                2, "Blue", 1);
-
-
-    }
-
-    @Override
-    protected void compression() {
-        // TODO Auto-generated method stub
-        kompressionstyp = headerbb.get(15);
-        switch (kompressionstyp) {
-            case 0:
-                compression = ImageConverter.UNCOMPRESSED;
-                break;
-            case 1:
-                compression = ImageConverter.RLE;
-                break;
-            case 2:
-                compression = ImageConverter.HUFFMAN;
-                break;
         }
 
     }
@@ -155,7 +115,7 @@ public class ProPra extends FileTypeSuper {
         // Dateigröße im Header überprüfen (Prüft, ob Daten fehlen, oder zu
         // viel vorhanden sind.
         if (kompressionstyp == 0) {
-            if (height * width * 3 != conversionspec.getInputPath().toFile().length() - PROPRA_HEADER_OFFSET) {
+            if (height * width * 3 != filepath.toFile().length() - PROPRA_HEADER_OFFSET) {
                 System.err.println(
                         "Zu wenige, oder zu viele Datensegmente vorhanden.");
                 System.exit(123);
@@ -163,14 +123,15 @@ public class ProPra extends FileTypeSuper {
         }
         // Datensegmentangabe mit Menge der Bilddaten in der Datei abgleichen
 
-        if (headerbb.getLong(16) != conversionspec.getInputPath().toFile().length() - PROPRA_HEADER_OFFSET) {
+        if (headerbb.getLong(16) != filepath.toFile().length() - PROPRA_HEADER_OFFSET) {
             System.err.println(
                     "Datensegmentanzahl aus dem Header stimmt nicht mit den Anzahl an Datensegmenten in der Datei überein");
             System.exit(123);
         }
 
         // Prüfsumme zum Test berechnen
-        int cs1 = Checksum.calculateChecksumPropra(conversionspec.getInputDatasegments());
+//        int cs1 = Checksum.calculateChecksumPropra(conversionspec.getInputDatasegments());
+        int cs1 = returnChecksum();
         System.out.println("berechnete Prüfsumme: " + cs1);
         // Prüfsumme des Datei extrahieren.
         System.out.println("Prüfsumme: " + checksum);
@@ -185,96 +146,66 @@ public class ProPra extends FileTypeSuper {
         }
         // Testen, ob ProPraWS19 im Header steht
         String s = "ProPraWS19";
+        byte[] header = new byte[10];
+        System.arraycopy(headerbb.array(), 0, header, 0, 10);
         if (!(Arrays.equals(s.getBytes(StandardCharsets.UTF_8),
-                extractDatasegments(10, 0, header)))) {
+                header))) {
             System.err.println("Datei beginnt nicht mit ProPraWS19");
             System.exit(123);
         }
-    }
-
-    public Map<String, Integer> getColourSchemeMap() {
-        return colourSchemeMap;
-    }
-
-    public void setColourSchemeMap(Map<String, Integer> colourSchemeMap) {
-        this.colourSchemeMap = colourSchemeMap;
-    }
-
-    public String[] getColourscheme() {
-        return colourscheme;
-    }
-
-    public void setColourscheme(String[] colourscheme) {
-        this.colourscheme = colourscheme;
-    }
-
-    public long getDatensegmentgroesse() {
-        return datensegmentgroesse;
-    }
-
-    public void setDatensegmentgroesse(long datensegmentgroesse) {
-        this.datensegmentgroesse = datensegmentgroesse;
-    }
-
-    public String getFormatkennung() {
-        return formatkennung;
-    }
-
-    public void setFormatkennung(String formatkennung) {
-        this.formatkennung = formatkennung;
     }
 
     public byte[] getHeader() {
         return header;
     }
 
-    public void setHeader(byte[] header) {
-        this.header = header;
-    }
-
-    public byte getKompressionstyp() {
-        return kompressionstyp;
-    }
-
-    public void setKompressionstyp(byte kompressionstyp) {
-        this.kompressionstyp = kompressionstyp;
+    int returnChecksum() {
+        int temp = (int) Math.pow(2, 16);
+        return (int) (a * temp + b);
     }
 
     @Override
-
-    protected void heightandwidth() {
+    protected void setCompressionFromFile() {
         // TODO Auto-generated method stub
+        kompressionstyp = headerbb.get(15);
+        switch (kompressionstyp) {
+            case 0:
+                compression = ProjectConstants.UNCOMPRESSED;
+                break;
+            case 1:
+                compression = ProjectConstants.RLE;
+                break;
+            case 2:
+                compression = ProjectConstants.HUFFMAN;
+                break;
+        }
 
+    }
+
+    @Override
+    protected void setHeightandWidth() {
         setWidth(headerbb.getShort(10));
         height = headerbb.getShort(12);
 
     }
 
-     long returnChecksum() {
-        return (long) (a * Math.pow(2, 16) + b);
-    }
 
-    @Override
-    public void setConversionspec() {
-        // TODO Auto-generated method stub
+    public void setCompressionOutputfile(String mode) {
 
-    }
-
-    @Override
-    public void setOperation(ConversionSpecs convspec) {
-        super.setOperation(convspec);
-        if (convspec.getOperation() != null) {
-            switch (convspec.getOperation()) {
-                case ImageConverter.UNCOMPRESSED:
+        switch (mode) {
+                case ProjectConstants.UNCOMPRESSED:
                     kompressionstyp = 0;
                     break;
-                case ImageConverter.RLE:
+                case ProjectConstants.RLE:
                     kompressionstyp = 1;
+                    break;
+                case ProjectConstants.HUFFMAN:
+                    kompressionstyp = 2;
                     break;
             }
         }
 
 
-    }
-
 }
+
+

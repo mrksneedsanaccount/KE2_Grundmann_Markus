@@ -1,15 +1,11 @@
-package src.helperclasses;
+package src.Test;
 
 import src.filetypes.FileTypeSuper;
 
-import java.io.ByteArrayOutputStream;
 import java.nio.file.Path;
 
 /**
  * Diese Klasse enthält die für die Konvertierung relevanten Informationen.
- *
- *
- *
  */
 public class ConversionSpecs {
 
@@ -21,22 +17,13 @@ public class ConversionSpecs {
     private Path outputPath;
     private String operation; // Entweder der Kompressionstyp, oder die N für
     // die Base-N-Kodierung
-    private byte[] inputDatasegments;
-
-    public int[] getOffsets() {
-        return offsets;
-    }
-
+//    private byte[] inputDatasegments;
     private int[] offsets;
-    private ByteArrayOutputStream ByteArrayOutputStream;
+//    private ByteArrayOutputStream ByteArrayOutputStream;
     private String alphabetBaseN;
 
 
-    public void convertTo(FileTypeSuper input,
-                          FileTypeSuper output) {
 
-        System.out.println("HELLO :D:D:D:D");
-    }
 
     public String getAlphabetBaseN() {
         return alphabetBaseN;
@@ -46,13 +33,13 @@ public class ConversionSpecs {
         this.alphabetBaseN = alphabetBaseN;
     }
 
-    public byte[] getInputDatasegments() {
-        return inputDatasegments;
-    }
-
-    public void setInputDatasegments(byte[] inputDatasegments) {
-        this.inputDatasegments = inputDatasegments;
-    }
+//    public byte[] getInputDatasegments() {
+//        return inputDatasegments;
+//    }
+//
+//    public void setInputDatasegments(byte[] inputDatasegments) {
+//        this.inputDatasegments = inputDatasegments;
+//    }
 
     public String getInputFormatString() {
         return inputFormatString;
@@ -60,6 +47,14 @@ public class ConversionSpecs {
 
     public void setInputFormatString(String inputFormatString) {
         this.inputFormatString = inputFormatString;
+    }
+
+    public Path getInputPath() {
+        return inputPath;
+    }
+
+    public void setInputPath(Path inputPath) {
+        this.inputPath = inputPath;
     }
 
     // Getter- und Setter-Methoden
@@ -71,12 +66,8 @@ public class ConversionSpecs {
         this.inputformat = inputformat;
     }
 
-    public Path getInputPath() {
-        return inputPath;
-    }
-
-    public void setInputPath(Path inputPath) {
-        this.inputPath = inputPath;
+    public int[] getOffsets() {
+        return offsets;
     }
 
     public String getOperation() {
@@ -96,14 +87,6 @@ public class ConversionSpecs {
         this.outputFormatString = outputFormatString;
     }
 
-    public FileTypeSuper getOutputformat() {
-        return outputformat;
-    }
-
-    public void setOutputformat(FileTypeSuper outputformat) {
-        this.outputformat = outputformat;
-    }
-
     public Path getOutputPath() {
         return outputPath;
     }
@@ -112,9 +95,17 @@ public class ConversionSpecs {
         this.outputPath = outputPath;
     }
 
-    public ByteArrayOutputStream getbOAS() {
-        return ByteArrayOutputStream;
+    public FileTypeSuper getOutputformat() {
+        return outputformat;
     }
+
+    public void setOutputformat(FileTypeSuper outputformat) {
+        this.outputformat = outputformat;
+    }
+
+//    public ByteArrayOutputStream getbOAS() {
+//        return ByteArrayOutputStream;
+//    }
 
     /**
      * Berechnet die Offsets für die Konvertierung der Farbkodierungen
@@ -138,6 +129,11 @@ public class ConversionSpecs {
         }
         return offsets;
     }
+
+//    public void setByteArrayOutputStream(ByteArrayOutputStream byteArrayOutputStream) {
+//        this.ByteArrayOutputStream = byteArrayOutputStream;
+//    }
+
     public void setOffsetsInConversionSpec() {
         FileTypeSuper inputformat = this.getInputformat();
         FileTypeSuper outputformat = this.getOutputformat();
@@ -152,9 +148,5 @@ public class ConversionSpecs {
                     .get(inputformat.getColourscheme()[i]);
         }
         this.offsets = offsets;
-    }
-
-    public void setByteArrayOutputStream(ByteArrayOutputStream byteArrayOutputStream) {
-        this.ByteArrayOutputStream = byteArrayOutputStream;
     }
 }
