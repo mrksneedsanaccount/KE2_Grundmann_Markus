@@ -12,15 +12,15 @@ import java.util.Arrays;
 public class UncompressedToRLE3 extends ConversionSuper {
 
     private final int imagewidth;
-    int currentwidth = 0;
+    private int currentwidth = 0;
     ByteBuffer buffer;
     int pixelsAlreadyCounted;
-    int byteCounter = 0;
-    int counter = -1;
-    byte[] pixelOne = new byte[3];
-    byte[] pixelPrevious = new byte[3];
-    int totalSizeOfDatasegment = 0;
-    Mode mode = Mode.START;
+    private int byteCounter = 0;
+    private int counter = -1;
+    private byte[] pixelOne = new byte[3];
+    private byte[] pixelPrevious = new byte[3];
+    private int totalSizeOfDatasegment = 0;
+    private Mode mode = Mode.GET_TWO_PIXELS;
 
 
     ByteArrayOutputStream interimStorageBAoS = new ByteArrayOutputStream();
@@ -47,7 +47,7 @@ public class UncompressedToRLE3 extends ConversionSuper {
             processedPixels++;
             currentwidth++;
 
-            if (mode == Mode.START) {
+            if (mode == Mode.GET_TWO_PIXELS) {
                 mode = null;
             } else if (mode == null && Arrays.equals(pixelOne, pixelPrevious)) {
                 if (counter != -1) {
@@ -77,7 +77,7 @@ public class UncompressedToRLE3 extends ConversionSuper {
             if (currentwidth == imagewidth) {
                 if ((Arrays.equals(pixelOne, pixelPrevious) && mode == Mode.RLE) && counter < 127) {
                     saveToOutputStream(counter | 0x80);
-                } else if ((Arrays.equals(pixelOne, pixelPrevious) && mode == Mode.START) && counter == -1) {
+                } else if ((Arrays.equals(pixelOne, pixelPrevious) && mode == Mode.GET_TWO_PIXELS) && counter == -1) {
                     // nichts tun, da das zweite Pixel schon gelesen wurde.
                 } else if (!(Arrays.equals(pixelOne, pixelPrevious)) && mode == null && counter < 127) {
                     counter++;
@@ -90,7 +90,7 @@ public class UncompressedToRLE3 extends ConversionSuper {
                     totalSizeOfDatasegment += 4;
                 }
                 counter = -1;
-                mode = Mode.START;
+                mode = Mode.GET_TWO_PIXELS;
                 currentwidth = 0;
             }
             System.arraycopy(pixelOne, 0, pixelPrevious, 0, 3);
@@ -106,13 +106,13 @@ public class UncompressedToRLE3 extends ConversionSuper {
         interimStorageBAoS.reset();
         this.counter = -1;
         if (Arrays.equals(pixelOne, pixelPrevious)) {
-            mode = Mode.START;
+            mode = Mode.GET_TWO_PIXELS;
         } else {
             mode = null;
         }
     }
 
     enum Mode {
-        RAW, RLE, START
+        GET_ONE_PIXEL, RLE, GET_TWO_PIXELS
     }
 }
