@@ -29,7 +29,7 @@ public class AutoModule {
     int pixelByteCounter = 0;
     int pixelCounter = 0;
     byte[] pixel = new byte[3];
-    int totalBytesprocessed = 0;
+    private int totalBytesprocessed = 0;
     String outputFileSuffix;
     TreeMap<Long, String> treeMap = new TreeMap<Long, String>();
     String prefferedCompression;

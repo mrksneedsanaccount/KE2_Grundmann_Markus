@@ -2,6 +2,9 @@ package propra.conversion_facilitators;
 
 
 import propra.compression_operations.*;
+import propra.exceptions.IllegalHeaderException;
+import propra.exceptions.InvalidChecksumException;
+import propra.exceptions.UnknownCompressionException;
 import propra.file_types.FileTypeSuper;
 import propra.file_types.ProPra;
 import propra.file_types.TGA;
@@ -9,41 +12,87 @@ import propra.helpers.HelperMethods;
 import propra.helpers.Pixel;
 import propra.helpers.ProjectConstants;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 
 import static propra.conversion_facilitators.CommandLineInterpreter.*;
 
+/**
+ * Is responsible for converting and writing the source file to the desired compression and image format.
+ */
 public class Conversions {
 
-    FileTypeSuper inputFile;
-    FileTypeSuper outputFile;
-    CommandLineInterpreter commandLineInterpreter;
-    ConversionSuper conversionSuper = null;
+    private FileTypeSuper inputFile;
+    private FileTypeSuper outputFile;
+    private CommandLineInterpreter commandLineInterpreter;
+    private ConversionSuper stepwiseConverter = null;
 
     public Conversions(CommandLineInterpreter commandLineInterpreter) {
         this.commandLineInterpreter = commandLineInterpreter;
     }
 
-    public void AddHeaderToOutputFile(FileTypeSuper outputFile, FileTypeSuper inputFile) throws IOException {
+    /**
+     * This method replaces the empty placeholder at the beginning of the output file with the appropriate header.
+     *
+     * @throws IOException
+     * @throws UnknownCompressionException
+     */
+    private void addHeaderToOutputFile(FileTypeSuper outputFile, FileTypeSuper inputFile) throws IOException, UnknownCompressionException {
         outputFile
-                .ausgabeHeaderFertigInitialisieren(inputFile);
+                .finalizeOutputHeader(inputFile);
         RandomAccessFile outputStream;
         byte[] outputheader = outputFile
                 .buildHeader(inputFile);
         outputStream = new RandomAccessFile(outputFile.getFilepath().toFile(), "rw");
         outputStream.write(outputheader);
         outputStream.close();
-        System.out.println("Fertig");
+        System.out.println("Done.");
     }
 
-    public void executeConversion() {
+    /**
+     * Copies the input file to the to the output destination.
+     *
+     * @param inputFile
+     * @param outputFile
+     * @throws IOException
+     * @throws IllegalHeaderException
+     */
+    private void copySourceFileToOutputDestination(FileTypeSuper inputFile, FileTypeSuper outputFile) throws IOException, InvalidChecksumException {
+        byte[] inputByteArray = new byte[ProjectConstants.BUFFER_CAPACITY];
+        byte[] outputByteArray = new byte[ProjectConstants.BUFFER_CAPACITY];
+        BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(inputFile.getFilepath().toFile()));
+        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(outputFile.getFilepath().toFile()));
+        int bytesRead;
+        boolean headerSkipped = false;
+        while ((bytesRead = bufferedInputStream.read(inputByteArray)) != -1) {
+
+            for (int i = 0; i < bytesRead; i++) {
+                if (i >= inputFile.getHeader().length | headerSkipped) {
+                    inputFile.calculateChecksum(inputByteArray[i]);
+                    headerSkipped = true;
+                }
+                outputByteArray[i] = inputByteArray[i];
+
+            }
+            bufferedOutputStream.write(outputByteArray, 0, bytesRead);
+        }
+        inputFile.checkChecksum();
+        bufferedInputStream.close();
+        bufferedOutputStream.close();
+    }
+
+    /**
+     * This method is contains the logic required to execute the format conversion, and/or compression.
+     */
+    public void executeConversion() throws IllegalHeaderException {
+
+        // 1. Check if the program has to determine the optimal compression (case "auto")
+        //2. Check if any conversion has to be done at all. If not then copy the file to the output destination. THe checksum will be checked just incase.
+        //3.
+
 
         if (outputFile.getCompression().equals("auto")) {
             AutoModule autoModule = new AutoModule(inputFile, commandLineInterpreter.outputSuffix);
@@ -55,18 +104,22 @@ public class Conversions {
             }
         }
 
+        inputFile.checkForErrorsInHeader();
         if (commandLineInterpreter.getInputSuffix().equals(commandLineInterpreter.outputSuffix) & inputFile.getCompression().equals(outputFile.getCompression())) {
             System.out.println("The input file and the requested output file are of the same format and compression." +
-                    "\n" + "No action was taken.");
+                    "\n" + "Attempting to copy the file to the provided destination...");
             try {
-                Files.copy(inputFile.getFilepath(), outputFile.getFilepath(), StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException e) {
+                if (commandLineInterpreter.inputSuffix.equals(PROPRA)) {
+                    copySourceFileToOutputDestination(inputFile, outputFile);
+                }
+            } catch (IOException | InvalidChecksumException e) {
                 e.printStackTrace();
-                System.err.println("File could not be copied to provided output destination.");
+                System.err.println("File could not be copied to provided output destination properly.");
                 System.exit(123);
             }
         } else {
             try {
+
                 FileChannel fileChannel = HelperMethods.initialiseInputChannel(inputFile.getFilepath().toFile(), inputFile.getHeader().length);
                 HelperMethods.initialiseOutputFile(outputFile.getFilepath().toFile(), outputFile.getHeader().length);
                 ByteBuffer byteBuffer = ByteBuffer.allocate(ProjectConstants.BUFFER_CAPACITY);
@@ -74,13 +127,13 @@ public class Conversions {
                     case ProjectConstants.UNCOMPRESSED:
                         if (outputFile
                                 .getCompression().equals(ProjectConstants.UNCOMPRESSED)) {
-                            conversionSuper = new UncompressedToUncompressed(inputFile);
+                            stepwiseConverter = new UncompressedToUncompressed(inputFile);
                         } else if (outputFile
                                 .getCompression().equals(ProjectConstants.RLE)) {
-                            conversionSuper = new UncompressedToRLE3(inputFile);
+                            stepwiseConverter = new UncompressedToRLE3(inputFile);
                         } else if (outputFile
                                 .getCompression().equals(ProjectConstants.HUFFMAN)) {
-                            conversionSuper = new ConvertToHuffman(inputFile);
+                            stepwiseConverter = new ConvertToHuffman(inputFile);
                         }
                         break;
 
@@ -88,53 +141,67 @@ public class Conversions {
                     case ProjectConstants.RLE:
                         if (outputFile
                                 .getCompression() == ProjectConstants.UNCOMPRESSED) {
-                            conversionSuper = new RLEToUncompressedV4(inputFile);
+                            stepwiseConverter = new RLEToUncompressedV4(inputFile);
 
 
                         } else if (outputFile
                                 .getCompression() == ProjectConstants.RLE) {
-                            conversionSuper = new RLEtoRLE2(inputFile);
+                            stepwiseConverter = new RLEtoRLE2(inputFile);
 
 
                         } else if (outputFile
                                 .getCompression() == ProjectConstants.HUFFMAN) {
-                            conversionSuper = new ConvertToHuffman(inputFile);
+                            stepwiseConverter = new ConvertToHuffman(inputFile);
                         }
                         break;
+
+
                     case ProjectConstants.HUFFMAN:
-                        conversionSuper = new FromHuffmanToOutputcompression(inputFile);
+                        stepwiseConverter = new FromHuffmanToOutputcompression(inputFile);
                         break;
                 }
 
-                //TODO Check inputheader?
 
-                conversionSuper.initializeConversion(fileChannel, inputFile, byteBuffer, outputFile.getCompression());
+                // Initialising the Converter objects.
+                //So far this is only required for Huffman related operations (building the Huffman tree (and writing
+                // it to the target destination, if required). If the Converter is not of a Huffman Converter
+                //then this method does nothing.
+                stepwiseConverter.initializeConversion(fileChannel, inputFile, byteBuffer, outputFile.getCompression());
 
                 int limit;
-//                Mode mode = null;
-//                if ( conversionSuper.getEndOfFile() == ConversionSuper.Flags.EOF_REACHED){
-//                   mode= Mode.SPECIAL_CASE;
-//                }
                 int counter = 0;
+                //This is the main conversion and compression loop.
+                // Each byte from the source file's datasegment will get processed one by one.
+                //The stepwise conversion happens in a Conversion object.
+                //These objects contain all the logic and information required to identify.
+                //Generally what happens each step is the following:
+                // The buffer gets filled up.
+                // While the buffer hass not been fully processed:
+                //  1. The converter's .run(Byte byte)-method gets a new byte passed to it.
+                //      1. the Object processes the byte. (In the case of Huffman encoding this is a two step process.
+                //          Huffman -> outputcompression or vice versa.
+                //      2. Each processed pixel will be counted. Once the enough pixels have been processed (width*height)
+                //          the Converter stops saving them to its ByteArrayOutputstream.
+                //  2. The processed data will be written to the output file.
+                ByteArrayOutputStream toFileBAoStream = new ByteArrayOutputStream(ProjectConstants.BUFFER_CAPACITY);
+
 
                 while ((limit = fileChannel.read(byteBuffer)) > -1) {
-//                    mode = null;
                     byteBuffer.flip();
                     inputFile.calculateChecksumOfByteBuffer(byteBuffer, limit);
 
-                    ByteArrayOutputStream toFileBAoStream = new ByteArrayOutputStream(ProjectConstants.BUFFER_CAPACITY);
+
                     while (byteBuffer.hasRemaining()) {
 //                    for (int i = 0; i < limit; i++) {
 
-                        if (conversionSuper.getProcessedPixels() == inputFile.getWidth() * inputFile.getHeight()) {
-                            System.out.println("Input image file has a tail.");
+                        if (stepwiseConverter.getProcessedPixels() == inputFile.getWidth() * inputFile.getHeight()) {
+                            System.out.println("Input image file has a tail." + '\n' + "The tail has been ignored");
                             break;
                         }
 //                        conversionSuper.run(byteBuffer.array()[i]);
-                        conversionSuper.run(byteBuffer.get());
+                        stepwiseConverter.run(byteBuffer.get());
                         counter++;
-                        byte[] temp = conversionSuper.outputForWritingToFile();
-
+                        byte[] temp = stepwiseConverter.outputForWritingToFile();
                         if (temp != null) {
                             outputFile.calculateChecksumOfArray(temp);
                             Files.write(outputFile.getFilepath(), temp, StandardOpenOption.APPEND);
@@ -144,17 +211,15 @@ public class Conversions {
                 }
 
 
-                assert conversionSuper.getProcessedPixels() == inputFile.getWidth() * inputFile.getHeight() : "Number of processed pixels does not correspond to dimensions provided in the header";
-
-                inputFile.fehlerausgabe();
-                //Header Nachbearbeiten (Hinzufügen der Prüfsumme usw.)
+                assert stepwiseConverter.getProcessedPixels() == inputFile.getWidth() * inputFile.getHeight() : "Number of processed pixels does not correspond to dimensions provided in the header";
 
 
-                //Header zur Ausgabedatei hinzufügen.
-                AddHeaderToOutputFile(outputFile, inputFile);
+                // build the header for the output file and replace the current placeholder.
+                addHeaderToOutputFile(outputFile, inputFile);
+                inputFile.checkChecksum();
 
 
-            } catch (IOException e) {
+            } catch (IOException | UnknownCompressionException | InvalidChecksumException e) {
                 e.printStackTrace();
                 System.exit(123);
             }
@@ -164,29 +229,18 @@ public class Conversions {
 
     }
 
-    public CommandLineInterpreter getCommandLineInterpreter() {
-        return commandLineInterpreter;
-    }
-
-    public ConversionSuper getConversionSuper() {
-        return conversionSuper;
-    }
-
     public FileTypeSuper getInputFile() {
         return inputFile;
     }
 
-    public FileTypeSuper getOutputFile() {
-        return outputFile;
-    }
 
-    public void initializeConversions() {
+    public void initializeConversions() throws UnknownCompressionException {
         switch (commandLineInterpreter.inputSuffix) {
             case TGA:
-                inputFile = new TGA(commandLineInterpreter);
+                inputFile = new TGA(commandLineInterpreter.getInputPath(), commandLineInterpreter.getInputPath().toFile(), commandLineInterpreter.getInputSuffix());
                 break;
             case PROPRA:
-                inputFile = new ProPra(commandLineInterpreter);
+                inputFile = new ProPra(commandLineInterpreter.getInputPath(), commandLineInterpreter.getInputPath(), commandLineInterpreter.getInputSuffix());
                 break;
             default:
                 System.err.println("Illegal image format. This program only supports.tga and .propra. ");
@@ -198,10 +252,10 @@ public class Conversions {
 
         switch (commandLineInterpreter.outputSuffix) {
             case ProjectConstants.TGA:
-                outputFile = new TGA(commandLineInterpreter, inputFile);
+                outputFile = new TGA(inputFile, commandLineInterpreter.getOutputPath(), commandLineInterpreter.getOutputSuffix(), commandLineInterpreter.getMode());
                 break;
             case ProjectConstants.PROPRA:
-                outputFile = new ProPra(commandLineInterpreter, inputFile);
+                outputFile = new ProPra(inputFile, commandLineInterpreter.getMode(), commandLineInterpreter.getOutputPath(), commandLineInterpreter.getOutputSuffix(), commandLineInterpreter.getMode());
                 break;
             default:
                 System.err.println("File extension not supported.");
@@ -215,8 +269,5 @@ public class Conversions {
         Pixel.setOutputFormat(outputFile.getImageFormat());
     }
 
-    enum Mode {
-        SPECIAL_CASE
-    }
 
 }

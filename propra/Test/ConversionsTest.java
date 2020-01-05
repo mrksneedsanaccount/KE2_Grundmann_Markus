@@ -89,7 +89,7 @@ class ConversionsTest extends GroovyTestCase {
                 Arguments.of(stringToStringArray("--input=../KE1_Konvertiert/test_01_AUTO.propra --output=../KE1_Konvertiert/test_01_AUTO_huffman_to_uncompressed.tga --compression=uncompressed"), stringToLowerCase("938FC4EE83B2981243FAB48B9E3B779A")),
 
                 Arguments.of(new String[]{"--input=../KE1_TestBilder/test_02_uncompressed.tga", "--output=../KE1_Konvertiert/test_02_AUTO.propra", "--compression=auto"}, "0"),
-                Arguments.of(new String[]{"--input=../KE1_Konvertiert/test_02_AUTO.propra", "--output=../KE1_Konvertiert/test_02_AUTO_touncomoress.tga", "--compression=auto"}, "9d70fb42cc397cab493afe531c61da3f"),
+                Arguments.of(new String[]{"--input=../KE1_Konvertiert/test_02_AUTO.propra", "--output=../KE1_Konvertiert/test_02_AUTO_touncomoressed.tga", "--compression=uncompressed"}, "9d70fb42cc397cab493afe531c61da3f"),
 
                 Arguments.of(new String[]{"--input=../KE2_TestBilder/test_03_uncompressed.propra", "--output=../KE2_Konvertiert/test_03_AUTO.tga", "--compression=auto"}, stringToLowerCase("65C15E7473D3774DA5C57F404392AFA1")),
 

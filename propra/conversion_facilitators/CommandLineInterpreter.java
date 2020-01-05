@@ -3,6 +3,7 @@ package propra.conversion_facilitators;
 import propra.helpers.ProjectConstants;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -77,15 +78,19 @@ public class CommandLineInterpreter {
         // Also checks if the file format is supported
         if (args[0].startsWith(INPUT)) {
             String inputPathString = args[0].substring(INPUT.length());
-            inputPath = Paths.get(inputPathString);
-            inputSuffix = getFileExtensionFromString(inputPathString);
 
-            if (!Arrays.stream(FILETYPES)
-                    .anyMatch(getFileExtensionFromString(args[0])::equals) // https://stackoverflow.com/questions/1128723/how-do-i-determine-whether-an-array-contains-a-particular-value-in-java
-            ) {
-                System.err.println("Input is of an unsupported filetype");
+
+            boolean temp = Files.exists(Paths.get(inputPathString));
+            if (!temp) {
+                System.err.println(
+                        "Dateipfad, oder Datei existieren nicht.");
                 System.exit(123);
             }
+
+            inputPath = Paths.get(inputPathString);
+
+            inputSuffix = getFileExtensionFromString(inputPathString);
+
         } else {
             System.err.println("Command line input has to start with --input-...");
             System.exit(123);
@@ -100,7 +105,6 @@ public class CommandLineInterpreter {
             }
             String outputPathString = args[1].substring(OUTPUT.length());
             outputPath = Paths.get(outputPathString);
-
         } else if (args.length == 2 && args[1].startsWith(DECODE)) {
             mode = DECODE;
             String outputPathString = args[0].substring(INPUT.length(), args[0].length() - inputSuffix.length());
@@ -158,18 +162,36 @@ public class CommandLineInterpreter {
         }
 
 
-        if (!(mode == null || mode.equals(ENCODE))) {
-            if (inputPath == null || inputSuffix == null || outputPath == null || outputSuffix == null || alphabet != null) {
-                System.err.println("Check your input to the program");
-                System.exit(123);
-            }
+        // check the suffix of the inputfile.
+        if (!Arrays.stream(FILETYPES)
+                .anyMatch(inputSuffix::equals) // https://stackoverflow.com/questions/1128723/how-do-i-determine-whether-an-array-contains-a-particular-value-in-java
+        ) {
+            System.err.println("Input is of an unsupported file type");
+            System.exit(123);
         }
-        if ((mode.equals(ENCODE))) {
-            if (inputPath == null || inputSuffix == null || outputPath == null || outputSuffix == null || alphabet == null) {
-                System.err.println("Check your input to the program");
-                System.exit(123);
-            }
+
+        if (!Arrays.stream(FILETYPES)
+                .anyMatch(outputSuffix::equals) // https://stackoverflow.com/questions/1128723/how-do-i-determine-whether-an-array-contains-a-particular-value-in-java
+        ) {
+            System.err.println("Input is of an unsupported file type");
+            System.exit(123);
         }
+
+        if (mode == null) {
+            System.err.println("Could not resolve requested operation.");
+            System.exit(123);
+        }
+
+        if (mode.equals(ENCODE) && alphabet == null) {
+            System.err.println("Could not determine an alphabet.");
+            System.exit(123);
+        }
+
+
+        System.out.println("Origin: " + inputPath + " Destination: " + outputPath);
+
+        System.out.println("Conversion: " + inputSuffix + " -> " + outputSuffix);
+
 
 
 
