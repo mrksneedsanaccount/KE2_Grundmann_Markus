@@ -1,12 +1,12 @@
-package src.propra.compressionoperations;
+package src.propra.compression_operations;
 
-
-import src.filetypes.FileTypeSuper;
-import src.helperclasses.Pixel;
+import src.propra.file_types.FileTypeSuper;
+import src.propra.helpers.Pixel;
 
 import java.io.IOException;
 
-public class RLEtoRLE2 extends ConversionSuper {
+
+public class RLEToUncompressedV4 extends ConversionSuper{
 
     Mode mode = Mode.COUNTER;
     int counter = 0;
@@ -14,16 +14,22 @@ public class RLEtoRLE2 extends ConversionSuper {
     int pixelCounter = 0;
     byte[] pixel = new byte[3];
 
-    public RLEtoRLE2(FileTypeSuper inputFile) {
+
+    public RLEToUncompressedV4(FileTypeSuper inputFile) {
         super(inputFile);
     }
 
     public void run(byte singleByte) throws IOException {
+
+        if (processedPixels > inputFile.getWidth() * inputFile.getHeight()) {
+            flag = Flags.LAST_PIXEL_HAS_BEEN_PROCESSED;
+            return;
+        }
+
         if (mode == Mode.COUNTER) {
             pixelByteCounter = 0;
             counter = singleByte & 0x7f;
             counter++;
-            byteArrayOutputStream.write(singleByte);
 
             if (singleByte > 0) {
                 mode = Mode.RAW_PACKET;
@@ -31,28 +37,28 @@ public class RLEtoRLE2 extends ConversionSuper {
                 mode = Mode.RLE_PACKET;
             }
         } else if (counter > 0) {
-
             pixel[pixelByteCounter % 3] = singleByte;
-
             if (pixelByteCounter % 3 == 2) {
+                pixel = Pixel.transformPixel(pixel);
 
                 if (mode == Mode.RAW_PACKET) {
-                    byteArrayOutputStream.write(Pixel.transformPixel(pixel));
+                    byteArrayOutputStream.write(pixel);
 
                     counter--;
                     processedPixels++;
 
                 } else {
-                    byteArrayOutputStream.write(Pixel.transformPixel(pixel));
-                    processedPixels += counter;
-                    counter = 0;
-
+                    while (counter > 0) {
+                        byteArrayOutputStream.write(pixel);
+                        counter--;
+                        processedPixels++;
+                    }
                 }
             }
             if (counter == 0) {
                 mode = Mode.COUNTER;
 
-            }
+        }
             pixelByteCounter++;
         }
     }
@@ -60,6 +66,19 @@ public class RLEtoRLE2 extends ConversionSuper {
     enum Mode {
         RAW_PACKET, RLE_PACKET, COUNTER
     }
+
+    public byte[] getOutputArray(){
+
+
+        byteArrayOutputStream.reset();
+
+
+
+        return null;
+    }
+
+
+
 
 
 }

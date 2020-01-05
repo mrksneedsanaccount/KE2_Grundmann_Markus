@@ -1,8 +1,8 @@
-package src.filetypes;
+package src.propra.file_types;
 
-import src.helperclasses.ProjectConstants;
-import src.helperclasses.ImageFormats;
-import src.propra.conversionfacilitators.CommandLineInterpreter;
+import src.propra.conversion_facilitators.CommandLineInterpreter;
+import src.propra.helpers.ImageFormats;
+import src.propra.helpers.ProjectConstants;
 
 import java.nio.ByteBuffer;
 
@@ -43,8 +43,9 @@ public class TGA extends FileTypeSuper {
     private final short palettenBeginn = 0;
     private final short palettenLaenge = 0;
     private final byte groessePalleteneintrag = 0;
+    short ycoord;
     private byte bildTyp;
-    private short xcoord;
+    private short xcoord = -1;
     private byte bildAttributByte = 0x20;
 
 
@@ -56,6 +57,10 @@ public class TGA extends FileTypeSuper {
     public TGA(CommandLineInterpreter convspec) {
         super(convspec);
         imageFormats = ImageFormats.BGR;
+        if (headerbb.getShort(8) != 0 && headerbb.getShort(10) == height) {
+            System.err.println("The origin of TGA file is not in the top left corner.");
+            System.exit(123);
+        }
     }
 
 
@@ -80,31 +85,12 @@ public class TGA extends FileTypeSuper {
         // TODO Auto-generated method stub
         headerbb.put(2, bildTyp);
         headerbb.putShort(10, height);
+
         headerbb.putShort(12, width);
         headerbb.putShort(14, height);
         headerbb.put(16, bitsprobildpunkt);
         headerbb.put(17, bildAttributByte);
 
-
-    }
-
-    @Override
-    public void calculateChecksum(byte dataByte) {
-
-    }
-
-    @Override
-    int returnChecksum() {
-        return 0;
-    }
-
-    @Override
-    public void calculateChecksumOfArray(byte[] pixel) {
-
-    }
-
-    @Override
-    public void calculateChecksumOfByteBuffer(ByteBuffer pixelBuffer, int limit) {
 
     }
 
@@ -130,8 +116,60 @@ public class TGA extends FileTypeSuper {
         return headerbb.array();
     }
 
+    @Override
+    public void calculateChecksum(byte dataByte) {
+
+    }
+
+    @Override
+    public void calculateChecksumOfArray(byte[] pixel) {
+
+    }
+
+    @Override
+    public void calculateChecksumOfByteBuffer(ByteBuffer pixelBuffer, int limit) {
+
+    }
+
+    @Override
+    public void fehlerausgabe() {
+        // TODO Auto-generated method stub
+        super.fehlerausgabe();
+        // Bilddimensionen
+        if ((getWidth() * height) == 0) {
+            System.err.println("mindestens eine Bilddimension ist 0.");
+            System.exit(123);
+        }
+        // Bildtyp
+        if (!(header[2] == 2 || header[2] == 10)) {
+            System.err.println("Bildtyp ist falsch");
+            System.exit(123);
+        }
+
+        // Zu wenig Bilddaten
+        if (bildTyp == 2) {
+            if (getWidth() * height * 3 > (filepath.toFile().length() - TGA_HEADER_OFFSET)) {
+                System.err.println("zu wenige Bilddaten");
+                System.exit(123);
+            }
+        }
+
+    }
+
     // Methoden
 
+    public byte[] getHeader() {
+        return header;
+    }
+
+    protected void setHeader(byte[] header) {
+        this.header = header;
+    }
+
+    @Override
+    int returnChecksum() {
+        return 0;
+    }
 
     @Override
     protected void setCompressionFromFile() {
@@ -148,50 +186,6 @@ public class TGA extends FileTypeSuper {
 
     }
 
-    @Override
-    public void fehlerausgabe() {
-        // TODO Auto-generated method stub
-        super.fehlerausgabe();
-        // Bilddimensionen
-        if ((getWidth() * height) == 0) {
-            System.err.println("mindestens eine Bilddimension ist 0.");
-            System.exit(123);
-        }
-        // Bildtyp
-        if (!(header[2] != 2 || header[2] != 10)) {
-            System.err.println("Bildtyp ist falsch");
-            System.exit(123);
-        }
-
-        // Zu wenig Bilddaten
-        if (bildTyp == 2) {
-            if (getWidth() * height * 3 > (filepath.toFile().length() - TGA_HEADER_OFFSET)) {
-                System.err.println("zu wenige Bilddaten");
-                System.exit(123);
-            }
-        }
-
-    }
-
-
-    public byte[] getHeader() {
-        return header;
-    }
-
-    protected void setHeader(byte[] header) {
-        this.header = header;
-    }
-
-    @Override
-    protected void setHeightandWidth() {
-        // TODO Auto-generated method stub
-
-        setWidth(headerbb.getShort(12));
-        height = headerbb.getShort(14);
-
-    }
-
-
     public void setCompressionOutputfile(String mode) {
 
         switch (mode) {
@@ -202,5 +196,14 @@ public class TGA extends FileTypeSuper {
                 bildTyp = 10;
                 break;
         }
+    }
+
+    @Override
+    protected void setHeightandWidth() {
+        // TODO Auto-generated method stub
+
+        setWidth(headerbb.getShort(12));
+        height = headerbb.getShort(14);
+
     }
 }

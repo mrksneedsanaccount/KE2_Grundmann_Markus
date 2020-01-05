@@ -1,14 +1,15 @@
-package src.propra.conversionfacilitators;
+package src.propra.conversion_facilitators;
 
 
-import src.filetypes.FileTypeSuper;
-import src.filetypes.ProPra;
-import src.filetypes.TGA;
-import src.helperclasses.HelperMethods;
-import src.helperclasses.Pixel;
-import src.helperclasses.ProjectConstants;
-import src.propra.compressionoperations.*;
+import src.propra.compression_operations.*;
+import src.propra.file_types.FileTypeSuper;
+import src.propra.file_types.ProPra;
+import src.propra.file_types.TGA;
+import src.propra.helpers.HelperMethods;
+import src.propra.helpers.Pixel;
+import src.propra.helpers.ProjectConstants;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -17,7 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 
-import static src.propra.conversionfacilitators.CommandLineInterpreter.*;
+import static src.propra.conversion_facilitators.CommandLineInterpreter.*;
 
 public class Conversions {
 
@@ -61,7 +62,7 @@ public class Conversions {
                 Files.copy(inputFile.getFilepath(), outputFile.getFilepath(), StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
                 e.printStackTrace();
-                System.err.println("Copying of file to provided filepath failed.");
+                System.err.println("File could not be copied to provided output destination.");
                 System.exit(123);
             }
         } else {
@@ -110,18 +111,30 @@ public class Conversions {
                 conversionSuper.initializeConversion(fileChannel, inputFile, byteBuffer, outputFile.getCompression());
 
                 int limit;
+//                Mode mode = null;
+//                if ( conversionSuper.getEndOfFile() == ConversionSuper.Flags.EOF_REACHED){
+//                   mode= Mode.SPECIAL_CASE;
+//                }
+                int counter = 0;
+
                 while ((limit = fileChannel.read(byteBuffer)) > -1) {
+//                    mode = null;
                     byteBuffer.flip();
                     inputFile.calculateChecksumOfByteBuffer(byteBuffer, limit);
 
-
+                    ByteArrayOutputStream toFileBAoStream = new ByteArrayOutputStream(ProjectConstants.BUFFER_CAPACITY);
                     while (byteBuffer.hasRemaining()) {
+//                    for (int i = 0; i < limit; i++) {
 
-                        if (conversionSuper.getProcessedPixels() == inputFile.getWidth()*inputFile.getHeight()) {
+                        if (conversionSuper.getProcessedPixels() == inputFile.getWidth() * inputFile.getHeight()) {
+                            System.out.println("Input image file has a tail.");
                             break;
                         }
+//                        conversionSuper.run(byteBuffer.array()[i]);
                         conversionSuper.run(byteBuffer.get());
+                        counter++;
                         byte[] temp = conversionSuper.outputForWritingToFile();
+
                         if (temp != null) {
                             outputFile.calculateChecksumOfArray(temp);
                             Files.write(outputFile.getFilepath(), temp, StandardOpenOption.APPEND);
@@ -130,6 +143,8 @@ public class Conversions {
                     byteBuffer.clear();
                 }
 
+
+                assert conversionSuper.getProcessedPixels() == inputFile.getWidth() * inputFile.getHeight() : "Number of processed pixels does not correspond to dimensions provided in the header";
 
                 inputFile.fehlerausgabe();
                 //Header Nachbearbeiten (Hinzufügen der Prüfsumme usw.)
@@ -200,5 +215,8 @@ public class Conversions {
         Pixel.setOutputFormat(outputFile.getImageFormat());
     }
 
+    enum Mode {
+        SPECIAL_CASE
+    }
 
 }

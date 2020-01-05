@@ -1,11 +1,9 @@
-package src.propra.compressionoperations;
+package src.propra.compression_operations;
 
-import src.filetypes.FileTypeSuper;
-import src.helperclasses.Pixel;
+import src.propra.file_types.FileTypeSuper;
+import src.propra.helpers.Pixel;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 public class UncompressedToUncompressed extends ConversionSuper{
 
@@ -22,6 +20,11 @@ public class UncompressedToUncompressed extends ConversionSuper{
 
     @Override
     public void run(byte singleByte) throws IOException {
+
+        if (processedPixels == inputFile.getWidth() * inputFile.getHeight()) {
+            flag = Flags.LAST_PIXEL_HAS_BEEN_PROCESSED;
+            return;
+        }
 
         pixel[byteCounter % 3] = singleByte;
         if (byteCounter % 3 == 2) {

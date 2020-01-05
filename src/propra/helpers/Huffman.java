@@ -1,9 +1,13 @@
-package src.helperclasses;
+package src.propra.helpers;
 
-import src.filetypes.FileTypeSuper;
-import src.propra.compressionoperations.*;
+import src.propra.compression_operations.ConversionSuper;
+import src.propra.compression_operations.UncompressedToRLE3;
+import src.propra.compression_operations.UncompressedToUncompressed;
+import src.propra.file_types.FileTypeSuper;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.*;
@@ -17,58 +21,7 @@ public class Huffman {
     static byte[] bitMaskForEncodingFilledByte = {1, 3, 7, 15, 31, 63, 127, -1};
 
 
-//    public static void ProPraHuffmanToUncompressed2(Conversions convspec) throws IOException {
-//        FileChannel fileChannel = HelperMethods.initialiseInputChannel(convspec.getInputFile().getFilepath().toFile(), convspec.getInputFile().getHeader().length);
-//        HelperMethods.initialiseOutputFile(convspec.getOutputFile().getFilepath().toFile(), convspec.getInputFile().getHeader().length);
-//
-//
-//        ByteBuffer byteBuffer = ByteBuffer.allocate(ProjectConstants.BUFFER_CAPACITY);
-//
-//        int limit;
-//        limit = fileChannel.read(byteBuffer);
-//        convspec.getInputFile().calculateChecksumOfByteBuffer(byteBuffer, limit);
-//        byteBuffer.flip();
-//
-//        Tree tree = new Tree(new Node(0));
-//        tree.buildHuffmanTree2(new StringBuilder(), byteBuffer, tree.root, fileChannel);
-//        byteBuffer.position(tree.getDiskSpaceOccuppiedByHuffmanTree());
-//        byteBuffer.compact();
-//
-//
-//        int count = tree.getHuffmanTreeStartingBit();
-//
-//
-//        HuffmanToUncompressed huffmanToUncompressed = new HuffmanToUncompressed(byteBuffer, count, tree);
-//        ConversionSuper conversionSuper = getObejctThatPerformsOutputCompression(convspec.getInputFile().getCompression(), convspec.getInputFile());
-//
-//
-//        while ((limit = fileChannel.read(byteBuffer)) > -1) {
-//            byteBuffer.flip();
-//            convspec.getInputFile().calculateChecksumOfByteBuffer(byteBuffer, limit);
-//
-//            while (byteBuffer.hasRemaining()) {
-//                huffmanToUncompressed.run(byteBuffer.get());
-//
-//                if (huffmanToUncompressed.howManyBytesProcessed() > 0) {
-//                    conversionSuper.run(huffmanToUncompressed.returnByteArray());
-//                }
-//
-//
-//            }
-//            byteBuffer.compact();
-//        }
-//        fileChannel.close();
 
-//        if (byteArrayOutputStream.size() == convspec.getInputFile().getWidth() * 3) {
-//            pixelarray = Pixel.changePixelOrder(byteArrayOutputStream.toByteArray(), convspec.getOffsets());
-//            if (convspec.getOperation() == ImageConverter.RLE) {
-//                pixelarray = RLEConverter.convertLineToRLEV2(pixelarray);
-//            }
-//            Files.write(convspec.getOutputPath(), pixelarray, StandardOpenOption.APPEND);
-//            byteArrayOutputStream.reset();
-//        }
-
-//    }
 
     public static Tree buildHuffmanTreeFromFrequencies(long[] colorFrequencies) {
         // Baue Sortierte Liste von Nodes
@@ -89,6 +42,16 @@ public class Huffman {
             list.sort(comparator);
         }
         return list;
+    }
+
+    public static long calculateBitLengthOfHuffmanEncodedDatasegment(long[] colourValueFrequencies, HashMap<String, Byte> hashMap) {
+        int fileSize = 0;
+        https:
+//stackoverflow.com/questions/46898/how-do-i-efficiently-iterate-over-each-entry-in-a-java-map
+        for (Map.Entry<String, Byte> entry : hashMap.entrySet()) {
+            fileSize += entry.getKey().length() * colourValueFrequencies[entry.getValue() & 0xff];
+        }
+        return fileSize;
     }
 
     private static long[] calculateFrequencies(long[] frequenzen, File inputFile, int offset) throws IOException {
@@ -258,6 +221,10 @@ public class Huffman {
             frequenzen = calculateFrequencies(frequenzen, inputFile, headerLength);
         }
         return frequenzen;
+    }
+
+    public static long getCountOfBitsInStoredHuffmanTree(long numberOfNodes) {
+        return numberOfNodes * 9 + numberOfNodes - 1;
     }
 
 
@@ -442,11 +409,11 @@ public class Huffman {
 
         }
 
-        public Node buildHuffmanTree2(StringBuilder subtree, ByteBuffer datasegmentByteBuffer, Node node, FileChannel inFileChannel) throws IOException {
+        public Node buildHuffmanTree2(StringBuilder subtree, ByteBuffer byteBuffer, Node node, FileChannel inFileChannel) throws IOException {
             // TODO Fehler bei mehr als 256 Blättern
             if (subtree.length() < 8) {
-                ByteBufferHelpers.refillEmptyBuffer(datasegmentByteBuffer, inFileChannel);
-                subtree.append(String.format("%8s", Integer.toBinaryString(datasegmentByteBuffer.get() & 0xFF)).replace(' ', '0'));
+                ByteBufferHelpers.refillEmptyBuffer(byteBuffer, inFileChannel);
+                subtree.append(String.format("%8s", Integer.toBinaryString(byteBuffer.get() & 0xFF)).replace(' ', '0'));
             }
             if (subtree.charAt(0) == '0') {
                 node.setValue(Integer.parseInt(String.valueOf(subtree.charAt(0))));
@@ -456,10 +423,9 @@ public class Huffman {
                 node.setValue(1);
                 subtree.deleteCharAt(0);
                 if (subtree.length() < 8) {
-                    ByteBufferHelpers.refillEmptyBuffer(datasegmentByteBuffer, inFileChannel);
-                    subtree.append(String.format("%8s", Integer.toBinaryString(datasegmentByteBuffer.get() & 0xFF)).replace(' ', '0'));
+                    ByteBufferHelpers.refillEmptyBuffer(byteBuffer, inFileChannel);
+                    subtree.append(String.format("%8s", Integer.toBinaryString(byteBuffer.get() & 0xFF)).replace(' ', '0'));
                 }
-//                System.out.println(subtree.substring(0, 8));
                 node.setByteValue(Integer.parseInt(subtree.substring(0, 8), 2));
                 subtree.delete(0, 8);
                 bitCounter += 9;
@@ -470,13 +436,13 @@ public class Huffman {
             }
             if (node.leftNode == null && node.value == 0) {
                 newnode = new Node(Integer.parseInt(String.valueOf(subtree.charAt(0))));
-                node.leftNode = buildHuffmanTree2(subtree, datasegmentByteBuffer, newnode, inFileChannel);
+                node.leftNode = buildHuffmanTree2(subtree, byteBuffer, newnode, inFileChannel);
             }
             if (node.rightNode == null && node.value == 0) {
-                ByteBufferHelpers.refillEmptyBuffer(datasegmentByteBuffer, inFileChannel);
-                subtree.append(String.format("%8s", Integer.toBinaryString(datasegmentByteBuffer.get() & 0xFF)).replace(' ', '0'));
+                ByteBufferHelpers.refillEmptyBuffer(byteBuffer, inFileChannel);
+                subtree.append(String.format("%8s", Integer.toBinaryString(byteBuffer.get() & 0xFF)).replace(' ', '0'));
                 newnode = new Node(Integer.parseInt(String.valueOf(subtree.charAt(0))));
-                node.rightNode = buildHuffmanTree2(subtree, datasegmentByteBuffer, newnode, inFileChannel);
+                node.rightNode = buildHuffmanTree2(subtree, byteBuffer, newnode, inFileChannel);
             }
             return node;
         }

@@ -1,4 +1,4 @@
-package src.helperclasses;
+package src.propra.helpers;
 
 import java.nio.ByteBuffer;
 

@@ -1,4 +1,5 @@
-package src.helperclasses;
+package src.propra.helpers;
+
 
 public class ProjectConstants {
     public static final String RLE = "rle";
@@ -16,7 +17,7 @@ public class ProjectConstants {
     public static final String DECODE = "--decode-";
     public static final String ENCODE = "--encode-";
     public static final String[] FILETYPES = {".tga", ".propra", ".base-32", ".base-n"};
-    public static final int BUFFER_CAPACITY = 64 * 1024;
+    public static final int BUFFER_CAPACITY = 640 * 1024;
     public static final int MAX_COLOR_VALUES = 256;
     public static final String AUTO = "auto";
     final public static String BASE32HEX = "0123456789ABCDEFGHIJKLMNOPQRSTUV";

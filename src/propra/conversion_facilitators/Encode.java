@@ -1,8 +1,8 @@
-package src.propra.conversionfacilitators;
+package src.propra.conversion_facilitators;
 
 
-import src.helperclasses.HelperMethods;
-import src.helperclasses.ProjectConstants;
+import src.propra.helpers.HelperMethods;
+import src.propra.helpers.ProjectConstants;
 import src.propra.imageconverter.BaseNConverter;
 
 import java.io.BufferedWriter;
@@ -14,33 +14,42 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
+
+/**
+ * Encode is responsible performing the stepwise encoding of the inputfile with the supplied alphabet. (Explicitily for
+ * base-n, and implicity for .base-32)
+ */
 public class Encode {
 
     private final CommandLineInterpreter commandLineInterpreter;
-    Path inputPath;
-    Path outputPath;
-    String alphabet;
+    private Path inputPath;
+    private Path outputPath;
+    private String alphabet;
 
 
-
+    /**
+     * Constructor required to build the object that is going to facilitate the encoding.
+     *
+     * @param commandLineInterpreter
+     */
     public Encode(CommandLineInterpreter commandLineInterpreter) {
         this.commandLineInterpreter = commandLineInterpreter;
         this.inputPath = commandLineInterpreter.getInputPath();
         this.outputPath = commandLineInterpreter.getOutputPath();
         this.alphabet = commandLineInterpreter.getAlphabet();
 
-//        outputFile = new BaseN(commandLineInterpreter.getOutputSuffix(), commandLineInterpreter.getAlphabet());
-
-
     }
 
     /**
-     * berechnet die Anzahl, der Bits welche für das Alphabet benötigt werden.
+     * Returns the number of bits required to encode all the elements in passed String.
+     *
+     * @param alpahbet A string containing all elements of the chosen alphabet.
+     * @return The number of bits required to encode all elements of hte alphabet.
      */
-    public int calculateBitLengthOfAlphabet(String alpahbet) {
+    private int calculateBitLengthOfAlphabet(String alpahbet) {
 
         double temp = (int) (Math.log(alpahbet.length()) / Math.log(2));
-        if (temp % 1 != 0) {
+        if (temp % 1 != 0 || alpahbet.length() > 64) {
             System.err.println("Invalid number of elements in Alphabet.");
             System.exit(123);
         }
@@ -52,27 +61,27 @@ public class Encode {
     public void exectueConversion() {
 
         try {
+
+            // Initializing the input FileChannel and creating the empty outputfile.
             FileChannel fileChannel = HelperMethods.initialiseInputChannel(commandLineInterpreter.getInputPath().toFile(), 0);
             HelperMethods.initialiseOutputFile(commandLineInterpreter.getOutputPath().toFile(), 0);
             ByteBuffer byteBuffer = ByteBuffer.allocate(ProjectConstants.BUFFER_CAPACITY);
 
+            // This also checks if the alphabet is valid.
             int bitsInAlphabet = calculateBitLengthOfAlphabet(alphabet);
-
             if (commandLineInterpreter.getOutputSuffix().equals(ProjectConstants.BASEN)) {
-                BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputPath.toString()));
-                bufferedWriter.write(alphabet);
-                bufferedWriter.newLine();
-                bufferedWriter.close();
+                writeAlphabetToFile();
             }
 
 
+            //
+            int numberOfBytesToBeProcessed = (int) inputPath.toFile().length();
 
-            int encodedCharactersInFile = (int) inputPath.toFile().length();
-
-            BaseNConverter baseNConverter = new BaseNConverter( encodedCharactersInFile,
+            BaseNConverter baseNConverter = new BaseNConverter(numberOfBytesToBeProcessed,
                     commandLineInterpreter.getAlphabet(), bitsInAlphabet, commandLineInterpreter.getMode());
 
 
+            // This performs the stepwise encoding of the input file.
             while (fileChannel.read(byteBuffer) > -1) {
                 byteBuffer.flip();
 
@@ -83,21 +92,31 @@ public class Encode {
                         Files.write(outputPath, temp.getBytes(), StandardOpenOption.APPEND);
                     }
                 }
-
                 byteBuffer.compact();
-
-
             }
             fileChannel.close();
 
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Could not create file at the outputpath, that was provided by user.");
+            System.err.println("This error is most likely caused by problems related to reading the input," +
+                    " or writing to the output path");
             System.exit(123);
 
         }
 
-        System.out.println("TEST");
+
+    }
+
+    /**
+     * writes the given alphabet to file.
+     *
+     * @throws IOException
+     */
+    private void writeAlphabetToFile() throws IOException {
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputPath.toString()));
+        bufferedWriter.write(alphabet);
+        bufferedWriter.newLine();
+        bufferedWriter.close();
     }
 
 

@@ -1,10 +1,10 @@
-package src.propra.compressionoperations;
+package src.propra.compression_operations;
 
-import src.filetypes.FileTypeSuper;
-import src.helperclasses.HelperMethods;
-import src.helperclasses.Huffman;
-import src.helperclasses.Pixel;
-import src.helperclasses.ProjectConstants;
+import src.propra.file_types.FileTypeSuper;
+import src.propra.helpers.HelperMethods;
+import src.propra.helpers.Huffman;
+import src.propra.helpers.Pixel;
+import src.propra.helpers.ProjectConstants;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -46,6 +46,7 @@ public class AutoModule {
         ByteBuffer byteBuffer = ByteBuffer.allocate(ProjectConstants.BUFFER_CAPACITY);
         FileChannel fileChannel = HelperMethods.initialiseInputChannel(inputFile.getFilepath().toFile(), inputFile.getHeader().length);
 
+        // initialise the required objects to perform the stepwise determination of expected sizes of the datasegments.
         AutoInterface autoInterface = null;
         FromHuffmanToOutputcompression fromHuffmanToOutputcompression = null;
         if (inputFile.getCompression().equals(ProjectConstants.UNCOMPRESSED)) {
@@ -53,13 +54,15 @@ public class AutoModule {
         } else if (inputFile.getCompression().equals(ProjectConstants.RLE)) {
             autoInterface = new RLEtoRLEFileSIze(inputFile);
         } else if (inputFile.getCompression().equals(ProjectConstants.HUFFMAN)) {
-            huffmanSize = (inputFile.getFilepath().toFile().length() - inputFile.getHeader().length);
-            treeMap.put(huffmanSize, ProjectConstants.HUFFMAN);
+            if (outputFileSuffix.equals(ProjectConstants.PROPRA)) {
+                huffmanSize = (inputFile.getFilepath().toFile().length() - inputFile.getHeader().length);
+                treeMap.put(huffmanSize, ProjectConstants.HUFFMAN);
+            }
 
-
-                fromHuffmanToOutputcompression = new FromHuffmanToOutputcompression();
-                fromHuffmanToOutputcompression.initializeConversion(fileChannel, inputFile, byteBuffer, ProjectConstants.AUTO);
+            fromHuffmanToOutputcompression = new FromHuffmanToOutputcompression();
+            fromHuffmanToOutputcompression.initializeConversionForAuto(fileChannel, inputFile, byteBuffer);
         }
+
 
         long[] colourValueFrequencies = new long[ProjectConstants.MAX_COLOR_VALUES];
         byte singleByte;
@@ -69,7 +72,11 @@ public class AutoModule {
                 singleByte = byteBuffer.get();
                 if (autoInterface != null)
                     autoInterface.run(singleByte);
+                // Huffman related operations: Either determining the size of a possible RLE datasegment for Huffman -> other,
+                // or filling the frequency array in order to determine the size of a
+                // Huffman encoded datasegment (including the encoded Huffman tree) for a possible Huffman -ü> other.
                 if (inputFile.getCompression().equals(ProjectConstants.HUFFMAN)) {
+                    assert fromHuffmanToOutputcompression != null;
                     fromHuffmanToOutputcompression.run(singleByte);
                 } else if (inputFile.getCompression().equals(ProjectConstants.UNCOMPRESSED) & outputFileSuffix.equals(ProjectConstants.PROPRA)) {
                     fillFrequencyArray(colourValueFrequencies, singleByte);
@@ -81,7 +88,6 @@ public class AutoModule {
         }
 
 
-
         if (!inputFile.getCompression().equals(ProjectConstants.HUFFMAN)) {
             assert autoInterface != null;
             rleCompressedSize = autoInterface.getTotalSizeOfRLEDatasegment();
@@ -91,56 +97,34 @@ public class AutoModule {
             if ((outputFileSuffix.equals(ProjectConstants.PROPRA))) {
                 // Determine the size of Huffman compressed datasegment.
                 Huffman.Tree tree = Huffman.buildHuffmanTreeFromFrequencies(colourValueFrequencies);
-                HashMap<String, Byte> hashMap = tree.createHashMap();
+                HashMap hashMap = tree.createHashMap();
 
-
-
-                int fileSize = 0;
-                https://stackoverflow.com/questions/46898/how-do-i-efficiently-iterate-over-each-entry-in-a-java-map
-                for (Map.Entry<String, Byte> entry : hashMap.entrySet()) {
-                    fileSize += entry.getKey().length() * colourValueFrequencies[entry.getValue() & 0xff];
-                }
-
+                long fileSize = Huffman.calculateBitLengthOfHuffmanEncodedDatasegment(colourValueFrequencies, hashMap);
                 long numberOfNodes = getNumberOfNodesInTreeBasedOnFrequencies(colourValueFrequencies);
-                double temp = (fileSize + getCountOfBitsInStoredHuffmanTree(numberOfNodes))/ 8.0;
+                double temp = (fileSize + Huffman.getCountOfBitsInStoredHuffmanTree(numberOfNodes)) / 8.0;
                 huffmanSize = (long) (Math.ceil(temp));
                 treeMap.put(huffmanSize, ProjectConstants.HUFFMAN);
             }
         }
         if (inputFile.getCompression().equals(ProjectConstants.HUFFMAN)) {
             assert fromHuffmanToOutputcompression != null;
-            autoInterface = (AutoInterface) fromHuffmanToOutputcompression.getUncompressedTooutputCompressionConverter();
+            autoInterface = (AutoInterface) fromHuffmanToOutputcompression.getUncompressedToOutputCompressionConverter();
             rleCompressedSize = autoInterface.getTotalSizeOfRLEDatasegment();
             treeMap.put(rleCompressedSize, ProjectConstants.RLE);
         }
 
 
-        for(Map.Entry<Long,String> entry : treeMap.entrySet()) {
+        for (Map.Entry<Long, String> entry : treeMap.entrySet()) {
             Long key = entry.getKey();
             String value = entry.getValue();
-            System.out.println("Size of datasegment if "+ value +": "+ key + " bytes");
+            System.out.println("Size of datasegment if " + value + ": " + (key + 28) + " bytes");
         }
         System.out.println("Best compression: " + (prefferedCompression = treeMap.firstEntry().getValue()));
-
 
 
         fileChannel.close();
 
 
-    }
-
-    public long getCountOfBitsInStoredHuffmanTree(long numberOfNodes) {
-        return numberOfNodes*9+numberOfNodes-1;
-    }
-
-    public long getNumberOfNodesInTreeBasedOnFrequencies(long[] colourValueFrequencies) {
-        int size = 0;
-        for (long colourValueFrequency : colourValueFrequencies) {
-            if(colourValueFrequency > 0){
-               size++;
-            }
-        }
-        return size;
     }
 
     public long fillFrequencyArray(long[] colourValueFrequencies, byte singleByte) {
@@ -172,6 +156,7 @@ public class AutoModule {
                     frequencies[pixel[0] & 0xff] += counter;
                     frequencies[pixel[1] & 0xff] += counter;
                     frequencies[pixel[2] & 0xff] += counter;
+                    pixelCounter += counter;
                     counter = 0;
                 }
             }
@@ -180,6 +165,16 @@ public class AutoModule {
             }
             this.pixelByteCounter++;
         }
+    }
+
+    public long getNumberOfNodesInTreeBasedOnFrequencies(long[] colourValueFrequencies) {
+        int size = 0;
+        for (long colourValueFrequency : colourValueFrequencies) {
+            if (colourValueFrequency > 0) {
+                size++;
+            }
+        }
+        return size;
     }
 
     public String getPrefferedCompression() {
@@ -191,11 +186,17 @@ public class AutoModule {
         RAW_PACKET, RLE_PACKET, COUNTER
     }
 
+
+    /**
+     * An inner class that is responsible for facilitating the stepwise compression of an given input to the TARGA-RLE format.
+     * For each step it uses a single Byte as an input.
+     * <p>
+     * In principle it is a modified version of UncompressedToRLE3.
+     */
     public static class UncompressedToRLEForFileSize extends ConversionSuper implements AutoInterface {
 
         private final int imagewidth;
         int currentwidth = 0;
-        ByteBuffer buffer;
         int byteCounter = 0;
         int counter = -1;
         byte[] pixelOne = new byte[3];
@@ -210,10 +211,18 @@ public class AutoModule {
 
         }
 
+
         public int getTotalSizeOfRLEDatasegment() {
             return totalSizeOfRLEDatasegment;
         }
 
+
+        /**
+         * This is basically the same as the run(Byte singleByte) Method that you can find in UncompressedToRLE3,
+         * without the save to file logic for memory and performance reasons.
+         *
+         * @return
+         */
         public void run(byte singleByte) throws IOException {
 
             pixelOne[byteCounter % 3] = singleByte;
@@ -253,6 +262,8 @@ public class AutoModule {
                 if (currentwidth == imagewidth) {
                     if ((Arrays.equals(pixelOne, pixelPrevious) && mode == Mode.RLE) && counter < 127) {
                         saveToOutputStream(counter | 0x80);
+                    } else if ((Arrays.equals(pixelOne, pixelPrevious) && mode == Mode.START) && counter == -1) {
+                        // nichts tun, da das zweite Pixel schon gelesen wurde.
                     } else if (!(Arrays.equals(pixelOne, pixelPrevious)) && mode == null && counter < 127) {
                         counter++;
                         outputStream.write((pixelOne));
@@ -271,6 +282,13 @@ public class AutoModule {
             byteCounter++;
         }
 
+
+        /**
+         * This is basically the same as the saveToOutputStream(int counter) Method that you can find in UncompressedToRLE3,
+         * without the save to file logic for memory and performance reasons.
+         *
+         * @return
+         */
         private void saveToOutputStream(int counter) throws IOException {
             totalSizeOfRLEDatasegment++;
             totalSizeOfRLEDatasegment += outputStream.size();
@@ -288,6 +306,10 @@ public class AutoModule {
         }
     }
 
+
+    /**
+     *
+     */
     public static class RLEtoRLEFileSIze extends ConversionSuper implements AutoInterface {
 
         Mode mode = Mode.COUNTER;
@@ -306,7 +328,14 @@ public class AutoModule {
             return totalSizeOfRLEDatasegment;
         }
 
-        public void run(byte singleByte) throws IOException {
+
+        /**
+         * This is basically the same as the run(Byte singleByte) Method that you can find in RLEToRLE2,
+         * without the save to file logic for memory and performance reasons.
+         *
+         * @return
+         */
+        public void run(byte singleByte) {
             totalSizeOfRLEDatasegment++;
 
             if (mode == Mode.COUNTER) {

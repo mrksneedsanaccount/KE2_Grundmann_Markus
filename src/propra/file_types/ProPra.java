@@ -1,8 +1,9 @@
-package src.filetypes;
+package src.propra.file_types;
 
-import src.helperclasses.ProjectConstants;
-import src.helperclasses.ImageFormats;
-import src.propra.conversionfacilitators.CommandLineInterpreter;
+import src.propra.conversion_facilitators.CommandLineInterpreter;
+import src.propra.helpers.HelperMethods;
+import src.propra.helpers.ImageFormats;
+import src.propra.helpers.ProjectConstants;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -78,7 +79,7 @@ public class ProPra extends FileTypeSuper {
         headerbb.put(14, bitsprobildpunkt);
         headerbb.put(15, kompressionstyp);
         headerbb.putLong(16, filepath.toFile().length() - getHeader().length);
-        headerbb.putInt(24, (int) returnChecksum());
+        headerbb.putInt(24, returnChecksum());
         return headerbb.array();
     }
 
@@ -89,21 +90,20 @@ public class ProPra extends FileTypeSuper {
 
     }
 
-    public void calculateChecksumOfArray(byte[] pixel) {
-        for (byte pixelByte : pixel) {
-            calculateChecksum(pixelByte);
+    public void calculateChecksumOfArray(byte[] byteArray) {
+        for (byte singleByte : byteArray) {
+            calculateChecksum(singleByte);
 
         }
 
     }
 
-    public void calculateChecksumOfByteBuffer(ByteBuffer pixelBuffer, int limit) {
-        int startingPos = pixelBuffer.limit() - limit;
-        int finalPos = pixelBuffer.limit();
-        byte[] pixelArray = pixelBuffer.array();
+    public void calculateChecksumOfByteBuffer(ByteBuffer byteBuffer, int limit) {
+        int startingPos = byteBuffer.limit() - limit;
+        int finalPos = byteBuffer.limit();
+        byte[] pixelArray = byteBuffer.array();
         for (int j = startingPos; j < finalPos; j++) {
             calculateChecksum(pixelArray[j]);
-
         }
 
     }
@@ -118,7 +118,7 @@ public class ProPra extends FileTypeSuper {
             if (height * width * 3 != filepath.toFile().length() - PROPRA_HEADER_OFFSET) {
                 System.err.println(
                         "Zu wenige, oder zu viele Datensegmente vorhanden.");
-                System.exit(123);
+                HelperMethods.exitProgramAfterError();
             }
         }
         // Datensegmentangabe mit Menge der Bilddaten in der Datei abgleichen
@@ -126,7 +126,7 @@ public class ProPra extends FileTypeSuper {
         if (headerbb.getLong(16) != filepath.toFile().length() - PROPRA_HEADER_OFFSET) {
             System.err.println(
                     "Datensegmentanzahl aus dem Header stimmt nicht mit den Anzahl an Datensegmenten in der Datei überein");
-            System.exit(123);
+            HelperMethods.exitProgramAfterError();
         }
 
         // Prüfsumme zum Test berechnen
@@ -137,12 +137,12 @@ public class ProPra extends FileTypeSuper {
         System.out.println("Prüfsumme: " + checksum);
         if (!(checksum == cs1)) {
             System.err.println("Angegebene Prüfsumme ist inkorrekt.");
-            System.exit(123);
+            HelperMethods.exitProgramAfterError();
         }
         // Kompressionstyp
         if (!(header[15] == 0 || header[15] == 1 || header[15] == 2)) {
             System.err.println("falscher Kompressionstyp");
-            System.exit(123);
+            HelperMethods.exitProgramAfterError();
         }
         // Testen, ob ProPraWS19 im Header steht
         String s = "ProPraWS19";
@@ -151,7 +151,7 @@ public class ProPra extends FileTypeSuper {
         if (!(Arrays.equals(s.getBytes(StandardCharsets.UTF_8),
                 header))) {
             System.err.println("Datei beginnt nicht mit ProPraWS19");
-            System.exit(123);
+            HelperMethods.exitProgramAfterError();
         }
     }
 

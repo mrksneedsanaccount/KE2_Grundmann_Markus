@@ -1,7 +1,7 @@
-package src.propra.conversionfacilitators;
+package src.propra.conversion_facilitators;
 
-import src.helperclasses.HelperMethods;
-import src.helperclasses.ProjectConstants;
+import src.propra.helpers.HelperMethods;
+import src.propra.helpers.ProjectConstants;
 import src.propra.imageconverter.BaseNConverter;
 
 import java.io.BufferedReader;
@@ -100,7 +100,7 @@ public class Decode {
             e.printStackTrace();
         }
 
-        System.out.println("TEST");
+
     }
 
 }

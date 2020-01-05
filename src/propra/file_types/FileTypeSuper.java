@@ -1,9 +1,9 @@
-package src.filetypes;
+package src.propra.file_types;
 
 
-import src.helperclasses.ProjectConstants;
-import src.helperclasses.ImageFormats;
-import src.propra.conversionfacilitators.CommandLineInterpreter;
+import src.propra.conversion_facilitators.CommandLineInterpreter;
+import src.propra.helpers.ImageFormats;
+import src.propra.helpers.ProjectConstants;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -30,6 +30,7 @@ public abstract class FileTypeSuper {
     protected ByteBuffer headerbb;
     protected Path filepath;
     ImageFormats imageFormats;
+    Orientation orientation = Orientation.TOP_LEFT;
 
     public FileTypeSuper() {
 
@@ -37,29 +38,28 @@ public abstract class FileTypeSuper {
 
 
     /**
-     * Ausgabedatei Konstruktor.
+     * Constructor for output file.
      *
-     * @param conversionSpecs Objekt, welches die Informationen über die durchzuführende Operation enthält.
-     * @param inputFile       das Objekt der Eingabedatei, um das Objekt zu initialisieren. (Hauptzweck ist es die beiden
-     *                        Konstruktoren vorneinander zu unterscheiden.)
+     * @param commandLineInterpreter contains a 'translation' of the input to the program
+     * @param inputFile
      */
-    public FileTypeSuper(CommandLineInterpreter conversionSpecs, FileTypeSuper inputFile) {
+    public FileTypeSuper(CommandLineInterpreter commandLineInterpreter, FileTypeSuper inputFile) {
         // TODO Auto-generated constructor stub
         // Lade die Bilddatei und speichere sie in einem Byte Array.
-        file = conversionSpecs.getOutputPath().toFile();
-        this.filepath = conversionSpecs.getOutputPath();
+        file = commandLineInterpreter.getOutputPath().toFile();
+        this.filepath = commandLineInterpreter.getOutputPath();
         // Höhe und Breite
         height = inputFile.height;
         width = inputFile.width;
         // Datensegmente
-        if (conversionSpecs.getOutputSuffix().equals(ProjectConstants.PROPRA)) {
+        if (commandLineInterpreter.getOutputSuffix().equals(ProjectConstants.PROPRA)) {
             header = new byte[PROPRA_HEADER_OFFSET];
         }
-        if (conversionSpecs.getOutputSuffix().equals(ProjectConstants.TGA)) {
+        if (commandLineInterpreter.getOutputSuffix().equals(ProjectConstants.TGA)) {
             header = new byte[TGA_HEADER_OFFSET];
         }
         headerbb = ByteBuffer.wrap(header).order(ByteOrder.LITTLE_ENDIAN);
-        setCompression(conversionSpecs.getMode());
+        setCompression(commandLineInterpreter.getMode());
     }
 
     /**
@@ -120,14 +120,13 @@ public abstract class FileTypeSuper {
     public abstract void calculateChecksumOfByteBuffer(ByteBuffer pixelBuffer, int limit);
 
     /**
-     * Prüft, ob die Eingabedateien frei von offensichtliche Fehlern sind.
+     * Checks the validity of the file by comparing the header data to the file.
      */
     public void fehlerausgabe() {
-        // Fehler finden.
-        // Bilddimensionen darauf überprüfen, ob entweder Höhe oder Länge 0
-        // sind.
+
+        // ensuring that the image has valid dimensions.
         if ((getWidth() * getHeight()) == 0) {
-            System.err.println("mindestens eine Bilddimension ist 0.");
+            System.err.println("At least one of the dimensions is 0.");
             System.exit(123);
         }
     }
@@ -136,9 +135,10 @@ public abstract class FileTypeSuper {
         return compression;
     }
 
+
     public void setCompression(String compression) {
         this.compression = compression;
-        this.compression = compression;
+
 
     }
 
@@ -167,12 +167,13 @@ public abstract class FileTypeSuper {
     abstract int returnChecksum();
 
     /**
-     * Legt die Kompression der Eingabedatei fest.
+     * Determines the compression type based on header data
      */
     protected abstract void setCompressionFromFile();
 
     /**
-     * Berechnet Höhe und Breite in Pixeln.
+     * Extracts the height and width from the header
+     * and saves it in the object.
      */
     abstract protected void setHeightandWidth();
 
@@ -187,5 +188,7 @@ public abstract class FileTypeSuper {
 
 //
 //    }
+
+    enum Orientation {BOTTOM_LEFT, TOP_LEFT}
 
 }

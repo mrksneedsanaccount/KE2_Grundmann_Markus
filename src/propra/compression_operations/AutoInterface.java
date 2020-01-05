@@ -1,10 +1,10 @@
-package src.propra.compressionoperations;
+package src.propra.compression_operations;
 
 import java.io.IOException;
 
 public interface AutoInterface {
 
-    public int getTotalSizeOfRLEDatasegment();
+    int getTotalSizeOfRLEDatasegment();
     void run(byte singleByte) throws IOException;
 
 

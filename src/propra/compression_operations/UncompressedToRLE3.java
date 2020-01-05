@@ -1,7 +1,7 @@
-package src.propra.compressionoperations;
+package src.propra.compression_operations;
 
-import src.filetypes.FileTypeSuper;
-import src.helperclasses.Pixel;
+import src.propra.file_types.FileTypeSuper;
+import src.propra.helpers.Pixel;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -14,13 +14,16 @@ public class UncompressedToRLE3 extends ConversionSuper {
     private final int imagewidth;
     int currentwidth = 0;
     ByteBuffer buffer;
+    int pixelsAlreadyCounted;
     int byteCounter = 0;
     int counter = -1;
     byte[] pixelOne = new byte[3];
     byte[] pixelPrevious = new byte[3];
     int totalSizeOfDatasegment = 0;
     Mode mode = Mode.START;
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+
+    ByteArrayOutputStream interimStorageBAoS = new ByteArrayOutputStream();
 
     public UncompressedToRLE3(FileTypeSuper inputFile) {
         super(inputFile);
@@ -32,6 +35,12 @@ public class UncompressedToRLE3 extends ConversionSuper {
     public void run(byte singleByte) throws IOException {
 
         pixelOne[byteCounter % 3] = singleByte;
+
+
+        if (processedPixels > inputFile.getWidth() * inputFile.getHeight()) {
+            flag = Flags.LAST_PIXEL_HAS_BEEN_PROCESSED;
+            return;
+        }
 
         if (byteCounter % 3 == 2) {
             pixelOne = Pixel.transformPixel(pixelOne);
@@ -45,7 +54,7 @@ public class UncompressedToRLE3 extends ConversionSuper {
                     saveToOutputStream(counter);
                 }
                 counter = 1;
-                outputStream.write(pixelOne);
+                interimStorageBAoS.write(pixelOne);
                 mode = Mode.RLE;
             } else if (mode == Mode.RLE && Arrays.equals(pixelOne, pixelPrevious)) {
                 counter++;
@@ -58,7 +67,7 @@ public class UncompressedToRLE3 extends ConversionSuper {
                 if (mode == Mode.RLE) {
                     saveToOutputStream(counter | 0x80);
                 } else {
-                    outputStream.write(pixelPrevious);
+                    interimStorageBAoS.write(pixelPrevious);
                     counter++;
                 }
                 if (counter == 127) {
@@ -68,9 +77,11 @@ public class UncompressedToRLE3 extends ConversionSuper {
             if (currentwidth == imagewidth) {
                 if ((Arrays.equals(pixelOne, pixelPrevious) && mode == Mode.RLE) && counter < 127) {
                     saveToOutputStream(counter | 0x80);
+                } else if ((Arrays.equals(pixelOne, pixelPrevious) && mode == Mode.START) && counter == -1) {
+                    // nichts tun, da das zweite Pixel schon gelesen wurde.
                 } else if (!(Arrays.equals(pixelOne, pixelPrevious)) && mode == null && counter < 127) {
                     counter++;
-                    outputStream.write((pixelOne));
+                    interimStorageBAoS.write((pixelOne));
                     saveToOutputStream(counter);
                 } else {
                     counter++;
@@ -90,9 +101,9 @@ public class UncompressedToRLE3 extends ConversionSuper {
     private void saveToOutputStream(int counter) throws IOException {
         byteArrayOutputStream.write(counter);
         totalSizeOfDatasegment++;
-        totalSizeOfDatasegment += outputStream.size();
-        outputStream.writeTo(byteArrayOutputStream);
-        outputStream.reset();
+        totalSizeOfDatasegment += interimStorageBAoS.size();
+        interimStorageBAoS.writeTo(byteArrayOutputStream);
+        interimStorageBAoS.reset();
         this.counter = -1;
         if (Arrays.equals(pixelOne, pixelPrevious)) {
             mode = Mode.START;

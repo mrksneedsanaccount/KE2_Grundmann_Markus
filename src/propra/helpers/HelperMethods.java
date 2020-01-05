@@ -1,4 +1,4 @@
-package src.helperclasses;
+package src.propra.helpers;
 
 
 import java.io.File;
@@ -13,6 +13,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class HelperMethods {
+
+    public static void exitProgramAfterError() {
+        System.exit(123);
+    }
 
     public static FileChannel initialiseInputChannel(File file, int offset) throws IOException {
         FileChannel fileChannel = new FileInputStream(file).getChannel();

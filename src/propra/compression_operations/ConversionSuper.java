@@ -1,7 +1,7 @@
-package src.propra.compressionoperations;
+package src.propra.compression_operations;
 
-import src.filetypes.FileTypeSuper;
-import src.helperclasses.ProjectConstants;
+import src.propra.file_types.FileTypeSuper;
+import src.propra.helpers.ProjectConstants;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,12 +15,14 @@ public abstract class ConversionSuper {
     FileTypeSuper inputFile;
     Flags flag = null;
 
+
     public ConversionSuper() {
     }
 
     public ConversionSuper(FileTypeSuper inputFile) {
         this.inputFile = inputFile;
     }
+
 
     public int getProcessedPixels() {
         return processedPixels;
@@ -30,17 +32,20 @@ public abstract class ConversionSuper {
         return byteArrayOutputStream.size();
     }
 
+    public void initializeConversion(FileChannel fileChannel, FileTypeSuper inputFile, ByteBuffer byteBuffer, String compression) throws IOException {
+
+    }
+
     public byte[] outputForWritingToFile() {
-        if (byteArrayOutputStream.size() >= ProjectConstants.BUFFER_CAPACITY || processedPixels == inputFile.getWidth() * inputFile.getHeight()) {
+        if (byteArrayOutputStream.size() >= ProjectConstants.BUFFER_CAPACITY ||
+                processedPixels == inputFile.getWidth() * inputFile.getHeight()) {
             byte[] temp = byteArrayOutputStream.toByteArray();
             byteArrayOutputStream.reset();
             return temp;
-        }
-        else {
-            return  null;
+        } else {
+            return null;
         }
     }
-
 
     public byte[] returnByteArray() {
 
@@ -53,6 +58,8 @@ public abstract class ConversionSuper {
         }
     }
 
+    abstract public void run(byte singleByte) throws IOException;
+
     void run(byte[] byteArray) throws IOException {
 
         for (byte b : byteArray) {
@@ -60,15 +67,8 @@ public abstract class ConversionSuper {
         }
     }
 
-    abstract public void run(byte singleByte) throws IOException;
 
-
-    public void initializeConversion(FileChannel fileChannel, FileTypeSuper inputFile, ByteBuffer byteBuffer, String compression) throws IOException {
-
-    }
-
-
-    enum Flags {END_OF_SEGMENT}
+    public enum Flags {LAST_PIXEL_HAS_BEEN_PROCESSED}
 
 }
 

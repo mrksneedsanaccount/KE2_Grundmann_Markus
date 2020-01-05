@@ -1,10 +1,10 @@
 package src.propra.imageconverter;
 
-import src.helperclasses.ProjectConstants;
-import src.propra.conversionfacilitators.CommandLineInterpreter;
-import src.propra.conversionfacilitators.Conversions;
-import src.propra.conversionfacilitators.Decode;
-import src.propra.conversionfacilitators.Encode;
+import src.propra.conversion_facilitators.CommandLineInterpreter;
+import src.propra.conversion_facilitators.Conversions;
+import src.propra.conversion_facilitators.Decode;
+import src.propra.conversion_facilitators.Encode;
+import src.propra.helpers.ProjectConstants;
 
 public class ImageConverter {
 
@@ -21,7 +21,7 @@ public class ImageConverter {
 
         CommandLineInterpreter commandLineInterpreter = new CommandLineInterpreter();
         commandLineInterpreter.interpretInputs(args);
-        String secondArgument = (String) args[1];
+        String secondArgument = args[1];
 
         if (secondArgument.startsWith(ProjectConstants.OUTPUT)) {
             Conversions conversions = new Conversions(commandLineInterpreter);
@@ -29,11 +29,11 @@ public class ImageConverter {
             conversions.setPixels();
             conversions.executeConversion();
         } else if (secondArgument.startsWith(ProjectConstants.ENCODE)) {
-            src.propra.conversionfacilitators.Encode encode = new Encode(commandLineInterpreter);
+            Encode encode = new Encode(commandLineInterpreter);
             encode.exectueConversion();
 
         } else if (secondArgument.startsWith(ProjectConstants.DECODE)) {
-            src.propra.conversionfacilitators.Decode decode = new Decode(commandLineInterpreter);
+            Decode decode = new Decode(commandLineInterpreter);
             decode.executeConversion();
         }
 

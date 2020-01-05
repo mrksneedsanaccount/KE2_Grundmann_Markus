@@ -1,8 +1,8 @@
-package src.propra.compressionoperations;
+package src.propra.compression_operations;
 
-import src.filetypes.FileTypeSuper;
-import src.helperclasses.Huffman;
-import src.helperclasses.ProjectConstants;
+import src.propra.file_types.FileTypeSuper;
+import src.propra.helpers.Huffman;
+import src.propra.helpers.ProjectConstants;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -14,6 +14,7 @@ public class ConvertToHuffman extends ConversionSuper {
     ConversionSuper inputCompressionToUncompressedConverter;
     ToHuffmanConverter toHuffmanConverter;
     byte[] tempByteArray;
+    int processedByte = 0;
 
     public ConvertToHuffman(FileTypeSuper inputFile) {
         super(inputFile);
@@ -87,7 +88,8 @@ public class ConvertToHuffman extends ConversionSuper {
         }
     }
 
-    static class ToHuffmanConverter extends ConversionSuper {
+    //TODO NICHT MEHR STATIC
+    class ToHuffmanConverter extends ConversionSuper {
 
         StringBuilder stringBuffer = new StringBuilder();
         Huffman.Tree tree;
@@ -115,7 +117,7 @@ public class ConvertToHuffman extends ConversionSuper {
 
         @Override
         public void run(byte singleByte) throws IOException {
-            processedPixels++;
+            processedByte++;
 
             stringBuffer.append(encodingTable[(singleByte & 0xff)]);
             for (int i = 0; i < stringBuffer.length(); i++) {
@@ -131,7 +133,7 @@ public class ConvertToHuffman extends ConversionSuper {
                     offset = 7;
                 }
             }
-            if ((inputFile.getWidth()*inputFile.getHeight())*3 == processedPixels & offset != 7){
+            if (((inputFile.getWidth() * inputFile.getHeight()) * 3 == processedByte) & offset != 7) {
                 byteArrayOutputStream.write(buffer);
             }
             stringBuffer.setLength(0);

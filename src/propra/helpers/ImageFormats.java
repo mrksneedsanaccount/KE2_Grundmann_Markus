@@ -1,3 +1,3 @@
-package src.helperclasses;
+package src.propra.helpers;
 
 public enum ImageFormats {BGR, GBR}
