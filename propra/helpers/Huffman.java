@@ -3,6 +3,7 @@ package propra.helpers;
 import propra.compression_operations.ConversionSuper;
 import propra.compression_operations.UncompressedToRLE3;
 import propra.compression_operations.UncompressedToUncompressed;
+import propra.exceptions.ConversionException;
 import propra.file_types.FileTypeSuper;
 
 import java.io.ByteArrayOutputStream;
@@ -16,11 +17,9 @@ import java.util.*;
 public class Huffman {
 
 
-   public static byte[] bitMaskForDecoding = {1, 2, 4, 8, 16, 32, 64, -128};
+    public static byte[] bitMaskForDecoding = {1, 2, 4, 8, 16, 32, 64, -128};
     static byte[] bitMaskForEncodingEmptyByte = {-128, -64, -32, -16, -8, -4, -2, -1};
     static byte[] bitMaskForEncodingFilledByte = {1, 3, 7, 15, 31, 63, 127, -1};
-
-
 
 
     public static Tree buildHuffmanTreeFromFrequencies(long[] colorFrequencies) {
@@ -54,122 +53,79 @@ public class Huffman {
         return fileSize;
     }
 
-    private static long[] calculateFrequencies(long[] frequenzen, File inputFile, int offset) throws IOException {
+    private static long[] calculateFrequencies(long[] frequenzen, File file, int offset, FileTypeSuper inputFile) throws IOException {
         ByteBuffer byteBuffer = ByteBuffer.allocate(ProjectConstants.BUFFER_CAPACITY);
-        FileChannel fileChannel = HelperMethods.initialiseInputChannel(inputFile, offset);
+        FileChannel fileChannel = HelperMethods.initialiseInputChannel(file, offset);
 
         byte singleByte;
+        int counter = 0;
         while ((fileChannel.read(byteBuffer)) > 0) {
             byteBuffer.flip();
             while (byteBuffer.hasRemaining()) {
 
+                if (inputFile.getHeight() * inputFile.getWidth() * 3 == counter) {
+                    break;
+                }
                 singleByte = byteBuffer.get();
-
-
                 frequenzen[singleByte & 0xff]++;
+                counter++;
             }
-            byteBuffer.compact();
+            byteBuffer.clear();
         }
         return frequenzen;
     }
 
 
-
-
-
-    public static long[] calculateFrequenciesRLE(long[] frequenzen, File inputFile, int offset) throws IOException {
+    /**
+     * Calculates the Frequencies of the Pixels directly from an RLE compressed file.
+     *
+     * @param file      The source file.
+     * @param offset    header offset.
+     * @param inputfile
+     * @return an array of frequencies.
+     * @throws IOException
+     */
+    public static long[] calculateFrequenciesRLE(File file, int offset, FileTypeSuper inputfile) throws IOException {
         ByteBuffer byteBuffer = ByteBuffer.allocate(ProjectConstants.BUFFER_CAPACITY);
-        FileChannel fileChannel = HelperMethods.initialiseInputChannel(inputFile, offset);
+        FileChannel fileChannel = HelperMethods.initialiseInputChannel(file, offset);
 
-
+        // Converter Object.
         StepwiseFrequencyCalculatorRLE stepwiseFrequencyCalculatorRLE = new StepwiseFrequencyCalculatorRLE();
-
         while ((fileChannel.read(byteBuffer)) > 0) {
             byteBuffer.flip();
+
             while (byteBuffer.hasRemaining()) {
-                stepwiseFrequencyCalculatorRLE.invoke(byteBuffer.get());
+                if (inputfile.getWidth() * inputfile.getHeight() == stepwiseFrequencyCalculatorRLE.pixelCounter) {
+                    break;
+                }
+                stepwiseFrequencyCalculatorRLE.run(byteBuffer.get());
             }
-            byteBuffer.compact();
+            byteBuffer.clear();
         }
-        return stepwiseFrequencyCalculatorRLE.getFrequenzen();
+        return stepwiseFrequencyCalculatorRLE.getFrequencies();
     }
 
 
-    private static long[] calculateFrequenciesRLE2(long[] frequenzen, File inputFile, int offset) throws IOException {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(ProjectConstants.BUFFER_CAPACITY);
-        FileChannel fileChannel = HelperMethods.initialiseInputChannel(inputFile, offset);
-        Mode mode = null;
-        byte singleByteBuffer;
-        int sum = 0;
-        int limit;
-        int laeufer = 0;
-        int rawCounter = 0;
-        int rleCounter = 0;
-        while ((limit = fileChannel.read(byteBuffer)) > 0) {
-            byteBuffer.rewind();
-            while (byteBuffer.position() < byteBuffer.limit()) { //da damit garanitiwer wird byteBuffer.position() < limit
-                if (mode == null) {
-                    singleByteBuffer = byteBuffer.get();
-                    if (singleByteBuffer < 0) {
-                        rleCounter = (singleByteBuffer & 0x7f) + 1;
-                        mode = Mode.RLE;
-                    } else {
-                        rawCounter = singleByteBuffer + 1;
-                        mode = Mode.RAW;
-                    }
-                }
-                if (mode == Mode.RLE) {
-                    if (byteBuffer.limit() - byteBuffer.position() < 3) {
-                        byteBuffer.compact();
-                        int position = byteBuffer.position();
-                        limit = fileChannel.read(byteBuffer);
-                        byteBuffer.limit(limit + position);
-                        byteBuffer.rewind();
-                    }
-                    frequenzen[byteBuffer.get() & 0xff] += rleCounter;
-                    frequenzen[byteBuffer.get() & 0xff] += rleCounter;
-                    frequenzen[byteBuffer.get() & 0xff] += rleCounter;
-                    rleCounter = 0;
-                    mode = null;
-                }
-                if (mode == Mode.RAW) {
-                    if (byteBuffer.limit() - byteBuffer.position() < 3 * rawCounter) {
-                        byteBuffer.compact();
-                        int position = byteBuffer.position();
-                        limit = fileChannel.read(byteBuffer);
-                        byteBuffer.limit(limit + position);
-                        byteBuffer.rewind();
-                    }
-                    while (rawCounter > 0) {
-                        frequenzen[byteBuffer.get() & 0xff]++;
-                        frequenzen[byteBuffer.get() & 0xff]++;
-                        frequenzen[byteBuffer.get() & 0xff]++;
-                        rawCounter--;
-                    }
-                    mode = null;
-                }
-                sum = 0;
-                for (long l : frequenzen) {
-                    sum += l;
-                }
-            }
-            byteBuffer.compact();
-        }
-        return frequenzen;
-    }
-
+    /**
+     * Generates the Huffman tree.
+     * <p>
+     * Is based on the following algorithm:
+     * https://de.wikipedia.org/wiki/Huffman-Kodierung
+     *
+     * @param nodeList List of freuencies.
+     * @return Tree object, that contains the root node of the Huffman tree.
+     */
     private static Tree generateHuffmanTreeFromNodeList(List<Node> nodeList) {
-        Comparator<Node> comparator = new Comparator<Node>() {
-            @Override
-            public int compare(Node o1, Node o2) {// Sortiere nach Frequenz
-                int returnValue = (int) (o1.getFrequency() - o2.getFrequency());
+        Comparator<Node> comparator = (o1, o2) -> {// Sort frequency
+            int returnValue = (int) (o1.getFrequency() - o2.getFrequency());
 
-                if (returnValue == 0) {// Falls Frequenzen gleich sind, dann Vergleiche ByteWerte
-                    returnValue = -1 * (o1.getNodeDepth() - o2.getNodeDepth());
-                }
-                return returnValue;
+            if (returnValue == 0) {// special case: as per the algorithm described in the link: sort by node depth.
+                returnValue = -1 * (o1.getNodeDepth() - o2.getNodeDepth());
             }
+            return returnValue;
         };
+
+
         while (nodeList.size() > 1) {
             Node node1 = nodeList.get(0);
             nodeList.remove(0);
@@ -185,23 +141,9 @@ public class Huffman {
             Collections.sort(nodeList, comparator);
         }
         Tree huffmanTree = new Tree(nodeList.get(0));
-        HashMap hashMap = huffmanTree.createHashMap();
         return huffmanTree;
     }
 
-    public static Tree generateHuffmanTreeFromUncompressedDatasegments(File inputFile, int offset) throws IOException {
-        long[] frequenzen = new long[256];
-        // Lese Array
-        System.out.println("Version2");
-        frequenzen = calculateFrequencies(frequenzen, inputFile, offset);
-        // Baue Sortierte Liste von Nodes
-        Tree tree = buildHuffmanTreeFromFrequencies(frequenzen);
-        tree.preOrderTraversaslFuerHuffmanDatei(tree.root, "");
-        System.out.println("Version2");
-
-
-        return tree;
-    }
 
     public static void generatePreOrderHuffmanTreeStringAsPerSpecification(Tree tree, StringBuilder stringBuilder) {
         tree.preOrderTraversaslFuerHuffmanDatei2(tree.root, "", stringBuilder);
@@ -211,14 +153,12 @@ public class Huffman {
         }
     }
 
-
-
-    public static long[] getColorFrequencies(String compression, File inputFile, int headerLength) throws IOException {
+    public static long[] getColorFrequencies(String compression, File file, int headerLength, FileTypeSuper inputFile) throws IOException {
         long[] frequenzen = new long[ProjectConstants.MAX_COLOR_VALUES];
-        if (compression == ProjectConstants.RLE) {
-            frequenzen = calculateFrequenciesRLE(frequenzen, inputFile, headerLength);
+        if (compression.equals(ProjectConstants.RLE)) {
+            frequenzen = calculateFrequenciesRLE(file, headerLength, inputFile);
         } else {
-            frequenzen = calculateFrequencies(frequenzen, inputFile, headerLength);
+            frequenzen = calculateFrequencies(frequenzen, file, headerLength, inputFile);
         }
         return frequenzen;
     }
@@ -227,22 +167,19 @@ public class Huffman {
         return numberOfNodes * 9 + numberOfNodes - 1;
     }
 
-
-    public static ConversionSuper getObejctThatPerformsOutputCompression(String compression, FileTypeSuper inputFile) {
-        ConversionSuper conversionSuper = null;
+    public static ConversionSuper getObjectThatPerformsOutputCompression(String compression, FileTypeSuper inputFile) throws ConversionException {
+        ConversionSuper conversionSuper;
         if (compression.equals(ProjectConstants.RLE)) {
             conversionSuper = new UncompressedToRLE3(inputFile);
-        } else if  (compression.equals(ProjectConstants.UNCOMPRESSED)){
+        } else if (compression.equals(ProjectConstants.UNCOMPRESSED)) {
             conversionSuper = new UncompressedToUncompressed(inputFile);
-        }
-        else{
-            System.err.println("Something went wrong while determining the required compression converter. " + "\n" +
+        } else {
+            throw new ConversionException("Something went wrong while determining the required compression converter. " + "\n" +
                     "Check the suffix of your outputfile");
-            System.exit(123);
+
         }
         return conversionSuper;
     }
-
 
 
 //    public static void toHuffmanCompression2(Conversions convspec) throws IOException {
@@ -335,6 +272,12 @@ public class Huffman {
             this.value = value;
         }
 
+
+        /**
+         * @param value     0 if inner node, 1 if leaf
+         * @param byteValue the value of the byte
+         * @param frequency how often the byte value appears in the file.
+         */
         public Node(int value, int byteValue, long frequency) {
             this.value = value;
             this.byteValue = byteValue;
@@ -395,13 +338,7 @@ public class Huffman {
     public static class Tree {
 
         Node root;
-
-        public Node getRoot() {
-            return root;
-        }
-
         int bitCounter = 0;
-
 
         public Tree(Node root) {
             this.root = root;
@@ -409,7 +346,30 @@ public class Huffman {
 
         }
 
-        public Node buildHuffmanTree2(StringBuilder subtree, ByteBuffer byteBuffer, Node node, FileChannel inFileChannel) throws IOException {
+        public Node buildHuffmanTree(StringBuilder subtree, ByteBuffer byteBuffer, Node node, FileChannel inFileChannel) throws IOException {
+
+            //this check should be save, because even the shortest Huffman encoded tree is at least 9 bits long.
+            StringBuilder peekString = new StringBuilder();
+            peekString.append(String.format("%8s", Integer.toBinaryString(byteBuffer.get() & 0xFF)).replace(' ', '0'));
+            if (peekString.charAt(0) == '1') {
+                peekString.deleteCharAt(0);
+                peekString.append(String.format("%8s", Integer.toBinaryString(byteBuffer.get() & 0xFF)).replace(' ', '0'));
+                bitCounter = 9;
+                Node onlyValueNode = new Node(1, 0, 1);
+                onlyValueNode.setByteValue(Integer.parseInt(peekString.substring(0, 8), 2));
+                Node newRoot = new Node(0, -1, 0);
+                newRoot.setLeftNode(onlyValueNode);
+                root = newRoot;
+                node = newRoot;
+            } else {
+                byteBuffer.position(byteBuffer.position() - 1);
+                node = buildHuffmanTreeStandardCase(subtree, byteBuffer, node, inFileChannel);
+            }
+
+            return node;
+        }
+
+        public Node buildHuffmanTreeStandardCase(StringBuilder subtree, ByteBuffer byteBuffer, Node node, FileChannel inFileChannel) throws IOException {
             // TODO Fehler bei mehr als 256 Blättern
             if (subtree.length() < 8) {
                 ByteBufferHelpers.refillEmptyBuffer(byteBuffer, inFileChannel);
@@ -436,21 +396,35 @@ public class Huffman {
             }
             if (node.leftNode == null && node.value == 0) {
                 newnode = new Node(Integer.parseInt(String.valueOf(subtree.charAt(0))));
-                node.leftNode = buildHuffmanTree2(subtree, byteBuffer, newnode, inFileChannel);
+                node.leftNode = buildHuffmanTreeStandardCase(subtree, byteBuffer, newnode, inFileChannel);
             }
             if (node.rightNode == null && node.value == 0) {
                 ByteBufferHelpers.refillEmptyBuffer(byteBuffer, inFileChannel);
                 subtree.append(String.format("%8s", Integer.toBinaryString(byteBuffer.get() & 0xFF)).replace(' ', '0'));
                 newnode = new Node(Integer.parseInt(String.valueOf(subtree.charAt(0))));
-                node.rightNode = buildHuffmanTree2(subtree, byteBuffer, newnode, inFileChannel);
+                node.rightNode = buildHuffmanTreeStandardCase(subtree, byteBuffer, newnode, inFileChannel);
             }
             return node;
         }
 
-
+        /**
+         * creates a Hashmap to determine
+         *
+         * @return
+         */
         public HashMap createHashMap() {
-            HashMap hashMap = new HashMap<String, Byte>();
-            inOrderTraversaslFuerHuffmanHashMap(root, "", hashMap);
+            HashMap<String, Byte> hashMap = new HashMap<>();
+            if (root.getLeftNode() == null & root.getRightNode() == null) { // special case if there if all the bytes of
+                // all pixels have the same value
+                hashMap.put("0", (byte) root.getByteValue());
+                Node newRoot = new Node(0, -1, 0);
+                newRoot.setLeftNode(root);
+                root = newRoot;
+
+
+            } else {
+                inOrderTraversaslFuerHuffmanHashMap(root, "", hashMap);
+            }
             return hashMap;
         }
 
@@ -473,6 +447,10 @@ public class Huffman {
 
         public int getHuffmanTreeStartingBit() {
             return 7 - (bitCounter % 8);
+        }
+
+        public Node getRoot() {
+            return root;
         }
 
         public void inOrderTraversaslFuerHuffman(Node node, String string) {
@@ -541,7 +519,11 @@ public class Huffman {
         }
     }
 
-
+    /**
+     * A class that functions simimiar to the RLEToRLE class
+     * <p>
+     * But it only builds the frequency array.
+     */
     private static class StepwiseFrequencyCalculatorRLE {
         Mode mode = Mode.COUNTER;
 
@@ -551,11 +533,17 @@ public class Huffman {
         byte[] pixel = new byte[3];
         long[] frequenzen = new long[ProjectConstants.MAX_COLOR_VALUES];
 
-        public long[] getFrequenzen() {
+
+        long[] getFrequencies() {
             return frequenzen;
         }
 
-        public void invoke( byte singleByte) {
+        /**
+         * The method that builds the
+         *
+         * @param singleByte a single Byte
+         */
+        public void run(byte singleByte) {
             if (mode == Mode.COUNTER) {
                 pixelByteCounter = 0;
                 counter = singleByte & 0x7f;
@@ -583,6 +571,7 @@ public class Huffman {
                         frequenzen[pixel[0] & 0xff] += counter;
                         frequenzen[pixel[1] & 0xff] += counter;
                         frequenzen[pixel[2] & 0xff] += counter;
+                        pixelCounter += counter;
                         counter = 0;
                     }
                 }

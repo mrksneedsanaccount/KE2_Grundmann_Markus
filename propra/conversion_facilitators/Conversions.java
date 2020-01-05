@@ -2,6 +2,7 @@ package propra.conversion_facilitators;
 
 
 import propra.compression_operations.*;
+import propra.exceptions.ConversionException;
 import propra.exceptions.IllegalHeaderException;
 import propra.exceptions.InvalidChecksumException;
 import propra.exceptions.UnknownCompressionException;
@@ -219,13 +220,12 @@ public class Conversions {
                 inputFile.checkChecksum();
 
 
-            } catch (IOException | UnknownCompressionException | InvalidChecksumException e) {
+            } catch (IOException | UnknownCompressionException | InvalidChecksumException | ConversionException e) {
                 e.printStackTrace();
                 System.exit(123);
             }
-
         }
-        System.out.println("TEST");
+
 
     }
 

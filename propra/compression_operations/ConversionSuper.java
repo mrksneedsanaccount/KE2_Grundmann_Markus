@@ -1,5 +1,6 @@
 package propra.compression_operations;
 
+import propra.exceptions.ConversionException;
 import propra.file_types.FileTypeSuper;
 import propra.helpers.ProjectConstants;
 
@@ -32,7 +33,7 @@ public abstract class ConversionSuper {
         return byteArrayOutputStream.size();
     }
 
-    public void initializeConversion(FileChannel fileChannel, FileTypeSuper inputFile, ByteBuffer byteBuffer, String compression) throws IOException {
+    public void initializeConversion(FileChannel fileChannel, FileTypeSuper inputFile, ByteBuffer byteBuffer, String compression) throws IOException, ConversionException {
 
     }
 
@@ -60,7 +61,7 @@ public abstract class ConversionSuper {
 
     abstract public void run(byte singleByte) throws IOException;
 
-    void run(byte[] byteArray) throws IOException {
+    void runIteratingOverArray(byte[] byteArray) throws IOException {
 
         for (byte b : byteArray) {
             run(b);

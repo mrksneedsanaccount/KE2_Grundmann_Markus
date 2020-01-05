@@ -75,12 +75,18 @@ public class AutoModule {
                 // Huffman related operations: Either determining the size of a possible RLE datasegment for Huffman -> other,
                 // or filling the frequency array in order to determine the size of a
                 // Huffman encoded datasegment (including the encoded Huffman tree) for a possible Huffman -ü> other.
+
+                if (pixelCounter >= inputFile.getWidth() * inputFile.getHeight()) {//ignore tails, mainly relevant for huffman compression.
+                    break;
+                }
+
                 if (inputFile.getCompression().equals(ProjectConstants.HUFFMAN)) {
                     assert fromHuffmanToOutputcompression != null;
                     fromHuffmanToOutputcompression.run(singleByte);
                 } else if (inputFile.getCompression().equals(ProjectConstants.UNCOMPRESSED) & outputFileSuffix.equals(ProjectConstants.PROPRA)) {
                     fillFrequencyArray(colourValueFrequencies, singleByte);
                 } else if (inputFile.getCompression().equals(ProjectConstants.RLE) & (outputFileSuffix.equals(ProjectConstants.PROPRA))) {
+
                     fillfreuencyArrayRLE(colourValueFrequencies, singleByte);
                 }
             }
@@ -129,6 +135,7 @@ public class AutoModule {
 
     public long fillFrequencyArray(long[] colourValueFrequencies, byte singleByte) {
         totalBytesprocessed++;
+        pixelCounter = totalBytesprocessed / 3;
         return colourValueFrequencies[singleByte & 0xff]++;
     }
 
@@ -146,6 +153,7 @@ public class AutoModule {
         } else if (counter > 0) {
             pixel[pixelByteCounter % 3] = singleByte;
             if (pixelByteCounter % 3 == 2) {
+
                 if (mode == Mode.RAW_PACKET) {
                     frequencies[pixel[0] & 0xff]++;
                     frequencies[pixel[1] & 0xff]++;
@@ -289,7 +297,7 @@ public class AutoModule {
          *
          * @return
          */
-        private void saveToOutputStream(int counter) throws IOException {
+        private void saveToOutputStream(int counter) {
             totalSizeOfRLEDatasegment++;
             totalSizeOfRLEDatasegment += outputStream.size();
             outputStream.reset();
@@ -315,7 +323,6 @@ public class AutoModule {
         Mode mode = Mode.COUNTER;
         int counter = 0;
         int pixelByteCounter = 0;
-        int pixelCounter = 0;
         byte[] pixel = new byte[3];
         int totalSizeOfRLEDatasegment = 0;
 

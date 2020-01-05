@@ -23,7 +23,7 @@ public class ConvertToHuffman extends ConversionSuper {
     @Override
     public void initializeConversion(FileChannel fileChannel, FileTypeSuper inputFile, ByteBuffer byteBuffer, String compression) throws IOException {
 
-        long[] colorFrequencies = Huffman.getColorFrequencies(inputFile.getCompression(), inputFile.getFilepath().toFile(), inputFile.getHeader().length);
+        long[] colorFrequencies = Huffman.getColorFrequencies(inputFile.getCompression(), inputFile.getFilepath().toFile(), inputFile.getHeader().length, inputFile);
         Huffman.Tree tree = Huffman.buildHuffmanTreeFromFrequencies(colorFrequencies);
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -60,7 +60,7 @@ public class ConvertToHuffman extends ConversionSuper {
         inputCompressionToUncompressedConverter.run(singleByte);
         tempByteArray = inputCompressionToUncompressedConverter.returnByteArray();
         if (tempByteArray != null) {
-            toHuffmanConverter.run(tempByteArray);
+            toHuffmanConverter.runIteratingOverArray(tempByteArray);
         }
         processedPixels = inputCompressionToUncompressedConverter.getProcessedPixels();
 
@@ -88,7 +88,7 @@ public class ConvertToHuffman extends ConversionSuper {
         }
     }
 
-    //TODO NICHT MEHR STATIC
+
     class ToHuffmanConverter extends ConversionSuper {
 
         StringBuilder stringBuffer = new StringBuilder();
@@ -108,15 +108,7 @@ public class ConvertToHuffman extends ConversionSuper {
         }
 
         @Override
-        public void run(byte[] tempByteArray) throws IOException {
-            for (byte b : tempByteArray) {
-                run(b);
-            }
-
-        }
-
-        @Override
-        public void run(byte singleByte) throws IOException {
+        public void run(byte singleByte) {
             processedByte++;
 
             stringBuffer.append(encodingTable[(singleByte & 0xff)]);
@@ -137,6 +129,14 @@ public class ConvertToHuffman extends ConversionSuper {
                 byteArrayOutputStream.write(buffer);
             }
             stringBuffer.setLength(0);
+
+        }
+
+        @Override
+        public void runIteratingOverArray(byte[] tempByteArray) throws IOException {
+            for (byte b : tempByteArray) {
+                run(b);
+            }
 
         }
 

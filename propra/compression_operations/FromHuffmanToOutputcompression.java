@@ -1,5 +1,6 @@
 package propra.compression_operations;
 
+import propra.exceptions.ConversionException;
 import propra.file_types.FileTypeSuper;
 import propra.helpers.Huffman;
 import propra.helpers.ProjectConstants;
@@ -9,7 +10,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
-import static propra.helpers.Huffman.getObejctThatPerformsOutputCompression;
+import static propra.helpers.Huffman.getObjectThatPerformsOutputCompression;
 
 public class FromHuffmanToOutputcompression extends ConversionSuper {
 
@@ -31,14 +32,15 @@ public class FromHuffmanToOutputcompression extends ConversionSuper {
 
 
     @Override
-    public void initializeConversion(FileChannel fileChannel, FileTypeSuper inputFile, ByteBuffer byteBuffer, String compression) throws IOException {
+    public void initializeConversion(FileChannel fileChannel, FileTypeSuper inputFile, ByteBuffer byteBuffer, String compression) throws IOException, ConversionException {
 
         int limit;
         limit = fileChannel.read(byteBuffer);
         byteBuffer.flip();
 
+
         Huffman.Tree tree = new Huffman.Tree(new Huffman.Node(0));
-        tree.buildHuffmanTree2(new StringBuilder(), byteBuffer, tree.getRoot(), fileChannel);
+        tree.buildHuffmanTree(new StringBuilder(), byteBuffer, tree.getRoot(), fileChannel);
         byteBuffer.position(tree.getDiskSpaceOccuppiedByHuffmanTree());
 
         for (int i = 0; i < tree.getDiskSpaceOccuppiedByHuffmanTree(); i++) {
@@ -53,7 +55,7 @@ public class FromHuffmanToOutputcompression extends ConversionSuper {
         if (compression.equals(ProjectConstants.AUTO)) {
             uncompressedToOutputCompressionConverter = new AutoModule.UncompressedToRLEForFileSize(inputFile);
         } else {
-            uncompressedToOutputCompressionConverter = getObejctThatPerformsOutputCompression(compression, inputFile);
+            uncompressedToOutputCompressionConverter = getObjectThatPerformsOutputCompression(compression, inputFile);
         }
 
         byteArrayOutputStream = uncompressedToOutputCompressionConverter.byteArrayOutputStream;
@@ -67,7 +69,7 @@ public class FromHuffmanToOutputcompression extends ConversionSuper {
         fileChannel.read(byteBuffer);
         byteBuffer.flip();
         Huffman.Tree tree = new Huffman.Tree(new Huffman.Node(0));
-        tree.buildHuffmanTree2(new StringBuilder(), byteBuffer, tree.getRoot(), fileChannel);
+        tree.buildHuffmanTree(new StringBuilder(), byteBuffer, tree.getRoot(), fileChannel);
         byteBuffer.position(tree.getDiskSpaceOccuppiedByHuffmanTree());
         byteBuffer.clear();
         fileChannel.position(tree.getDiskSpaceOccuppiedByHuffmanTree() + inputFile.getHeader().length);
@@ -108,11 +110,20 @@ public class FromHuffmanToOutputcompression extends ConversionSuper {
         }
     }
 
+
+    /**
+     * This method takes in a byte, then decodes the Huffman compression, and then converts the file into the desired
+     * compression.
+     * It also converts the Pixel into the desired format.
+     *
+     * @param singleByte
+     * @throws IOException
+     */
     @Override
     public void run(byte singleByte) throws IOException {
         huffmanToUncompressedConverter.run(singleByte);
         if (huffmanToUncompressedConverter.howManyBytesProcessed() > 0) {
-            uncompressedToOutputCompressionConverter.run(huffmanToUncompressedConverter.returnByteArray());
+            uncompressedToOutputCompressionConverter.runIteratingOverArray(huffmanToUncompressedConverter.returnByteArray());
             processedPixels = uncompressedToOutputCompressionConverter.getProcessedPixels();
         }
     }

@@ -40,6 +40,10 @@ class ConversionsTest extends GroovyTestCase {
 
                 Arguments.of(stringToStringArray("--input=G:/ProPra/Referenzen/Testbilder/129AllBlack_uncompressed.tga --output=../KE3_Konvertiert/_129AllBlack_rle.tga --compression=rle"), stringToLowerCase("CB19C85D4D17C94662464C8F2873CA70")),
                 Arguments.of(stringToStringArray("--input=G:/ProPra/Referenzen/Testbilder/1Pixel_uncompressed.tga --output=../KE3_Konvertiert/1Pixel_rle.tga --compression=rle"), stringToLowerCase("DEE48D73361BE14F321EEE7E4A1B65F3")),
+                Arguments.of(stringToStringArray("--input=G:/ProPra/Referenzen/Testbilder/1Pixel_uncompressed.tga --output=../KE3_Konvertiert/1Pixel_huffman.propra --compression=huffman"), stringToLowerCase("0")),
+
+                Arguments.of(stringToStringArray("--input=../KE3_Konvertiert/1Pixel_huffman.propra  --output=../KE3_Konvertiert/1Pixel_huffman_to_rle.tga --compression=rle"), stringToLowerCase("DEE48D73361BE14F321EEE7E4A1B65F3")),
+
                 Arguments.of(stringToStringArray("--input=G:/ProPra/Referenzen/Testbilder/129AllBlack_RLE_GIMP.tga --output=../KE3_Konvertiert/_129AllBlack_rle.tga --compression=uncompressed"), stringToLowerCase("0655FB2048CD55A9BAEC3A4BDC703380")),
 
                 Arguments.of(stringToStringArray("--input=G:/ProPra/KE1_TestBilder/hRQJC9d.tga --output=../KE1_Konvertiert/TOO_LARGE.propra --compression=uncompressed"), stringToLowerCase("EF01BC63056E0B211F5ECCEB249A841E")),
@@ -109,6 +113,8 @@ class ConversionsTest extends GroovyTestCase {
                 Arguments.of(stringToStringArray("--input=../KE3_Theo/fullhuffmantree.tga --output=../KE3_Theo_Konvertiert/x1_uncompressed.propra --compression=uncompressed"), stringToLowerCase("5F6718DAC165AE8965F44C9BE91BBE9C")),
                 Arguments.of(stringToStringArray("--input=../KE3_Theo_Konvertiert/x1_uncompressed.propra --output=../KE3_Theo_Konvertiert/x1_uncomp_tohuffman.propra --compression=huffman"), stringToLowerCase("0b16440d2d0085e12f53950e185ce110")),
                 Arguments.of(stringToStringArray("       --input=../KE3_Theo/huffman_is_optimal.tga --output=../KE3_Theo_Konvertiert/x2.propra --compression=auto"), "287952de21afe62de9d1b6427094db2a"),
+                Arguments.of(stringToStringArray("       --input=../KE3_Theo_Konvertiert/x2.propra --output=../KE3_Theo_Konvertiert/x2_tohuffman_is_optimal.tga --compression=rle"), stringToLowerCase("86AEB08B2976EA805F934FF6564381A6")),
+
                 Arguments.of(stringToStringArray("--input=../KE3_Theo/uncompressed_is_optimal.tga --output=../KE3_Theo_Konvertiert/x4.propra --compression=auto"), stringToLowerCase("18a13b0f5637fbfc25e9ed8c7d472f1e")),
                 Arguments.of(stringToStringArray("  --input=../KE3_Theo/rle_is_optimal.tga --output=../KE3_Theo_Konvertiert/x5.tga --compression=auto"), stringToLowerCase("05425d67dae5edc4ead6c21cd9ace25c")),
                 Arguments.of(stringToStringArray("--input=../KE3_Theo/uncompressed_is_optimal.tga --output=../KE3_Theo_Konvertiert/x6.tga --compression=auto"), "3f821d0674972de8d1d498399fd96220"),
@@ -139,7 +145,7 @@ class ConversionsTest extends GroovyTestCase {
                 Arguments.of(stringToStringArray("--input=../KE3_Konvertiert/x12_huffman.propra --output=../KE3_Konvertiert/x12_huffman_toUncompressed.tga  --compression=uncompressed"), stringToLowerCase("287952DE21AFE62DE9D1B6427094DB2A")),
 
 
-                Arguments.of(stringToStringArray("--input=../KE3_TestBilder/test_05_huffman.propra --output=../KE3_Konvertiert/x13_huffman.propra --compression=huffman"), stringToLowerCase("9f439a2375ce28aaa2fccb4584b80eb1  ")),
+                Arguments.of(stringToStringArray("--input=../KE3_TestBilder/test_05_huffman.propra --output=../KE3_Konvertiert/x13_huffman.propra --compression=huffman"), stringToLowerCase("27A43D00A199F86D6C171864CB0CFFC8  ")),
                 Arguments.of(stringToStringArray("--input=../KE3_TestBilder/test_02_rle.tga --output=../KE3_Konvertiert/x14_rle.tga --compression=rle"), stringToLowerCase("aa1f6f8d4b72a1277c95c9496bd2ead7  ")),
                 Arguments.of(stringToStringArray("--input=../KE1_TestBilder/test_01_uncompressed.tga  --output=../KE3_Konvertiert/x15_rle.tga --compression=rle"), stringToLowerCase("cb54b4f224485451befdc38798f0fce0  ")),
                 Arguments.of(stringToStringArray("--input=../KE1_TestBilder/test_01_uncompressed.tga  --output=../KE3_Konvertiert/x16_uncompr.tga --compression=uncompressed"), stringToLowerCase("938fc4ee83b2981243fab48b9e3b779a  ")),
@@ -335,7 +341,7 @@ class ConversionsTest extends GroovyTestCase {
 //            decode.executeConversion();
 //        }
 
-
+        System.out.println("Filesize: " + commandLineInterpreter.getOutputPath().toFile().length());
         assertEquals(md5, getMD5Checksum(commandLineInterpreter.getOutputPath().toString()));
 
 

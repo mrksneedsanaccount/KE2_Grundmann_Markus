@@ -44,6 +44,27 @@ public class UncompressedToRLE3 extends ConversionSuper {
 
         if (byteCounter % 3 == 2) {
             pixelOne = Pixel.transformPixel(pixelOne);
+
+            if (imagewidth == 1) {
+                counter++;
+                interimStorageBAoS.write((pixelOne));
+                saveToOutputStream(counter);
+                byteCounter++;
+                processedPixels++;
+                return;
+            }
+
+
+
+
+
+
+
+
+
+
+
+
             processedPixels++;
             currentwidth++;
 
