@@ -24,7 +24,7 @@ public class CommandLineInterpreter {
     private static final String OUTPUT = "--output=";
     private static final String COMPRESSION = "--compression=";
     private static final String[] FILETYPES = {".tga", ".propra", ".base-32", ".base-n"};
-    public String mode;
+    public String mode = null;
     String inputSuffix;
     String outputSuffix;
     private Path inputPath;
@@ -60,6 +60,14 @@ public class CommandLineInterpreter {
 
     public String getMode() {
         return mode;
+    }
+
+    public Path getOutputPath() {
+        return outputPath;
+    }
+
+    public String getOutputSuffix() {
+        return outputSuffix;
     }
 
     public void interpretInputs(String[] args) {
@@ -148,14 +156,23 @@ public class CommandLineInterpreter {
             System.err.println("This program only accepts two, or three arguments as input.");
             System.exit(123);
         }
-    }
 
-    public Path getOutputPath() {
-        return outputPath;
-    }
 
-    public String getOutputSuffix() {
-        return outputSuffix;
+        if (!(mode == null || mode.equals(ENCODE))) {
+            if (inputPath == null || inputSuffix == null || outputPath == null || outputSuffix == null || alphabet != null) {
+                System.err.println("Check your input to the program");
+                System.exit(123);
+            }
+        }
+        if ((mode.equals(ENCODE))) {
+            if (inputPath == null || inputSuffix == null || outputPath == null || outputSuffix == null || alphabet == null) {
+                System.err.println("Check your input to the program");
+                System.exit(123);
+            }
+        }
+
+
+
     }
 
     public void setMode(String mode) {

@@ -113,8 +113,10 @@ public class Encode {
     private void writeAlphabetToFile() throws IOException {
         BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputPath.toString()));
         bufferedWriter.write(alphabet);
-        bufferedWriter.write('\n'); // Linux newline character
-        // bufferedWriter.newLine(); not used, because it is not system independent.
+        bufferedWriter.write('\n');
+//         bufferedWriter.newLine();
+        //// Linux newline character
+        // not used, because it is not system independent.
         bufferedWriter.close();
     }
 
