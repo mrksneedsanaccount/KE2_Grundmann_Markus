@@ -5,14 +5,15 @@ import propra.helpers.Pixel;
 
 import java.io.IOException;
 
+/**
+ * Responsible for decompressing RLE datasegments and converting to the output imageformat.
+ */
+public class RLEToUncompressedV4 extends ConversionSuper {
 
-public class RLEToUncompressedV4 extends ConversionSuper{
-
-    Mode mode = Mode.COUNTER;
-    int counter = 0;
-    int pixelByteCounter = 0;
-    int pixelCounter = 0;
-    byte[] pixel = new byte[3];
+    private Mode mode = Mode.COUNTER;
+    private int counter = 0;
+    private int pixelByteCounter = 0;
+    private byte[] pixel = new byte[3];
 
 
     public RLEToUncompressedV4(FileTypeSuper inputFile) {
@@ -20,14 +21,20 @@ public class RLEToUncompressedV4 extends ConversionSuper{
     }
 
     public void run(byte singleByte) throws IOException {
+        // How this method is supposed to work:
+        // 1. This method determines if the passed byte is a or counter part of a Pixel.
+        //      1. If it is a counter it determines the size of the following RLE, or RAW packet.
+        //      2. If it is a pixel byte it gathers 3, converts the pixel to the output format
+        //      and then decompresses the RLE fragments them and counts the number of 'uncompressed' pixels.
+
 
         if (processedPixels > inputFile.getWidth() * inputFile.getHeight()) {
             flag = Flags.LAST_PIXEL_HAS_BEEN_PROCESSED;
             return;
         }
 
-        if (mode == Mode.COUNTER) {
-            pixelByteCounter = 0;
+        if (mode == Mode.COUNTER) {//1.
+            pixelByteCounter = 0; // counters the number of bytes that are in a segment.
             counter = singleByte & 0x7f;
             counter++;
 
@@ -36,7 +43,7 @@ public class RLEToUncompressedV4 extends ConversionSuper{
             } else {
                 mode = Mode.RLE_PACKET;
             }
-        } else if (counter > 0) {
+        } else if (counter > 0) {//2.
             pixel[pixelByteCounter % 3] = singleByte;
             if (pixelByteCounter % 3 == 2) {
                 pixel = Pixel.transformPixel(pixel);
@@ -55,10 +62,9 @@ public class RLEToUncompressedV4 extends ConversionSuper{
                     }
                 }
             }
-            if (counter == 0) {
+            if (counter == 0) {// signals that the next byte is going to be a counter.
                 mode = Mode.COUNTER;
-
-        }
+            }
             pixelByteCounter++;
         }
     }

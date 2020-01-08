@@ -1,12 +1,14 @@
 package propra.file_types;
 
-import propra.conversion_facilitators.CommandLineInterpreter;
-import propra.helpers.HelperMethods;
+import propra.exceptions.IllegalHeaderException;
+import propra.exceptions.InvalidChecksumException;
+import propra.exceptions.UnknownCompressionException;
 import propra.helpers.ImageFormats;
 import propra.helpers.ProjectConstants;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 public class ProPra extends FileTypeSuper {
@@ -39,48 +41,65 @@ public class ProPra extends FileTypeSuper {
     private long a = 0;
     private long b = 1;
     private long i = 1;
-    private String formatkennung = "ProPraWS19";
-    private long datensegmentgroesse;
+    private long sizeOfDatasegment;
     private int checksum;
-    private byte kompressionstyp;
 
 
     // Konstruktor für die Eingabedatei
-    public ProPra(CommandLineInterpreter convspec) {
-        super(convspec);
+    public ProPra(Path inputPath, Path inputPath1, String inputSuffix) throws UnknownCompressionException {
+        super(inputPath, inputPath1.toFile(), inputSuffix);
         imageFormats = ImageFormats.GBR;
         // TODO Auto-generated constructor stub
-        datensegmentgroesse = headerbb.getLong(16);
+        sizeOfDatasegment = headerbb.getLong(16);
         checksum = headerbb.getInt(24);
+
     }
 
-    //Konstruktor für die Ausgabedatei
-    public ProPra(CommandLineInterpreter convspec, FileTypeSuper inputformat) {
+    /**
+     * Constructor for setting the metadata of the outputfile.
+     *
+     * @param inputFile
+     * @param mode
+     * @param outputPath
+     * @param outputSuffix
+     * @param mode1
+     * @throws UnknownCompressionException
+     */
+    public ProPra(FileTypeSuper inputFile, String mode, Path outputPath, String outputSuffix, String mode1) throws UnknownCompressionException {
         // TODO Auto-generated constructor stub
-        super(convspec, inputformat);
+        super(inputFile, outputPath, outputSuffix, mode1);
         imageFormats = ImageFormats.GBR;
-        setCompressionOutputfile(convspec.getMode());
 
 
     }
 
     @Override
-    public void ausgabeHeaderFertigInitialisieren(FileTypeSuper inputfile) {
-        setCompressionOutputfile(super.compression);
-
-    }
-
-    @Override
-    public byte[] buildHeader(FileTypeSuper inputfile) {
+    public byte[] buildHeader(FileTypeSuper inputfile) throws UnknownCompressionException {
         // TODO Auto-generated method stub
+        String formatkennung = "ProPraWS19";
         headerbb.put(formatkennung.getBytes());
         headerbb.putShort(10, width);
         headerbb.putShort(12, height);
         headerbb.put(14, bitsprobildpunkt);
-        headerbb.put(15, kompressionstyp);
+        setCompressionOutputFile(super.compression);
+
         headerbb.putLong(16, filepath.toFile().length() - getHeader().length);
         headerbb.putInt(24, returnChecksum());
         return headerbb.array();
+    }
+
+    @Override
+    public void checkChecksum() throws InvalidChecksumException {
+        // Prüfsumme zum Test berechnen
+        int cs1 = returnChecksum();
+        System.out.println("berechnete Prüfsumme: " + cs1);
+        // Prüfsumme des Datei extrahieren.
+        System.out.println("Prüfsumme: " + checksum);
+        if (!(checksum == cs1)) {
+            throw new InvalidChecksumException("Checksum is incorrect. Source file possibly corrupted."
+                    + "\n" + "Output file has not been deleted."
+            );
+        }
     }
 
     public void calculateChecksum(byte dataByte) {
@@ -109,40 +128,27 @@ public class ProPra extends FileTypeSuper {
     }
 
     @Override
-    public void fehlerausgabe() {
+    public void checkForErrorsInHeader() throws IllegalHeaderException {
         // TODO Auto-generated method stub
-        super.fehlerausgabe();
+        super.checkForErrorsInHeader();
         // Dateigröße im Header überprüfen (Prüft, ob Daten fehlen, oder zu
         // viel vorhanden sind.
-        if (kompressionstyp == 0) {
+        if (compression.equals(ProjectConstants.UNCOMPRESSED)) {
             if (height * width * 3 != filepath.toFile().length() - PROPRA_HEADER_OFFSET) {
-                System.err.println(
-                        "Zu wenige, oder zu viele Datensegmente vorhanden.");
-                HelperMethods.exitProgramAfterError();
+                throw new IllegalHeaderException("The size of the file does not fit the expected number of pixels " +
+                        "according to the header.");
             }
         }
+
         // Datensegmentangabe mit Menge der Bilddaten in der Datei abgleichen
-
         if (headerbb.getLong(16) != filepath.toFile().length() - PROPRA_HEADER_OFFSET) {
-            System.err.println(
-                    "Datensegmentanzahl aus dem Header stimmt nicht mit den Anzahl an Datensegmenten in der Datei überein");
-            HelperMethods.exitProgramAfterError();
+            throw new IllegalHeaderException("Size of the data segments in the file does not correspond to the expected " +
+                    "size of data segments stored in the header");
         }
 
-        // Prüfsumme zum Test berechnen
-//        int cs1 = Checksum.calculateChecksumPropra(conversionspec.getInputDatasegments());
-        int cs1 = returnChecksum();
-        System.out.println("berechnete Prüfsumme: " + cs1);
-        // Prüfsumme des Datei extrahieren.
-        System.out.println("Prüfsumme: " + checksum);
-        if (!(checksum == cs1)) {
-            System.err.println("Angegebene Prüfsumme ist inkorrekt.");
-            HelperMethods.exitProgramAfterError();
-        }
         // Kompressionstyp
         if (!(header[15] == 0 || header[15] == 1 || header[15] == 2)) {
-            System.err.println("falscher Kompressionstyp");
-            HelperMethods.exitProgramAfterError();
+            throw new IllegalHeaderException("Unknown compression information in stored header.");
         }
         // Testen, ob ProPraWS19 im Header steht
         String s = "ProPraWS19";
@@ -150,9 +156,14 @@ public class ProPra extends FileTypeSuper {
         System.arraycopy(headerbb.array(), 0, header, 0, 10);
         if (!(Arrays.equals(s.getBytes(StandardCharsets.UTF_8),
                 header))) {
-            System.err.println("Datei beginnt nicht mit ProPraWS19");
-            HelperMethods.exitProgramAfterError();
+            throw new IllegalHeaderException("ProPra file does not start with ProPraWS19");
         }
+    }
+
+    @Override
+    public void finalizeOutputHeader(FileTypeSuper inputfile) throws UnknownCompressionException {
+
+
     }
 
     public byte[] getHeader() {
@@ -165,10 +176,11 @@ public class ProPra extends FileTypeSuper {
     }
 
     @Override
-    protected void setCompressionFromFile() {
+    protected void setCompressionFromFile() throws UnknownCompressionException {
         // TODO Auto-generated method stub
-        kompressionstyp = headerbb.get(15);
-        switch (kompressionstyp) {
+
+        byte comperssionByte = headerbb.get(15);
+        switch (comperssionByte) {
             case 0:
                 compression = ProjectConstants.UNCOMPRESSED;
                 break;
@@ -178,32 +190,36 @@ public class ProPra extends FileTypeSuper {
             case 2:
                 compression = ProjectConstants.HUFFMAN;
                 break;
+            default:
+                throw new UnknownCompressionException("The input file's compression type is not supported");
         }
 
     }
 
     @Override
-    protected void setHeightandWidth() {
+    public void setCompressionOutputFile(String mode) throws UnknownCompressionException {
+
+        switch (mode) {
+            case ProjectConstants.UNCOMPRESSED:
+                headerbb.put(15, (byte) 0);
+                break;
+            case ProjectConstants.RLE:
+                headerbb.put(15, (byte) 1);
+                break;
+            case ProjectConstants.HUFFMAN:
+                headerbb.put(15, (byte) 2);
+                break;
+            default:
+                throw new UnknownCompressionException();
+        }
+    }
+
+    @Override
+    protected void setHeightAndWidth() {
         setWidth(headerbb.getShort(10));
         height = headerbb.getShort(12);
 
     }
-
-
-    public void setCompressionOutputfile(String mode) {
-
-        switch (mode) {
-                case ProjectConstants.UNCOMPRESSED:
-                    kompressionstyp = 0;
-                    break;
-                case ProjectConstants.RLE:
-                    kompressionstyp = 1;
-                    break;
-                case ProjectConstants.HUFFMAN:
-                    kompressionstyp = 2;
-                    break;
-            }
-        }
 
 
 }

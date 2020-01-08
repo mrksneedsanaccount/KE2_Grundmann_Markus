@@ -9,11 +9,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import propra.conversion_facilitators.CommandLineInterpreter;
+import propra.exceptions.IllegalCommandLineInputException;
 
 import java.nio.file.Files;
 import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CommandLineInterpreterTest extends GroovyTestCase {
 
@@ -30,13 +29,13 @@ class CommandLineInterpreterTest extends GroovyTestCase {
 
     @ParameterizedTest
     @MethodSource("stringArrayProvider")
-    void interpretInputs(Object[] args) throws IllegalAccessException {
+    void interpretInputs(Object[] args) throws IllegalCommandLineInputException {
 
 
         CommandLineInterpreter test = new CommandLineInterpreter();
-        assert(args.length == 2 || args.length == 3);
+        assert (args.length == 2 || args.length == 3);
 
-        System.out.println("Args length is "+ args.length);
+        System.out.println("Args length is " + args.length);
 
         test.interpretInputs((String[]) args);
 

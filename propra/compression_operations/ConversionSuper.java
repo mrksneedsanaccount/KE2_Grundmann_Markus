@@ -1,5 +1,6 @@
 package propra.compression_operations;
 
+import propra.exceptions.ConversionException;
 import propra.file_types.FileTypeSuper;
 import propra.helpers.ProjectConstants;
 
@@ -8,19 +9,22 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
+
+/**
+ * abstract superclass of the classes that are responsible for all conversion and compression operations.
+ */
 public abstract class ConversionSuper {
 
+    final int totalNumberOfPixelsInInputImage;
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     int processedPixels = 0;
     FileTypeSuper inputFile;
     Flags flag = null;
 
 
-    public ConversionSuper() {
-    }
-
     public ConversionSuper(FileTypeSuper inputFile) {
         this.inputFile = inputFile;
+        totalNumberOfPixelsInInputImage = inputFile.getWidth() * inputFile.getHeight();
     }
 
 
@@ -28,25 +32,36 @@ public abstract class ConversionSuper {
         return processedPixels;
     }
 
+
+    /**
+     * Tells you how many bytes are ready to be written to the output file.
+     *
+     * @return Returns the number of bytes ready to be written to the output file.
+     */
     public int howManyBytesProcessed() {
         return byteArrayOutputStream.size();
     }
 
-    public void initializeConversion(FileChannel fileChannel, FileTypeSuper inputFile, ByteBuffer byteBuffer, String compression) throws IOException {
+
+    /**
+     * This method is responsible for
+     *
+     * @param fileChannel
+     * @param inputFile
+     * @param byteBuffer
+     * @param compression
+     * @throws IOException
+     * @throws ConversionException
+     */
+    public void initializeConversion(FileChannel fileChannel, FileTypeSuper inputFile, ByteBuffer byteBuffer, String compression) throws IOException, ConversionException {
 
     }
 
-    public byte[] outputForWritingToFile() {
-        if (byteArrayOutputStream.size() >= ProjectConstants.BUFFER_CAPACITY ||
-                processedPixels == inputFile.getWidth() * inputFile.getHeight()) {
-            byte[] temp = byteArrayOutputStream.toByteArray();
-            byteArrayOutputStream.reset();
-            return temp;
-        } else {
-            return null;
-        }
-    }
-
+    /**
+     * Provides the second step of Huffman -> other, or other -> Huffman with an array of preprocessed image data.
+     *
+     * @return byteArray byte array containing image data.
+     */
     public byte[] returnByteArray() {
 
         if (byteArrayOutputStream.size() > 0) {
@@ -58,12 +73,43 @@ public abstract class ConversionSuper {
         }
     }
 
+    /**
+     * Responsible for stepwise processing of the input file.
+     *
+     * @param singleByte a single byte from the input file.
+     * @throws IOException
+     */
     abstract public void run(byte singleByte) throws IOException;
 
-    void run(byte[] byteArray) throws IOException {
+    /**
+     * Responsible for stepwise processing of preprocessed source file inputs.
+     * Only necessary for Huffman -> other, or other -> Huffman.
+     *
+     * @param byteArray byte array containing image data.
+     * @throws IOException
+     */
+    void runIteratingOverArray(byte[] byteArray) throws IOException {
 
         for (byte b : byteArray) {
             run(b);
+        }
+    }
+
+    /**
+     * This method is responsible for creating appropriately large enough chunks for writing to the target destination.
+     * After each time it outputs data from the conversion object it resets the ByteArrayOutputstream.
+     * This should prevent having to write to file too often.
+     *
+     * @return
+     */
+    public byte[] transferChunkOfProcessedData() {
+        if (byteArrayOutputStream.size() >= ProjectConstants.BUFFER_CAPACITY ||
+                processedPixels == totalNumberOfPixelsInInputImage) {
+            byte[] temp = byteArrayOutputStream.toByteArray();
+            byteArrayOutputStream.reset();
+            return temp;
+        } else {
+            return null;
         }
     }
 

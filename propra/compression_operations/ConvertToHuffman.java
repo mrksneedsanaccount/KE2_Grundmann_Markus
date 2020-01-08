@@ -11,39 +11,16 @@ import java.nio.channels.FileChannel;
 
 public class ConvertToHuffman extends ConversionSuper {
 
-    ConversionSuper inputCompressionToUncompressedConverter;
-    ToHuffmanConverter toHuffmanConverter;
-    byte[] tempByteArray;
-    int processedByte = 0;
+    private ConversionSuper inputCompressionToUncompressedConverter;
+    private ToHuffmanConverter toHuffmanConverter;
+    private byte[] tempByteArray;
+    private int processedByte = 0;
 
     public ConvertToHuffman(FileTypeSuper inputFile) {
         super(inputFile);
     }
 
-    @Override
-    public void initializeConversion(FileChannel fileChannel, FileTypeSuper inputFile, ByteBuffer byteBuffer, String compression) throws IOException {
-
-        long[] colorFrequencies = Huffman.getColorFrequencies(inputFile.getCompression(), inputFile.getFilepath().toFile(), inputFile.getHeader().length);
-        Huffman.Tree tree = Huffman.buildHuffmanTreeFromFrequencies(colorFrequencies);
-
-        StringBuilder stringBuilder = new StringBuilder();
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        Huffman.generatePreOrderHuffmanTreeStringAsPerSpecification(tree, stringBuilder);
-        Huffman.writeHuffmanTreeToBAoS(stringBuilder, byteArrayOutputStream); // Does not include the last byte, if it is not
-        // complete.
-
-
-        int offset = tree.getHuffmanTreeStartingBit();
-        byte firstByteOfHuffmanEncoding = (byte) Integer.parseInt(stringBuilder.substring(stringBuilder.length() - 8, stringBuilder.length()), 2);
-
-        chooseConverterToUncompressedPropra(inputFile);
-        toHuffmanConverter = new ToHuffmanConverter(tree, offset, firstByteOfHuffmanEncoding, inputFile);
-        writeEncodedHuffmanTreeToHuffmanConverter(byteArrayOutputStream);
-
-
-    }
-
-    public void chooseConverterToUncompressedPropra(FileTypeSuper inputFile) {
+    private void chooseConverterToUncompressedPropra(FileTypeSuper inputFile) {
         if (inputFile.getCompression().equals(ProjectConstants.RLE)) {
             inputCompressionToUncompressedConverter = new RLEToUncompressedV4(inputFile);
         } else {
@@ -51,18 +28,35 @@ public class ConvertToHuffman extends ConversionSuper {
         }
     }
 
-    public void writeEncodedHuffmanTreeToHuffmanConverter(ByteArrayOutputStream byteArrayOutputStream) throws IOException {
-        toHuffmanConverter.byteArrayOutputStream.write(byteArrayOutputStream.toByteArray());
-    }
-
     @Override
-    public void run(byte singleByte) throws IOException {
-        inputCompressionToUncompressedConverter.run(singleByte);
-        tempByteArray = inputCompressionToUncompressedConverter.returnByteArray();
-        if (tempByteArray != null) {
-            toHuffmanConverter.run(tempByteArray);
+    public void initializeConversion(FileChannel fileChannel, FileTypeSuper inputFile, ByteBuffer byteBuffer, String compression) throws IOException {
+
+        //1. determine color frequencies
+        //2. build Huffman tree.
+        //3. prepare initialise the Converters required.
+        //4. write the encoded Huffman tree to the ByteArrayOutputStream, that will be used to write to file.
+
+        //1.
+        long[] colorFrequencies = Huffman.getColorFrequencies(inputFile.getCompression(), inputFile.getFilepath().toFile(), inputFile.getHeader().length, inputFile);
+        Huffman.Tree tree = Huffman.buildHuffmanTreeFromFrequencies(colorFrequencies);
+        //2.
+        StringBuilder stringBuilder = new StringBuilder();
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        Huffman.generatePreOrderHuffmanTreeStringAsPerSpecification(tree, stringBuilder);
+        Huffman.writeHuffmanTreeToBAoS(stringBuilder, byteArrayOutputStream); // Does not include the last byte, if it is not
+        // complete.
+
+        //3.
+        int offset = tree.getHuffmanTreeStartingBit();
+        if (stringBuilder.length() < 8) {
+            stringBuilder.append("00000000");
         }
-        processedPixels = inputCompressionToUncompressedConverter.getProcessedPixels();
+        byte firstByteOfHuffmanEncoding = (byte) Integer.parseInt(stringBuilder.substring(stringBuilder.length() - 8, stringBuilder.length()), 2);
+        chooseConverterToUncompressedPropra(inputFile);
+        toHuffmanConverter = new ToHuffmanConverter(tree, offset, firstByteOfHuffmanEncoding, inputFile); // firstByteOfHuffmanEncoding: the first byte you manipulate.
+
+        //4.
+        writeEncodedHuffmanTreeToHuffmanConverterOutputStream(byteArrayOutputStream);
 
     }
 
@@ -78,8 +72,23 @@ public class ConvertToHuffman extends ConversionSuper {
     }
 
     @Override
-    public byte[] outputForWritingToFile() {
-        if (toHuffmanConverter.byteArrayOutputStream.size() >= ProjectConstants.BUFFER_CAPACITY || processedPixels == inputFile.getWidth() * inputFile.getHeight()) {
+    public void run(byte singleByte) throws IOException {
+        //1. takes the input files image data byte by byte and uncompresses it
+        //2. if Pixels have been decompressed and converted to .propra send them on to the Huffman converter.
+        //3. count the number of processed Pixels
+
+        inputCompressionToUncompressedConverter.run(singleByte); //1.
+        tempByteArray = inputCompressionToUncompressedConverter.returnByteArray();
+        if (tempByteArray != null) {
+            toHuffmanConverter.runIteratingOverArray(tempByteArray); //2.
+        }
+        processedPixels = inputCompressionToUncompressedConverter.getProcessedPixels(); //3.
+
+    }
+
+    @Override
+    public byte[] transferChunkOfProcessedData() {
+        if (toHuffmanConverter.byteArrayOutputStream.size() >= ProjectConstants.BUFFER_CAPACITY || processedPixels == totalNumberOfPixelsInInputImage) {
             byte[] temp = toHuffmanConverter.byteArrayOutputStream.toByteArray();
             toHuffmanConverter.byteArrayOutputStream.reset();
             return temp;
@@ -88,55 +97,63 @@ public class ConvertToHuffman extends ConversionSuper {
         }
     }
 
-    //TODO NICHT MEHR STATIC
+    private void writeEncodedHuffmanTreeToHuffmanConverterOutputStream(ByteArrayOutputStream byteArrayOutputStream) throws IOException {
+        toHuffmanConverter.byteArrayOutputStream.write(byteArrayOutputStream.toByteArray());
+    }
+
+    /**
+     * Is responsible for the stepwise compression of uncompressed image data (already converted to .propra) to
+     * Huffman encoded data.
+     */
     class ToHuffmanConverter extends ConversionSuper {
 
-        StringBuilder stringBuffer = new StringBuilder();
+        StringBuilder bitStringBuilder = new StringBuilder();
         Huffman.Tree tree;
-        String[] encodingTable;
+        String[] codeTable;
         int offset;
         byte buffer;
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
-        public ToHuffmanConverter(Huffman.Tree tree, int offset, byte buffer, FileTypeSuper inputfile) {
+        ToHuffmanConverter(Huffman.Tree tree, int offset, byte buffer, FileTypeSuper inputFile) {
+            super(inputFile);
             this.tree = tree;
-            encodingTable = tree.generateEncodingTable();
+            codeTable = tree.generateEncodingTable();
             this.offset = offset;
             this.buffer = buffer;
-            this.inputFile = inputfile;
+            this.inputFile = inputFile;
         }
 
         @Override
-        public void run(byte[] tempByteArray) throws IOException {
-            for (byte b : tempByteArray) {
-                run(b);
-            }
+        public void run(byte singleByte) {
 
-        }
 
-        @Override
-        public void run(byte singleByte) throws IOException {
             processedByte++;
-
-            stringBuffer.append(encodingTable[(singleByte & 0xff)]);
-            for (int i = 0; i < stringBuffer.length(); i++) {
-                char stringBinary = stringBuffer.charAt(i);
-                if (stringBinary == '0') {
-                } else {
+            bitStringBuilder.append(codeTable[(singleByte & 0xff)]); // adds the code of the encoded byte to the desired to the bitstring
+            for (int i = 0; i < bitStringBuilder.length(); i++) { // write the the bits through the bite by iterating through the String.
+                char stringBinary = bitStringBuilder.charAt(i);
+                if (stringBinary == '1') {
                     buffer |= Huffman.bitMaskForDecoding[offset];
                 }
                 offset--;
-                if (offset < 0) { // Ab hier wird jedes vollständige Byte geoutputted
+                if (offset < 0) { // The byte is finished and can be sent on. and a new byte for writing gets started.
                     byteArrayOutputStream.write(buffer);
                     buffer = 0;
                     offset = 7;
                 }
             }
-            if (((inputFile.getWidth() * inputFile.getHeight()) * 3 == processedByte) & offset != 7) {
+            // End of the compression operation is reached when this condition is met, before the last byte has been sent on.
+            if (((totalNumberOfPixelsInInputImage) * 3 == processedByte) & offset != 7) {
                 byteArrayOutputStream.write(buffer);
             }
-            stringBuffer.setLength(0);
+            bitStringBuilder.setLength(0);
+        }
+
+        @Override
+        public void runIteratingOverArray(byte[] tempByteArray) throws IOException {
+            for (byte b : tempByteArray) {
+                run(b);
+            }
 
         }
 

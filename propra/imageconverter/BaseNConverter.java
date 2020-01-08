@@ -12,12 +12,12 @@ public class BaseNConverter {
 
     private static final int BITSINBYTE = 8;
     private final int numberOfBytesToBeProcessed;
+    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     private int encodeLength;
     private int bitsInByteNeeded;
     private int indexInByte = 8;
     private int shift;
     private byte temp;
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     private int maskSize;
     private String alphabet;
     private StringBuilder stringBuilder = new StringBuilder();
@@ -38,12 +38,17 @@ public class BaseNConverter {
     }
 
 
-
-    public static byte getShiftMask(double v) {
+    private static byte getShiftMask(double v) {
         return (byte) (Math.pow(2, v) - 1);
     }
 
 
+    /**
+     * Is resposnbile for creating the alphabet table that is used when decoding a file.
+     *
+     * @param alphabet alphabet either provided explicitly, or implicitly (.base-32).
+     * @return filled up alphabet table.
+     */
     private int[] createAlphabetTable(String alphabet) {
         int[] alphabetTable = new int[256];
 
@@ -94,19 +99,28 @@ public class BaseNConverter {
         }
     }
 
+
+    /**
+     * Is responsible for stepwise decoding of a .base-32 or .base-n file up to 64 characters.
+     * <p>
+     * Writes completed characters into a ByteArrayOutputStream
+     *
+     * @param singleByte a single byte representing a character.
+     */
     public void runDecode(byte singleByte) {
         bytesProcessed++;
         while (true) {
-            temp = (byte) alphabetTable[singleByte & 0xff];
+            temp = (byte) alphabetTable[singleByte & 0xff]; //decode the passed char.
+
             shift = indexInByte - encodeLength;
 
-            // if it reaches into the next byte indexInByte will be NEGATIVE
-            indexInByte = indexInByte - encodeLength;
+            //indexInByte refers to the index in the outputbyte
+            indexInByte = indexInByte - encodeLength; // if it reaches into the next byte indexInByte will be NEGATIVE
 
-            if (indexInByte > 0) {
-                outputByte = (byte) (outputByte | (temp << shift));
+            if (indexInByte > 0) { // The whole decoded char can be written into the outpuutByte.
+                outputByte = (byte) (outputByte | (temp << shift)); //building the byte that will be written to file.
                 break;
-            } else {
+            } else {// finishing up the outputByte and preparing the next outputByte.
                 outputByte = (byte) (outputByte | temp >> -shift);
                 byteArrayOutputStream.write(outputByte);
                 outputByte = 0;
@@ -119,7 +133,9 @@ public class BaseNConverter {
     }
 
     /**
-     * The stepwise encoding method.
+     * Is responsible for the stepwise encoding of a binary file.
+     * <p>
+     * Based on the alphabet that has been provided. (explicitly, or implicitly in the case of .base-32)
      *
      * @param singleByte
      */
@@ -128,36 +144,40 @@ public class BaseNConverter {
 
         while (true) {
 
-            shift = indexInByte - bitsInByteNeeded;
-            maskSize = bitsInByteNeeded;
 
-            indexInByte = indexInByte - bitsInByteNeeded;
+            // bitsInByte refers to the size of the block of bits that will be read from "singleByte" in this step.
+            //example: if the encoding length is 5 and bitsInByteNeeded is 3 then that will either be the first 3 bytes, or the last 3 bytes
+            //depending on the current position in the byte.
+            maskSize = bitsInByteNeeded; // masksize 5 would refer to 0x1f etc.
+
+            // shift can be positive and negative. The sign tells you in which direction the shift will happen.
+            // positive -> right shift, negative -> left shift
+            shift = indexInByte - bitsInByteNeeded;
+            indexInByte = indexInByte - bitsInByteNeeded; // if indexByte is negative that means that the encoding goes across byte borders reaching into the next byte.
+            // the 8th bit is the leftmost bit and 1 is the rightmost bit.
             if (indexInByte < 1) {
                 bitsInByteNeeded = -shift;
                 indexInByte = 8;
             } else {
                 bitsInByteNeeded = encodeLength;
             }
-
-            if (shift > 0) {
+            // temp holds the Character to be written.
+            if (shift > 0) { // either the whole character can be found in the current byte, or we can now finish a partial char.
                 temp = (byte) (temp | ((singleByte >> shift) & getShiftMask(maskSize)));
                 stringBuilder.append(alphabet.charAt(temp & getShiftMask(encodeLength)));
                 temp = 0;
-            } else {
+            } else {// builds the partial char and puts the bits into the right position for the next round.
                 temp = (byte) ((singleByte << (-shift)) & getShiftMask(encodeLength));
-                if (bytesProcessed == numberOfBytesToBeProcessed) {
+                if (bytesProcessed == numberOfBytesToBeProcessed) {// end of the source file has been reached.
                     stringBuilder.append(alphabet.charAt(temp & getShiftMask(encodeLength)));
                 }
                 break;
             }
 
-            //TODO letztes Byte in der Datei herausschreiben?
-
         }
 
 
     }
-
 
 
 }

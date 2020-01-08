@@ -15,72 +15,95 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+
+/**
+ * Responsible for dealing with the "auto" compression.
+ */
 public class AutoModule {
 
 
-    FileTypeSuper inputFile;
-    long[] frequencies;
-    long uncompressedSize;
-    long rleCompressedSize;
-    long huffmanSize;
-    Mode mode = Mode.COUNTER;
-    byte singleByte;
-    int counter = 0;
-    int pixelByteCounter = 0;
-    int pixelCounter = 0;
-    byte[] pixel = new byte[3];
-    int totalBytesprocessed = 0;
-    String outputFileSuffix;
-    TreeMap<Long, String> treeMap = new TreeMap<Long, String>();
-    String prefferedCompression;
+    private final int totalNumberOfPixelsInInputImage;
+    private FileTypeSuper inputFile;
+    private long uncompressedSize;
+    private long rleCompressedSize;
+    private long huffmanSize;
+    private Mode mode = Mode.COUNTER;
+    private int counter = 0;
+    private int pixelByteCounter = 0;
+    private int pixelCounter = 0;
+    private byte[] pixel = new byte[3];
+    private int totalBytesprocessed = 0;
+    private String outputFileSuffix;
+    private TreeMap<Long, String> treeMap = new TreeMap<Long, String>();
+    private String prefferedCompression;
+
 
     public AutoModule(FileTypeSuper inputFile, String outputFileSuffix) {
         this.inputFile = inputFile;
         this.outputFileSuffix = outputFileSuffix;
         uncompressedSize = (inputFile.getWidth() * inputFile.getHeight()) * 3;
+        this.totalNumberOfPixelsInInputImage = inputFile.getWidth() * inputFile.getHeight();
         treeMap.put(uncompressedSize, ProjectConstants.UNCOMPRESSED);
     }
 
+
+    /**
+     * This method builds the treemap, that contains the expected file sizes.
+     *
+     * @throws IOException
+     */
     public void calculateFrequenciesForAuto() throws IOException {
 
         ByteBuffer byteBuffer = ByteBuffer.allocate(ProjectConstants.BUFFER_CAPACITY);
         FileChannel fileChannel = HelperMethods.initialiseInputChannel(inputFile.getFilepath().toFile(), inputFile.getHeader().length);
 
-        // initialise the required objects to perform the stepwise determination of expected sizes of the datasegments.
+        // initialise the required objects to perform the stepwise determination of expected sizes of the debasements.
         AutoInterface autoInterface = null;
         FromHuffmanToOutputcompression fromHuffmanToOutputcompression = null;
         if (inputFile.getCompression().equals(ProjectConstants.UNCOMPRESSED)) {
             autoInterface = new UncompressedToRLEForFileSize(inputFile);
-        } else if (inputFile.getCompression().equals(ProjectConstants.RLE)) {
+        } else if (inputFile.getCompression().equals(ProjectConstants.RLE)) { // Just there in case of tails in the input file. Could probably be skipped for performance reasons.
             autoInterface = new RLEtoRLEFileSIze(inputFile);
         } else if (inputFile.getCompression().equals(ProjectConstants.HUFFMAN)) {
-            if (outputFileSuffix.equals(ProjectConstants.PROPRA)) {
+            if (outputFileSuffix.equals(ProjectConstants.PROPRA)) {// Huffman compression is only relevant if the output file is a .propra file.
                 huffmanSize = (inputFile.getFilepath().toFile().length() - inputFile.getHeader().length);
                 treeMap.put(huffmanSize, ProjectConstants.HUFFMAN);
             }
-
-            fromHuffmanToOutputcompression = new FromHuffmanToOutputcompression();
-            fromHuffmanToOutputcompression.initializeConversionForAuto(fileChannel, inputFile, byteBuffer);
+            // if the input compression is Huffman we have to decompress it to determine the size of an RLE segment.
+            fromHuffmanToOutputcompression = new FromHuffmanToOutputcompression(inputFile);
+            fromHuffmanToOutputcompression.initialiseConversionForAuto(fileChannel, byteBuffer); // a special method that performs an RLE compression and only counts.
         }
 
 
         long[] colourValueFrequencies = new long[ProjectConstants.MAX_COLOR_VALUES];
         byte singleByte;
+        // The stepwise loop to determine the potential sizes of the datasegments for RLE and Huffman compression.
+// Same principle as in Conversions.java but just with up to 2 compressions
         while ((fileChannel.read(byteBuffer)) > 0) {
             byteBuffer.flip();
             while (byteBuffer.hasRemaining()) {
+
+                //
                 singleByte = byteBuffer.get();
-                if (autoInterface != null)
+                if (autoInterface != null) // either uncompressed -> rle, or rle->rle;
                     autoInterface.run(singleByte);
+
+
                 // Huffman related operations: Either determining the size of a possible RLE datasegment for Huffman -> other,
                 // or filling the frequency array in order to determine the size of a
                 // Huffman encoded datasegment (including the encoded Huffman tree) for a possible Huffman -ü> other.
+
+                if (pixelCounter >= totalNumberOfPixelsInInputImage) {//ignore tails, mainly relevant for huffman compression.
+                    break;
+                }
+
                 if (inputFile.getCompression().equals(ProjectConstants.HUFFMAN)) {
                     assert fromHuffmanToOutputcompression != null;
                     fromHuffmanToOutputcompression.run(singleByte);
                 } else if (inputFile.getCompression().equals(ProjectConstants.UNCOMPRESSED) & outputFileSuffix.equals(ProjectConstants.PROPRA)) {
                     fillFrequencyArray(colourValueFrequencies, singleByte);
                 } else if (inputFile.getCompression().equals(ProjectConstants.RLE) & (outputFileSuffix.equals(ProjectConstants.PROPRA))) {
+
                     fillfreuencyArrayRLE(colourValueFrequencies, singleByte);
                 }
             }
@@ -88,17 +111,16 @@ public class AutoModule {
         }
 
 
+        // Finalizing the tree map that contains the 2-3 relevant datasegment sizes.
         if (!inputFile.getCompression().equals(ProjectConstants.HUFFMAN)) {
             assert autoInterface != null;
             rleCompressedSize = autoInterface.getTotalSizeOfRLEDatasegment();
             treeMap.put(rleCompressedSize, ProjectConstants.RLE);
 
-
-            if ((outputFileSuffix.equals(ProjectConstants.PROPRA))) {
+            if ((outputFileSuffix.equals(ProjectConstants.PROPRA))) {// determine size of the Huffman data segment + encoded Huffman tree.
                 // Determine the size of Huffman compressed datasegment.
                 Huffman.Tree tree = Huffman.buildHuffmanTreeFromFrequencies(colourValueFrequencies);
                 HashMap hashMap = tree.createHashMap();
-
                 long fileSize = Huffman.calculateBitLengthOfHuffmanEncodedDatasegment(colourValueFrequencies, hashMap);
                 long numberOfNodes = getNumberOfNodesInTreeBasedOnFrequencies(colourValueFrequencies);
                 double temp = (fileSize + Huffman.getCountOfBitsInStoredHuffmanTree(numberOfNodes)) / 8.0;
@@ -113,11 +135,11 @@ public class AutoModule {
             treeMap.put(rleCompressedSize, ProjectConstants.RLE);
         }
 
-
+        //
         for (Map.Entry<Long, String> entry : treeMap.entrySet()) {
             Long key = entry.getKey();
             String value = entry.getValue();
-            System.out.println("Size of datasegment if " + value + ": " + (key + 28) + " bytes");
+            System.out.println("Size of datasegment if " + value + ": " + key + " bytes");
         }
         System.out.println("Best compression: " + (prefferedCompression = treeMap.firstEntry().getValue()));
 
@@ -127,12 +149,26 @@ public class AutoModule {
 
     }
 
-    public long fillFrequencyArray(long[] colourValueFrequencies, byte singleByte) {
+
+    /**
+     * Responsible for filling up the frequency array for Huffman compression if input is uncompressed compressed.
+     *
+     * @param singleByte
+     */
+    private void fillFrequencyArray(long[] colourValueFrequencies, byte singleByte) {
         totalBytesprocessed++;
-        return colourValueFrequencies[singleByte & 0xff]++;
+        pixelCounter = totalBytesprocessed / 3;
+        colourValueFrequencies[singleByte & 0xff]++;
     }
 
-    public void fillfreuencyArrayRLE(long[] frequencies, byte singleByte) {
+
+    /**
+     * Responsible for filling up the frequency array for Huffman compression if input is RLE compressed.
+     *
+     * @param frequencies
+     * @param singleByte
+     */
+    private void fillfreuencyArrayRLE(long[] frequencies, byte singleByte) {
         totalBytesprocessed++;
         if (mode == Mode.COUNTER) {
             pixelByteCounter = 0;
@@ -146,6 +182,7 @@ public class AutoModule {
         } else if (counter > 0) {
             pixel[pixelByteCounter % 3] = singleByte;
             if (pixelByteCounter % 3 == 2) {
+
                 if (mode == Mode.RAW_PACKET) {
                     frequencies[pixel[0] & 0xff]++;
                     frequencies[pixel[1] & 0xff]++;
@@ -167,7 +204,8 @@ public class AutoModule {
         }
     }
 
-    public long getNumberOfNodesInTreeBasedOnFrequencies(long[] colourValueFrequencies) {
+
+    private long getNumberOfNodesInTreeBasedOnFrequencies(long[] colourValueFrequencies) {
         int size = 0;
         for (long colourValueFrequency : colourValueFrequencies) {
             if (colourValueFrequency > 0) {
@@ -289,7 +327,7 @@ public class AutoModule {
          *
          * @return
          */
-        private void saveToOutputStream(int counter) throws IOException {
+        private void saveToOutputStream(int counter) {
             totalSizeOfRLEDatasegment++;
             totalSizeOfRLEDatasegment += outputStream.size();
             outputStream.reset();
@@ -308,14 +346,15 @@ public class AutoModule {
 
 
     /**
+     * Responsible for stepwise counting of frequencies.
      *
+     * Is probably unnecessary, because tails are not very common.
      */
     public static class RLEtoRLEFileSIze extends ConversionSuper implements AutoInterface {
 
         Mode mode = Mode.COUNTER;
         int counter = 0;
         int pixelByteCounter = 0;
-        int pixelCounter = 0;
         byte[] pixel = new byte[3];
         int totalSizeOfRLEDatasegment = 0;
 

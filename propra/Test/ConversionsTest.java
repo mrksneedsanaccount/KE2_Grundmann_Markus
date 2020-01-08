@@ -5,6 +5,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import propra.conversion_facilitators.CommandLineInterpreter;
+import propra.exceptions.IllegalCommandLineInputException;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -40,6 +41,10 @@ class ConversionsTest extends GroovyTestCase {
 
                 Arguments.of(stringToStringArray("--input=G:/ProPra/Referenzen/Testbilder/129AllBlack_uncompressed.tga --output=../KE3_Konvertiert/_129AllBlack_rle.tga --compression=rle"), stringToLowerCase("CB19C85D4D17C94662464C8F2873CA70")),
                 Arguments.of(stringToStringArray("--input=G:/ProPra/Referenzen/Testbilder/1Pixel_uncompressed.tga --output=../KE3_Konvertiert/1Pixel_rle.tga --compression=rle"), stringToLowerCase("DEE48D73361BE14F321EEE7E4A1B65F3")),
+                Arguments.of(stringToStringArray("--input=G:/ProPra/Referenzen/Testbilder/1Pixel_uncompressed.tga --output=../KE3_Konvertiert/1Pixel_huffman.propra --compression=huffman"), stringToLowerCase("955d464c4533a9ca455f83996fb3f243")),
+
+                Arguments.of(stringToStringArray("--input=../KE3_Konvertiert/1Pixel_huffman.propra  --output=../KE3_Konvertiert/1Pixel_huffman_to_rle.tga --compression=rle"), stringToLowerCase("DEE48D73361BE14F321EEE7E4A1B65F3")),
+
                 Arguments.of(stringToStringArray("--input=G:/ProPra/Referenzen/Testbilder/129AllBlack_RLE_GIMP.tga --output=../KE3_Konvertiert/_129AllBlack_rle.tga --compression=uncompressed"), stringToLowerCase("0655FB2048CD55A9BAEC3A4BDC703380")),
 
                 Arguments.of(stringToStringArray("--input=G:/ProPra/KE1_TestBilder/hRQJC9d.tga --output=../KE1_Konvertiert/TOO_LARGE.propra --compression=uncompressed"), stringToLowerCase("EF01BC63056E0B211F5ECCEB249A841E")),
@@ -60,7 +65,9 @@ class ConversionsTest extends GroovyTestCase {
 
 
                 // encode
-                Arguments.of(new String[]{"--input=../KE2_TestBilder/test_04_rle.propra", "--encode-base-n=0987abc4321xyz56"}, stringToLowerCase("367009297E2A7E2529B6A9DE5D676634")),
+                Arguments.of(new String[]{"--input=../KE2_TestBilder/test_04_rle.propra", "--encode-base-n=0987abc4321xyz56"}, stringToLowerCase("5cafb88b8ba967468d0857740c4d5f13")),
+                Arguments.of(new String[]{"--input=../KE2_TestBilder/test_04_rle.propra.base-n", "--decode-base-n"}, stringToLowerCase("88154851C0B8AF7DF81DEBC3CF105594")),
+
                 Arguments.of(new String[]{"--input=../KE2_TestBilder/test_02_rle.tga", "--encode-base-32"}, stringToLowerCase("1BD51859E877425BF9D37B84B43649ED")),
                 Arguments.of(stringToStringArray("--input=../KE2_TestBilder/test_04_rle.propra --encode-base-32"), stringToLowerCase("d9645dc4bd6a28c853c5f00f50c721cd")),
 
@@ -82,21 +89,21 @@ class ConversionsTest extends GroovyTestCase {
                 Arguments.of(new String[]{"--input=../KE2_TestBilder_optional/test_grosses_bild.propra", "--output=../KE2_Konvertiert/test_grosses_bild_compressed.tga", "--compression=rle"}, "d5ec22d8734fb8c04c09ca81966af1ff"),
                 Arguments.of(new String[]{"--input=../KE1_TestBilder/test_03_uncompressed.propra", "--output=../KE1_Konvertiert/test_03.tga", "--compression=uncompressed"}, "6a6e4599112ba08f8af926407e45109f"),
                 Arguments.of(new String[]{"--input=../KE3_TestBilder/test_05_huffman.propra", "--output=../KE3_Konvertiert/test_05.tga", "--compression=rle"}, "eb8ebc447530dcec6a4980295fe33ba6"),
-                Arguments.of(new String[]{"--input=../KE2_TestBilder/test_03_uncompressed.propra", "--output=../KE2_Konvertiert/test_03_AUTO.propra", "--compression=auto"}, "0"),
+                Arguments.of(new String[]{"--input=../KE2_TestBilder/test_03_uncompressed.propra", "--output=../KE2_Konvertiert/test_03_AUTO.propra", "--compression=auto"}, "a4cba2baf9b5b827b6f17e09b8cdb77b"),
                 Arguments.of(stringToStringArray("--input=../KE2_Konvertiert/test_03_AUTO.propra --output=../KE2_Konvertiert/test_03_AUTO_uncompressed.propra --compression=uncompressed"), stringToLowerCase("DA0A09F3CCA4C622E2A23502412C79C2")),
 
-                Arguments.of(new String[]{"--input=../KE1_TestBilder/test_01_uncompressed.tga", "--output=../KE1_Konvertiert/test_01_AUTO.propra", "--compression=auto"}, "0"),
+                Arguments.of(new String[]{"--input=../KE1_TestBilder/test_01_uncompressed.tga", "--output=../KE1_Konvertiert/test_01_AUTO.propra", "--compression=auto"}, "a9f7b21810bbf2ce7aa7daedfd018ce0"),
                 Arguments.of(stringToStringArray("--input=../KE1_Konvertiert/test_01_AUTO.propra --output=../KE1_Konvertiert/test_01_AUTO_huffman_to_uncompressed.tga --compression=uncompressed"), stringToLowerCase("938FC4EE83B2981243FAB48B9E3B779A")),
 
-                Arguments.of(new String[]{"--input=../KE1_TestBilder/test_02_uncompressed.tga", "--output=../KE1_Konvertiert/test_02_AUTO.propra", "--compression=auto"}, "0"),
-                Arguments.of(new String[]{"--input=../KE1_Konvertiert/test_02_AUTO.propra", "--output=../KE1_Konvertiert/test_02_AUTO_touncomoress.tga", "--compression=auto"}, "9d70fb42cc397cab493afe531c61da3f"),
+                Arguments.of(new String[]{"--input=../KE1_TestBilder/test_02_uncompressed.tga", "--output=../KE1_Konvertiert/test_02_AUTO.propra", "--compression=auto"}, "2814e7990918ddfc3da8f430874e4fa3"),
+                Arguments.of(new String[]{"--input=../KE1_Konvertiert/test_02_AUTO.propra", "--output=../KE1_Konvertiert/test_02_AUTO_touncomoressed.tga", "--compression=uncompressed"}, "9d70fb42cc397cab493afe531c61da3f"),
 
                 Arguments.of(new String[]{"--input=../KE2_TestBilder/test_03_uncompressed.propra", "--output=../KE2_Konvertiert/test_03_AUTO.tga", "--compression=auto"}, stringToLowerCase("65C15E7473D3774DA5C57F404392AFA1")),
 
                 Arguments.of(new String[]{"--input=../KE3_Testbilder/test_05_huffman.propra", "--output=../KE3_Konvertiert/test_05_AUTO.propra", "--compression=auto"}, "27a43d00a199f86d6c171864cb0cffc8"),
                 Arguments.of(stringToStringArray("--input=../KE3_Konvertiert/test_05_AUTO.propra --output=../KE3_Theo_Konvertiert/test_05_AUTO_rle.tga --compression=rle"), stringToLowerCase("EB8EBC447530DCEC6A4980295FE33BA6")),
 
-                Arguments.of(new String[]{"--input=../KE3_TestBilder/test_05.tga", "--output=../KE3_Konvertiert/test_05_AUTO.propra", "--compression=auto"}, "0"),
+                Arguments.of(new String[]{"--input=../KE3_TestBilder/test_05.tga", "--output=../KE3_Konvertiert/test_05_AUTO.propra", "--compression=auto"}, "5dbee06877f0dc403e6ae613c5c57788"),
 
 
                 Arguments.of(new String[]{"--input=../KE1_Konvertiert/test_02_AUTO.propra", "--output=../KE1_Konvertiert/test_02_huffmanTOUncompressed.propra", "--compression=uncompressed"}, "7898c68cf3d07f2ed48cd0491bd8f3f2"),
@@ -108,18 +115,22 @@ class ConversionsTest extends GroovyTestCase {
                 Arguments.of(stringToStringArray("--input=../KE3_Theo_Konvertiert/x1.propra --output=../KE3_Theo_Konvertiert/x1_uncompressed.tga --compression=uncompressed"), stringToLowerCase("D86AA190FB403689D1A8041F9AA8DD14")),
                 Arguments.of(stringToStringArray("--input=../KE3_Theo/fullhuffmantree.tga --output=../KE3_Theo_Konvertiert/x1_uncompressed.propra --compression=uncompressed"), stringToLowerCase("5F6718DAC165AE8965F44C9BE91BBE9C")),
                 Arguments.of(stringToStringArray("--input=../KE3_Theo_Konvertiert/x1_uncompressed.propra --output=../KE3_Theo_Konvertiert/x1_uncomp_tohuffman.propra --compression=huffman"), stringToLowerCase("0b16440d2d0085e12f53950e185ce110")),
-                Arguments.of(stringToStringArray("       --input=../KE3_Theo/huffman_is_optimal.tga --output=../KE3_Theo_Konvertiert/x2.propra --compression=auto"), "287952de21afe62de9d1b6427094db2a"),
+                Arguments.of(stringToStringArray("       --input=../KE3_Theo/huffman_is_optimal.tga --output=../KE3_Theo_Konvertiert/x2.propra --compression=auto"), "b8dff8e598c1150c3b07364861a57701"),
+                Arguments.of(stringToStringArray("       --input=../KE3_Theo_Konvertiert/x2.propra --output=../KE3_Theo_Konvertiert/x2_tohuffman_is_optimal.tga --compression=rle"), stringToLowerCase("EBF3A5D277975CA7C34DAEBE5E57F585")),
+
                 Arguments.of(stringToStringArray("--input=../KE3_Theo/uncompressed_is_optimal.tga --output=../KE3_Theo_Konvertiert/x4.propra --compression=auto"), stringToLowerCase("18a13b0f5637fbfc25e9ed8c7d472f1e")),
                 Arguments.of(stringToStringArray("  --input=../KE3_Theo/rle_is_optimal.tga --output=../KE3_Theo_Konvertiert/x5.tga --compression=auto"), stringToLowerCase("05425d67dae5edc4ead6c21cd9ace25c")),
                 Arguments.of(stringToStringArray("--input=../KE3_Theo/uncompressed_is_optimal.tga --output=../KE3_Theo_Konvertiert/x6.tga --compression=auto"), "3f821d0674972de8d1d498399fd96220"),
 
 
 // Gabi Tests
-                Arguments.of(stringToStringArray("--input=../KE1_TestBilder/test_01_uncompressed.tga  --output=../KE3_Konvertiert/x1_huff.propra --compression=huffman"), stringToLowerCase("1bad35be0bed12eeb21ef674d7ebb544")),
+                Arguments.of(stringToStringArray("--input=../KE1_TestBilder/test_01_uncompressed.tga  --output=../KE3_Konvertiert/x1_huff.propra --compression=huffman"), stringToLowerCase("0ef40e461734e9f4d6a6bd8a800571af")),
                 Arguments.of(stringToStringArray("--input=../KE3_Konvertiert/x1_huff.propra  --output=../KE3_Konvertiert/x1_huff_to_uncompressed.tga --compression=uncompressed"), stringToLowerCase("938FC4EE83B2981243FAB48B9E3B779A")),
 
 
-                Arguments.of(stringToStringArray("--input=../KE3_TestBilder/test_02_rle.tga --output=../KE3_Konvertiert/x2_huff.propra --compression=huffman"), stringToLowerCase("f9eea1c90dfff75929cafe2ea0299a5c  ")),
+                Arguments.of(stringToStringArray("--input=../KE3_TestBilder/test_02_rle.tga --output=../KE3_Konvertiert/x2_huff.propra --compression=huffman"), stringToLowerCase("b7875f2c61540afdd54cb2b68c4318ea  ")),
+                Arguments.of(stringToStringArray("--input=../KE3_Konvertiert/x2_huff.propra --output=../KE3_Konvertiert/x2_huff_rle.tga --compression=rle"), stringToLowerCase("AA1F6F8D4B72A1277C95C9496BD2EAD7  ")),
+
                 Arguments.of(stringToStringArray("--input=../KE3_TestBilder/test_05_huffman.propra --output=../KE3_Konvertiert/x3_uncompr.tga --compression=uncompressed"), stringToLowerCase("93be04a09007873a72bdee916009e833")),
 
 
@@ -132,14 +143,14 @@ class ConversionsTest extends GroovyTestCase {
                 Arguments.of(stringToStringArray("--input=../KE2_TestBilder/test_04_rle.propra --output=../KE3_Konvertiert/x8_uncompr.propra --compression=uncompressed"), stringToLowerCase("5599cc1cb3502cff9dff0ac9e1ddcf13")),
                 Arguments.of(stringToStringArray("--input=../KE3_TestBilder/test_05_huffman.propra --output=../KE3_Konvertiert/x9_uncompr.propra --compression=uncompressed"), stringToLowerCase("b2d77e109f787753132853267c765963")),
                 Arguments.of(stringToStringArray(" --input=../KE3_TestBilder/test_02_rle.tga --output=../KE3_Konvertiert/x10_rle.propra --compression=rle"), stringToLowerCase("ff50dee1f71b15ceb72d89c6fe23d6ba")),
-                Arguments.of(stringToStringArray("--input=../KE3_TestBilder/test_03_uncompressed.propra --output=../KE3_Konvertiert/x11_huffman.propra  --compression=huffman"), stringToLowerCase("d3403b684ddf602a11fbcb1c8a5492e8")),
+                Arguments.of(stringToStringArray("--input=../KE3_TestBilder/test_03_uncompressed.propra --output=../KE3_Konvertiert/x11_huffman.propra  --compression=huffman"), stringToLowerCase("848b25b62f92945c3502c31256fb8338")),
                 Arguments.of(stringToStringArray("--input=../KE3_Konvertiert/x11_huffman.propra  --output=../KE3_Konvertiert/x11_huffman_to_uncompressed.propra  --compression=uncompressed"), stringToLowerCase("38F263597523D92E3A4C6299483D14E4")),
 
-                Arguments.of(stringToStringArray("--input=../KE3_TestBilder/test_04_rle.propra --output=../KE3_Konvertiert/x12_huffman.propra  --compression=huffman"), stringToLowerCase("c6b58932910bebbaf904c703fa00282f  ")),
+                Arguments.of(stringToStringArray("--input=../KE3_TestBilder/test_04_rle.propra --output=../KE3_Konvertiert/x12_huffman.propra  --compression=huffman"), stringToLowerCase("dda165588c14d4d2184b8baa4c379cea  ")),
                 Arguments.of(stringToStringArray("--input=../KE3_Konvertiert/x12_huffman.propra --output=../KE3_Konvertiert/x12_huffman_toUncompressed.tga  --compression=uncompressed"), stringToLowerCase("287952DE21AFE62DE9D1B6427094DB2A")),
 
 
-                Arguments.of(stringToStringArray("--input=../KE3_TestBilder/test_05_huffman.propra --output=../KE3_Konvertiert/x13_huffman.propra --compression=huffman"), stringToLowerCase("9f439a2375ce28aaa2fccb4584b80eb1  ")),
+                Arguments.of(stringToStringArray("--input=../KE3_TestBilder/test_05_huffman.propra --output=../KE3_Konvertiert/x13_huffman.propra --compression=huffman"), stringToLowerCase("27A43D00A199F86D6C171864CB0CFFC8  ")),
                 Arguments.of(stringToStringArray("--input=../KE3_TestBilder/test_02_rle.tga --output=../KE3_Konvertiert/x14_rle.tga --compression=rle"), stringToLowerCase("aa1f6f8d4b72a1277c95c9496bd2ead7  ")),
                 Arguments.of(stringToStringArray("--input=../KE1_TestBilder/test_01_uncompressed.tga  --output=../KE3_Konvertiert/x15_rle.tga --compression=rle"), stringToLowerCase("cb54b4f224485451befdc38798f0fce0  ")),
                 Arguments.of(stringToStringArray("--input=../KE1_TestBilder/test_01_uncompressed.tga  --output=../KE3_Konvertiert/x16_uncompr.tga --compression=uncompressed"), stringToLowerCase("938fc4ee83b2981243fab48b9e3b779a  ")),
@@ -148,7 +159,7 @@ class ConversionsTest extends GroovyTestCase {
 
 //Gabi extra:
                 Arguments.of(stringToStringArray("--input=../KE3_TestBilder/test_09_lauterVerschiedeneFarben_uncompressed.tga --output=../KE3_Konvertiert/test_09_lauterVerschiedeneFarben_rle.tga --compression=rle"), stringToLowerCase("01D916447436A354008461C9C79E8416")),
-                Arguments.of(stringToStringArray("--input=../KE3_TestBilder/test_09_lauterVerschiedeneFarben_uncompressed.tga --output=../KE3_Konvertiert/test_09_lauterVerschiedeneFarben_huffman.propra --compression=huffman"), stringToLowerCase("0")),
+                Arguments.of(stringToStringArray("--input=../KE3_TestBilder/test_09_lauterVerschiedeneFarben_uncompressed.tga --output=../KE3_Konvertiert/test_09_lauterVerschiedeneFarben_huffman.propra --compression=huffman"), stringToLowerCase("bd408daed518d3dbcb0f2e55b85b82c5")),
                 Arguments.of(stringToStringArray("--input=../KE3_Konvertiert/test_09_lauterVerschiedeneFarben_huffman.propra --output=../KE3_Konvertiert/test_09_lauterVerschiedeneFarben_uncompressed.tga --compression=uncompressed"), stringToLowerCase("6911174F5818E55A9BC86579DD6BBB44")),
 //                Arguments.of ((Object) stringToStringArray(""), stringToLowerCase("0")),
 
@@ -227,39 +238,39 @@ class ConversionsTest extends GroovyTestCase {
 
                 Arguments.of(stringToStringArray(" --input=../KE1_TestBilder/test_01_uncompressed.tga --output=../KE1_autoTest/test_01.propra --compression=auto"), stringToLowerCase("a9f7b21810bbf2ce7aa7daedfd018ce0  ")),
 
-                Arguments.of(stringToStringArray(" --input=../KE1_TestBilder/test_02_uncompressed.tga --output=../KE1_autoTest/test_02.propra --compression=auto"), stringToLowerCase("84678707d99dbd9d4f7bdcc4ded56c66  ")),
+                Arguments.of(stringToStringArray(" --input=../KE1_TestBilder/test_02_uncompressed.tga --output=../KE1_autoTest/test_02.propra --compression=auto"), stringToLowerCase("2814e7990918ddfc3da8f430874e4fa3  ")),
 
-                Arguments.of(stringToStringArray(" --input=../KE1_TestBilder/test_03_uncompressed.propra --output=../KE1_autoTest/test_03.propra --compression=auto"), stringToLowerCase("7e3aef34886a6262910d3474946dae24  ")),
+                Arguments.of(stringToStringArray(" --input=../KE1_TestBilder/test_03_uncompressed.propra --output=../KE1_autoTest/test_03.propra --compression=auto"), stringToLowerCase("d1d8ae030a0796109140319aa9888eb3  ")),
 
-                Arguments.of(stringToStringArray(" --input=../KE1_TestBilder/test_04_uncompressed.propra --output=../KE1_autoTest/test_04.propra --compression=auto"), stringToLowerCase("914db4e9e65f78e9566320a9818844e8  ")),
+                Arguments.of(stringToStringArray(" --input=../KE1_TestBilder/test_04_uncompressed.propra --output=../KE1_autoTest/test_04.propra --compression=auto"), stringToLowerCase("23c5ba509f84e794c4a365ff75304ffb  ")),
 
 
                 Arguments.of(stringToStringArray(" --input=../KE2_TestBilder/test_01_uncompressed.tga --output=../KE2_autoTest/test_01.propra --compression=auto"), stringToLowerCase("78b4a2f629e81c30b34c8d9ac1ec7428  ")),
 
-                Arguments.of(stringToStringArray(" --input=../KE2_TestBilder/test_02_rle.tga --output=../KE2_autoTest/test_02.propra --compression=auto"), stringToLowerCase("4988388814dc85b5d749db0593d3c10b  ")),
+                Arguments.of(stringToStringArray(" --input=../KE2_TestBilder/test_02_rle.tga --output=../KE2_autoTest/test_02.propra --compression=auto"), stringToLowerCase("1eb0003242e675636a8f6683ae8d4ea8  ")),
 
-                Arguments.of(stringToStringArray(" --input=../KE2_TestBilder/test_03_uncompressed.propra --output=../KE2_autoTest/test_03.propra --compression=auto"), stringToLowerCase("65c15e7473d3774da5c57f404392afa1  ")),
+                Arguments.of(stringToStringArray(" --input=../KE2_TestBilder/test_03_uncompressed.propra --output=../KE2_autoTest/test_03.propra --compression=auto"), stringToLowerCase("a4cba2baf9b5b827b6f17e09b8cdb77b  ")),
 
-                Arguments.of(stringToStringArray(" --input=../KE2_TestBilder/test_04_rle.propra --output=../KE2_autoTest/test_04.propra --compression=auto"), stringToLowerCase("d84715fafd3d1ade7fb2466db78d01db  ")),
+                Arguments.of(stringToStringArray(" --input=../KE2_TestBilder/test_04_rle.propra --output=../KE2_autoTest/test_04.propra --compression=auto"), stringToLowerCase("88154851c0b8af7df81debc3cf105594  ")),
 
-                Arguments.of(stringToStringArray(" --input=../KE2_TestBilder/test_05_base32.tga --output=../KE2_autoTest/test_05.propra --compression=auto"), stringToLowerCase("0")),
+                Arguments.of(stringToStringArray(" --input=../KE2_TestBilder/test_05_base32.tga --output=../KE2_autoTest/test_05.propra --compression=auto"), stringToLowerCase("f64e71e286ea128f19e5b4e867ad83e7")),
 
-                Arguments.of(stringToStringArray(" --input=../KE2_TestBilder/test_06_base32.propra  --output=../KE2_autoTest/test_06.propra --compression=auto"), stringToLowerCase("78b4a2f629e81c30b34c8d9ac1ec7428  ")),
+                Arguments.of(stringToStringArray(" --input=../KE2_TestBilder/test_06_base32.propra  --output=../KE2_autoTest/test_06.propra --compression=auto"), stringToLowerCase("40c9dbc2ea45629cb56b15e2cbcad027  ")),
 
 
-                Arguments.of(stringToStringArray(" --input=../KE2_TestBilder_optional/test_base-2_a.propra --output=../KE2_autoTest/test_base-2_a.propra  --compression=auto"), stringToLowerCase("78b4a2f629e81c30b34c8d9ac1ec7428  ")),
-                Arguments.of(stringToStringArray(" --input=../KE2_TestBilder_optional/test_base-2_b.propra --output=../KE2_autoTest/test_base-2_b.propra --compression=auto"), stringToLowerCase("4988388814dc85b5d749db0593d3c10b  ")),
-                Arguments.of(stringToStringArray(" --input=../KE2_TestBilder_optional/test_base-4.propra --output=../KE2_autoTest/test_base-4.propra --compression=auto"), stringToLowerCase("65c15e7473d3774da5c57f404392afa1  ")),
-                Arguments.of(stringToStringArray(" --input=../KE2_TestBilder_optional/test_base-8.propra --output=../KE2_autoTest/test_base-8.propra  --compression=auto"), stringToLowerCase("d84715fafd3d1ade7fb2466db78d01db  ")),
-                Arguments.of(stringToStringArray(" --input=../KE2_TestBilder_optional/test_base-64.propra --output=../KE2_autoTest/test_base-64.propra  --compression=auto"), stringToLowerCase("d5ec22d8734fb8c04c09ca81966af1ff  ")),
+                Arguments.of(stringToStringArray(" --input=../KE2_TestBilder_optional/test_base-2_a.propra --output=../KE2_autoTest/test_base-2_a.propra  --compression=auto"), stringToLowerCase("14f0ff988ef5dc2d530d0682ae00eab7  ")),
+                Arguments.of(stringToStringArray(" --input=../KE2_TestBilder_optional/test_base-2_b.propra --output=../KE2_autoTest/test_base-2_b.propra --compression=auto"), stringToLowerCase("c8c8dfad5600c0819aed15b137b3d977  ")),
+                Arguments.of(stringToStringArray(" --input=../KE2_TestBilder_optional/test_base-4.propra --output=../KE2_autoTest/test_base-4.propra --compression=auto"), stringToLowerCase("4c3197fdee86242900e476f40e5d098c  ")),
+                Arguments.of(stringToStringArray(" --input=../KE2_TestBilder_optional/test_base-8.propra --output=../KE2_autoTest/test_base-8.propra  --compression=auto"), stringToLowerCase("a8616e0f31e3335f3137b86990c198d2  ")),
+                Arguments.of(stringToStringArray(" --input=../KE2_TestBilder_optional/test_base-64.propra --output=../KE2_autoTest/test_base-64.propra  --compression=auto"), stringToLowerCase("db5c28105436993cd2fa4e43fcb356ad  ")),
                 Arguments.of(stringToStringArray(" --input=../KE2_TestBilder_optional/test_grosses_bild.propra  --output=../KE2_autoTest/test_grosses.propra  --compression=auto"), stringToLowerCase("ce57d6c8336939f5f603ab27806c4018    ")),
 
 
-                Arguments.of(stringToStringArray(" --input=../KE3_TestBilder/test_01_uncompressed.tga  --output=../KE3_autoTest/test_01.propra  --compression=auto"), stringToLowerCase("b1d3573f12daec2b4a2818a6070d5fcb  ")),
+                Arguments.of(stringToStringArray(" --input=../KE3_TestBilder/test_01_uncompressed.tga  --output=../KE3_autoTest/test_01.propra  --compression=auto"), stringToLowerCase("027b0c460473a15fdb6d5ac9a50ba6c7  ")),
 
                 Arguments.of(stringToStringArray(" --input=../KE3_TestBilder/test_02_rle.tga --output=../KE3_autoTest/test_02.propra  --compression=auto"), stringToLowerCase("ff50dee1f71b15ceb72d89c6fe23d6ba  ")),
 
-                Arguments.of(stringToStringArray(" --input=../KE3_TestBilder/test_03_uncompressed.propra --output=../KE3_autoTest/test_03.propra  --compression=auto"), stringToLowerCase("fc0b011a43ac921c948cf8c3bc66265f  ")),
+                Arguments.of(stringToStringArray(" --input=../KE3_TestBilder/test_03_uncompressed.propra --output=../KE3_autoTest/test_03.propra  --compression=auto"), stringToLowerCase("da166c00421782c8177f39c1c66f1245  ")),
 
                 Arguments.of(stringToStringArray(" --input=../KE3_TestBilder/test_04_rle.propra --output=../KE3_autoTest/test_04.propra  --compression=auto"), stringToLowerCase("C8EAAA1CD99858E662604669998EF353  ")),
 
@@ -309,7 +320,7 @@ class ConversionsTest extends GroovyTestCase {
 
     @ParameterizedTest
     @MethodSource("stringArrayProvider")
-    void initializeConversions(Object[] args, String md5) throws IOException, NoSuchAlgorithmException {
+    void initializeConversions(Object[] args, String md5) throws IOException, NoSuchAlgorithmException, IllegalCommandLineInputException {
 
 
         propra.imageconverter.ImageConverter.main((String[]) args);
@@ -335,7 +346,7 @@ class ConversionsTest extends GroovyTestCase {
 //            decode.executeConversion();
 //        }
 
-
+        System.out.println("Filesize: " + commandLineInterpreter.getOutputPath().toFile().length());
         assertEquals(md5, getMD5Checksum(commandLineInterpreter.getOutputPath().toString()));
 
 

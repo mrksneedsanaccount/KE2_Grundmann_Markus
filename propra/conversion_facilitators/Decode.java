@@ -7,8 +7,6 @@ import propra.imageconverter.BaseNConverter;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -47,13 +45,13 @@ public class Decode {
 
     public void executeConversion() {
         try {
-
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(commandLineInterpreter.getInputPath().toString()));
             //
             int offset = 0;
             if (commandLineInterpreter.getInputSuffix().equals(ProjectConstants.BASEN)) {
-                BufferedReader bufferedReader = new BufferedReader(new FileReader(commandLineInterpreter.getInputPath().toString()));
+
                 this.alpahbet = bufferedReader.readLine();
-                bufferedReader.close();
+//                bufferedReader.close();
                 offset = alpahbet.length() + 1;
             } else {
                 alpahbet = ProjectConstants.BASE32HEX;
@@ -63,9 +61,9 @@ public class Decode {
             int bitsInAlphabet = calculateBitLengthOfAlphabet(alpahbet);
 
 
-            FileChannel fileChannel = HelperMethods.initialiseInputChannel(commandLineInterpreter.getInputPath().toFile(), offset);
+//            FileChannel fileChannel = HelperMethods.initialiseInputChannel(commandLineInterpreter.getInputPath().toFile(), offset);
             HelperMethods.initialiseOutputFile(commandLineInterpreter.getOutputPath().toFile(), 0);
-            ByteBuffer byteBuffer = ByteBuffer.allocate(ProjectConstants.BUFFER_CAPACITY);
+//            ByteBuffer byteBuffer = ByteBuffer.allocate(ProjectConstants.BUFFER_CAPACITY);
 
 
             int encodedCharactersInFile;
@@ -78,22 +76,26 @@ public class Decode {
             BaseNConverter baseNConverter = new BaseNConverter(encodedCharactersInFile,
                     this.alpahbet, bitsInAlphabet, commandLineInterpreter.getMode());
 
+            char[] charArray = new char[ProjectConstants.BUFFER_CAPACITY];
+            int chars_read;
+            while ((chars_read = bufferedReader.read(charArray)) != -1) {
 
-            while (fileChannel.read(byteBuffer) > -1) {
-                byteBuffer.flip();
 
-                while (byteBuffer.hasRemaining()) {
-                    baseNConverter.runDecode(byteBuffer.get());
+                for (int i = 0; i < chars_read; i++) {
 
+                    baseNConverter.runDecode((byte) charArray[i]);
                     byte[] temp = baseNConverter.outputByteArrayForWritingToFile();
                     if (temp != null) {
                         Files.write(outputPath, temp, StandardOpenOption.APPEND);
                     }
 
                 }
-                byteBuffer.compact();
+// TEST
+
+
             }
-            fileChannel.close();
+//            fileChannel.close();
+            bufferedReader.close();
 
 
         } catch (IOException e) {

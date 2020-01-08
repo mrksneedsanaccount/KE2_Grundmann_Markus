@@ -1,7 +1,9 @@
 package propra.file_types;
 
 
-import propra.conversion_facilitators.CommandLineInterpreter;
+import propra.exceptions.IllegalHeaderException;
+import propra.exceptions.InvalidChecksumException;
+import propra.exceptions.UnknownCompressionException;
 import propra.helpers.ImageFormats;
 import propra.helpers.ProjectConstants;
 
@@ -40,39 +42,43 @@ public abstract class FileTypeSuper {
     /**
      * Constructor for output file.
      *
-     * @param commandLineInterpreter contains a 'translation' of the input to the program
      * @param inputFile
+     * @param outputPath
+     * @param outputSuffix
+     * @param mode
      */
-    public FileTypeSuper(CommandLineInterpreter commandLineInterpreter, FileTypeSuper inputFile) {
+    public FileTypeSuper(FileTypeSuper inputFile, Path outputPath, String outputSuffix, String mode) {
         // TODO Auto-generated constructor stub
         // Lade die Bilddatei und speichere sie in einem Byte Array.
-        file = commandLineInterpreter.getOutputPath().toFile();
-        this.filepath = commandLineInterpreter.getOutputPath();
+        file = outputPath.toFile();
+        this.filepath = outputPath;
         // Höhe und Breite
         height = inputFile.height;
         width = inputFile.width;
         // Datensegmente
-        if (commandLineInterpreter.getOutputSuffix().equals(ProjectConstants.PROPRA)) {
+        if (outputSuffix.equals(ProjectConstants.PROPRA)) {
             header = new byte[PROPRA_HEADER_OFFSET];
         }
-        if (commandLineInterpreter.getOutputSuffix().equals(ProjectConstants.TGA)) {
+        if (outputSuffix.equals(ProjectConstants.TGA)) {
             header = new byte[TGA_HEADER_OFFSET];
         }
         headerbb = ByteBuffer.wrap(header).order(ByteOrder.LITTLE_ENDIAN);
-        setCompression(commandLineInterpreter.getMode());
+        setCompression(mode);
     }
 
     /**
-     * Konstruktor für die Eingabedateien.
+     * Constructor for source files.
      *
-     * @param commandLineInterpreter Objekt, welches die Informationen über die durchzuführende Operation enthält.
+     * @param inputPath
+     * @param file
+     * @param inputSuffix
      */
-    public FileTypeSuper(CommandLineInterpreter commandLineInterpreter) {
-        this.filepath = commandLineInterpreter.getInputPath();
-        this.file = commandLineInterpreter.getInputPath().toFile();
-        if (commandLineInterpreter.getInputSuffix().equals(ProjectConstants.PROPRA)) {
+    public FileTypeSuper(Path inputPath, File file, String inputSuffix) throws UnknownCompressionException {
+        this.filepath = inputPath;
+        this.file = file;
+        if (inputSuffix.equals(ProjectConstants.PROPRA)) {
             header = new byte[PROPRA_HEADER_OFFSET];
-        } else if (commandLineInterpreter.getInputSuffix().equals(ProjectConstants.TGA)) {
+        } else if (inputSuffix.equals(ProjectConstants.TGA)) {
             header = new byte[TGA_HEADER_OFFSET];
         } else {
             System.out.println("This Program only supports the TARGA and the ProPra2019 formats, please check your inputfile.");
@@ -81,37 +87,25 @@ public abstract class FileTypeSuper {
         try {
             // Speichere den Header der Eingabedatei in ihren Objekten Objekt.
             BufferedInputStream inputStream = new BufferedInputStream(
-                    new FileInputStream(file));
+                    new FileInputStream(this.file));
             inputStream.read(header);
             inputStream.close();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            System.exit(123);
         }
         headerbb = ByteBuffer.wrap(header).order(ByteOrder.LITTLE_ENDIAN);
-        setHeightandWidth();
+        setHeightAndWidth();
         setCompressionFromFile();
     }
 
     /**
-     * Vervollständigt die Metadaten des Ausgabeobjekts, so weit wie möglich, bevor der Header geschrieben wird.
+     * Builds the header for the output file.
      *
-     * @param inputfile Objekt der Eingabedatei.
+     * @param inputfile object of the sorce file.
+     * @return complete header ready for writing to file.
      */
-    public abstract void ausgabeHeaderFertigInitialisieren(FileTypeSuper inputfile);
-
-    public void ausgabeHeaderFertigInitialisieren() {
-        // TODO Auto-generated method stub
-
-    }
-
-    /**
-     * Baut den Header für die AUsgabedatei zusammen
-     *
-     * @param inputfile Objekt der Eingabedatei.
-     * @return Vollständiger Header der Ausgabedatei
-     */
-    public abstract byte[] buildHeader(FileTypeSuper inputfile);
+    public abstract byte[] buildHeader(FileTypeSuper inputfile) throws UnknownCompressionException;
 
     public abstract void calculateChecksum(byte dataByte);
 
@@ -119,17 +113,26 @@ public abstract class FileTypeSuper {
 
     public abstract void calculateChecksumOfByteBuffer(ByteBuffer pixelBuffer, int limit);
 
+    public abstract void checkChecksum() throws InvalidChecksumException;
+
     /**
      * Checks the validity of the file by comparing the header data to the file.
      */
-    public void fehlerausgabe() {
+    public void checkForErrorsInHeader() throws IllegalHeaderException {
 
         // ensuring that the image has valid dimensions.
         if ((getWidth() * getHeight()) == 0) {
-            System.err.println("At least one of the dimensions is 0.");
-            System.exit(123);
+            throw new IllegalHeaderException();
         }
     }
+
+    /**
+     * Vervollständigt die Metadaten des Ausgabeobjekts, so weit wie möglich, bevor der Header geschrieben wird.
+     *
+     * @param inputfile Objekt der Eingabedatei.
+     */
+    public abstract void finalizeOutputHeader(FileTypeSuper inputfile) throws UnknownCompressionException;
+
 
     public String getCompression() {
         return compression;
@@ -169,13 +172,15 @@ public abstract class FileTypeSuper {
     /**
      * Determines the compression type based on header data
      */
-    protected abstract void setCompressionFromFile();
+    protected abstract void setCompressionFromFile() throws UnknownCompressionException;
+
+    public abstract void setCompressionOutputFile(String mode) throws UnknownCompressionException;
 
     /**
      * Extracts the height and width from the header
      * and saves it in the object.
      */
-    abstract protected void setHeightandWidth();
+    abstract protected void setHeightAndWidth();
 
 
 //    /**

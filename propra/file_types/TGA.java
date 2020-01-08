@@ -1,10 +1,13 @@
 package propra.file_types;
 
-import propra.conversion_facilitators.CommandLineInterpreter;
+import propra.exceptions.IllegalHeaderException;
+import propra.exceptions.UnknownCompressionException;
 import propra.helpers.ImageFormats;
 import propra.helpers.ProjectConstants;
 
+import java.io.File;
 import java.nio.ByteBuffer;
+import java.nio.file.Path;
 
 /**
  * Klasse, welche die Metadaten von Objekten im TGA-Format enthält.
@@ -50,54 +53,41 @@ public class TGA extends FileTypeSuper {
 
 
     /**
-     * inputfile Konstruktor
+     * Constructor for objects holding the metadata of the source file.
      *
-     * @param convspec Objekt, welches die Informationen über die durchzuführende Operation enthält.
+     * @param inputPath   String representation of the input path.
+     * @param file        The input picture's input File object.
+     * @param inputSuffix String representation of the suffix.
      */
-    public TGA(CommandLineInterpreter convspec) {
-        super(convspec);
+    public TGA(Path inputPath, File file, String inputSuffix) throws UnknownCompressionException {
+        super(inputPath, file, inputSuffix);
         imageFormats = ImageFormats.BGR;
-        if (headerbb.getShort(8) != 0 && headerbb.getShort(10) == height) {
-            System.err.println("The origin of TGA file is not in the top left corner.");
-            System.exit(123);
-        }
     }
 
 
     /**
      * Outpfile Konstruktor
      *
-     * @param convspec    Objekt, welches die Informationen über die durchzuführende Operation enthält.
-     * @param inputformat Das Objekt, der Eingabedatei. (Zur Unterscheidung der Eingabe- und Ausgabedateiheader
+     * @param inputFile    Das Objekt, der Eingabedatei. (Zur Unterscheidung der Eingabe- und Ausgabedateiheader
+     * @param outputPath   String representation of the output path.
+     * @param outputSuffix String
+     * @param mode         What kind compression is to be performed.
      */
-    public TGA(CommandLineInterpreter convspec, FileTypeSuper inputformat) {
-        // TODO Auto-generated constructor stub
-        super(convspec, inputformat);
+    public TGA(FileTypeSuper inputFile, Path outputPath, String outputSuffix, String mode) {
+        super(inputFile, outputPath, outputSuffix, mode);
         imageFormats = ImageFormats.BGR;
-        short ycoord = getWidth();
         bildAttributByte = 0x20;
-        setCompressionOutputfile(convspec.getMode());
+
 
     }
 
     @Override
-    public void ausgabeHeaderFertigInitialisieren(FileTypeSuper inputfile) {
-        // TODO Auto-generated method stub
-        headerbb.put(2, bildTyp);
-        headerbb.putShort(10, height);
-
-        headerbb.putShort(12, width);
-        headerbb.putShort(14, height);
-        headerbb.put(16, bitsprobildpunkt);
-        headerbb.put(17, bildAttributByte);
-
+    public void checkChecksum() {
 
     }
 
     @Override
     public byte[] buildHeader(FileTypeSuper inputfile) {
-        // TODO Auto-generated method stub
-
 
         switch (getCompression()) {
             case ProjectConstants.UNCOMPRESSED:
@@ -132,27 +122,39 @@ public class TGA extends FileTypeSuper {
     }
 
     @Override
-    public void fehlerausgabe() {
-        // TODO Auto-generated method stub
-        super.fehlerausgabe();
-        // Bilddimensionen
+    public void checkForErrorsInHeader() throws IllegalHeaderException {
+        super.checkForErrorsInHeader();
+        // image dimensions
         if ((getWidth() * height) == 0) {
-            System.err.println("mindestens eine Bilddimension ist 0.");
-            System.exit(123);
+            throw new IllegalHeaderException("At least one of the image dimensions in the header is 0.");
         }
-        // Bildtyp
+        //image origin point
+        if (headerbb.getShort(8) != 0 || headerbb.getShort(10) != height) {
+            throw new IllegalHeaderException("The origin of TGA file is not in the top left corner." + "" +
+                    "You can use a free tool (GIMP for example) to change the origin point of your source file.");
+        }
+        // image type
         if (!(header[2] == 2 || header[2] == 10)) {
-            System.err.println("Bildtyp ist falsch");
-            System.exit(123);
+            throw new IllegalHeaderException("Image type is not supported.");
         }
-
         // Zu wenig Bilddaten
         if (bildTyp == 2) {
             if (getWidth() * height * 3 > (filepath.toFile().length() - TGA_HEADER_OFFSET)) {
-                System.err.println("zu wenige Bilddaten");
-                System.exit(123);
+                throw new IllegalHeaderException("This file's datas egment is smaller than the required minimum size.");
             }
         }
+
+    }
+
+    @Override
+    public void finalizeOutputHeader(FileTypeSuper inputfile) {
+//        headerbb.put(2, bildTyp);
+//        headerbb.putShort(10, height);
+//        headerbb.putShort(12, width);
+//        headerbb.putShort(14, height);
+//        headerbb.put(16, bitsprobildpunkt);
+//        headerbb.put(17, bildAttributByte);
+
 
     }
 
@@ -162,17 +164,13 @@ public class TGA extends FileTypeSuper {
         return header;
     }
 
-    protected void setHeader(byte[] header) {
-        this.header = header;
-    }
-
     @Override
     int returnChecksum() {
         return 0;
     }
 
     @Override
-    protected void setCompressionFromFile() {
+    protected void setCompressionFromFile() throws UnknownCompressionException {
         // TODO Auto-generated method stub
         bildTyp = headerbb.get(2);
         switch (bildTyp) {
@@ -182,11 +180,14 @@ public class TGA extends FileTypeSuper {
             case 10:
                 compression = ProjectConstants.RLE;
                 break;
+            default:
+                throw new UnknownCompressionException();
         }
 
     }
 
-    public void setCompressionOutputfile(String mode) {
+    @Override
+    public void setCompressionOutputFile(String mode) throws UnknownCompressionException {
 
         switch (mode) {
             case ProjectConstants.UNCOMPRESSED:
@@ -195,13 +196,14 @@ public class TGA extends FileTypeSuper {
             case ProjectConstants.RLE:
                 bildTyp = 10;
                 break;
+            default:
+                throw new UnknownCompressionException();
         }
     }
 
-    @Override
-    protected void setHeightandWidth() {
-        // TODO Auto-generated method stub
 
+    @Override
+    protected void setHeightAndWidth() {
         setWidth(headerbb.getShort(12));
         height = headerbb.getShort(14);
 
