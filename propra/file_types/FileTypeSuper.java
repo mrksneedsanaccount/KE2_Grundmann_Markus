@@ -99,6 +99,19 @@ public abstract class FileTypeSuper {
         setCompressionFromFile();
     }
 
+    public abstract void checkChecksum() throws InvalidChecksumException;
+
+    /**
+     * Checks the validity of the file by comparing the header data to the file.
+     */
+    public void checkForErrorsInHeader() throws IllegalHeaderException {
+
+        // ensuring that the image has valid dimensions.
+        if ((getWidth() * getHeight()) == 0) {
+            throw new IllegalHeaderException();
+        }
+    }
+
     /**
      * Builds the header for the output file.
      *
@@ -112,19 +125,6 @@ public abstract class FileTypeSuper {
     public abstract void calculateChecksumOfArray(byte[] pixel);
 
     public abstract void calculateChecksumOfByteBuffer(ByteBuffer pixelBuffer, int limit);
-
-    public abstract void checkChecksum() throws InvalidChecksumException;
-
-    /**
-     * Checks the validity of the file by comparing the header data to the file.
-     */
-    public void checkForErrorsInHeader() throws IllegalHeaderException {
-
-        // ensuring that the image has valid dimensions.
-        if ((getWidth() * getHeight()) == 0) {
-            throw new IllegalHeaderException();
-        }
-    }
 
     /**
      * Vervollständigt die Metadaten des Ausgabeobjekts, so weit wie möglich, bevor der Header geschrieben wird.

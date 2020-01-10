@@ -134,7 +134,7 @@ public class BaseNConverter {
 
     /**
      * Is responsible for the stepwise encoding of a binary file.
-     * <p>
+     *
      * Based on the alphabet that has been provided. (explicitly, or implicitly in the case of .base-32)
      *
      * @param singleByte

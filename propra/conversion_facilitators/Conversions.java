@@ -153,7 +153,7 @@ public class Conversions {
                     "\n" + "Attempting to copy the file to the provided destination...");
             try {
 
-                copySourceFileToOutputDestination(inputFile, outputFile);
+                    copySourceFileToOutputDestination(inputFile, outputFile);
 
             } catch (IOException | InvalidChecksumException e) {
                 e.printStackTrace();

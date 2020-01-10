@@ -64,7 +64,7 @@ public class RLEToUncompressedV4 extends ConversionSuper {
             }
             if (counter == 0) {// signals that the next byte is going to be a counter.
                 mode = Mode.COUNTER;
-            }
+        }
             pixelByteCounter++;
         }
     }

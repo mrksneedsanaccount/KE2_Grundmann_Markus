@@ -69,9 +69,9 @@ public class TGA extends FileTypeSuper {
      * Outpfile Konstruktor
      *
      * @param inputFile    Das Objekt, der Eingabedatei. (Zur Unterscheidung der Eingabe- und Ausgabedateiheader
-     * @param outputPath   String representation of the output path.
+     * @param outputPath String representation of the output path.
      * @param outputSuffix String
-     * @param mode         What kind compression is to be performed.
+     * @param mode What kind compression is to be performed.
      */
     public TGA(FileTypeSuper inputFile, Path outputPath, String outputSuffix, String mode) {
         super(inputFile, outputPath, outputSuffix, mode);

@@ -112,6 +112,21 @@ public class FromHuffmanToOutputcompression extends ConversionSuper {
         }
     }
 
+    @Override
+    public byte[] transferChunkOfProcessedData() {
+        // the different conditions that need to be met in order to write to file, I did not dare to remove any of them.
+        if (uncompressedToOutputCompressionConverter.byteArrayOutputStream.size() >= ProjectConstants.BUFFER_CAPACITY
+                || uncompressedToOutputCompressionConverter.flag == Flags.LAST_PIXEL_HAS_BEEN_PROCESSED ||
+                uncompressedToOutputCompressionConverter.getProcessedPixels() == inputFile.getHeight() * inputFile.getWidth()) {
+            byte[] temp = uncompressedToOutputCompressionConverter.byteArrayOutputStream.toByteArray();
+            uncompressedToOutputCompressionConverter.byteArrayOutputStream.reset();
+            return temp;
+        } else {
+            return null;
+        }
+    }
+
+
     /**
      * This method takes in a byte, then decodes the Huffman compression, and then converts the file into the desired
      * compression.
@@ -126,20 +141,6 @@ public class FromHuffmanToOutputcompression extends ConversionSuper {
         if (huffmanToUncompressedConverter.howManyBytesProcessed() > 0) {
             uncompressedToOutputCompressionConverter.runIteratingOverArray(huffmanToUncompressedConverter.returnByteArray());
             processedPixels = uncompressedToOutputCompressionConverter.getProcessedPixels();
-        }
-    }
-
-    @Override
-    public byte[] transferChunkOfProcessedData() {
-        // the different conditions that need to be met in order to write to file, I did not dare to remove any of them.
-        if (uncompressedToOutputCompressionConverter.byteArrayOutputStream.size() >= ProjectConstants.BUFFER_CAPACITY
-                || uncompressedToOutputCompressionConverter.flag == Flags.LAST_PIXEL_HAS_BEEN_PROCESSED ||
-                uncompressedToOutputCompressionConverter.getProcessedPixels() == inputFile.getHeight() * inputFile.getWidth()) {
-            byte[] temp = uncompressedToOutputCompressionConverter.byteArrayOutputStream.toByteArray();
-            uncompressedToOutputCompressionConverter.byteArrayOutputStream.reset();
-            return temp;
-        } else {
-            return null;
         }
     }
 

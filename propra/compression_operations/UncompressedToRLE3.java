@@ -8,8 +8,10 @@ import java.io.IOException;
 import java.util.Arrays;
 
 
+
 /**
  * Responsible for compressing uncompressed datasegments to RLE datasegments and converting to the output imageformat.
+ *
  */
 public class UncompressedToRLE3 extends ConversionSuper {
 

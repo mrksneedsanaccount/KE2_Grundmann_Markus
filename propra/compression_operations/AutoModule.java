@@ -38,6 +38,7 @@ public class AutoModule {
     private String prefferedCompression;
 
 
+
     public AutoModule(FileTypeSuper inputFile, String outputFileSuffix) {
         this.inputFile = inputFile;
         this.outputFileSuffix = outputFileSuffix;
@@ -152,6 +153,7 @@ public class AutoModule {
 
     /**
      * Responsible for filling up the frequency array for Huffman compression if input is uncompressed compressed.
+     *
      *
      * @param singleByte
      */

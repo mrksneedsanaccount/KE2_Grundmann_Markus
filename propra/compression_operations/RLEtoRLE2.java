@@ -9,6 +9,7 @@ import java.io.IOException;
 
 /**
  * Responsible for converting .tga RLE datasegments to .propra RLE files and vice versa
+ *
  */
 public class RLEtoRLE2 extends ConversionSuper {
 
