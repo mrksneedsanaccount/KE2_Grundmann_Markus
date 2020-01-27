@@ -1,0 +1,10 @@
+
+O
+squid:S106T"9Replace this use of System.out or System.err by a logger.(‚Ô¬Ì
+asquid:S2674["JCheck the return value of the "read" call to see how many bytes were read.(¥™¢
+8squid:S1170"!Make this final field static too.(ü§–×
+Nsquid:S11353"2Complete the task associated to this TODO comment.(ƒŠ® úÿÿÿÿ
+?squid:S1148^"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ
+csquid:CommentedOutCodeLine¿"<This block of commented-out lines of code should be removed.(…àŞ
+ksquid:ModifiersOrderCheck·"EReorder the modifiers to comply with the Java Language Specification.(Ÿ…€Û
+hsquid:CommentedOutCodeLineÃ"<This block of commented-out lines of code should be removed.(éØ»Úûÿÿÿÿ

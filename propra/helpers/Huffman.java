@@ -506,13 +506,10 @@ public class Huffman {
             if (node.getValue() == 0) {
                 string = string + "0";
                 stringBuilder.append("0");
-
             }
             if (node.getValue() == 1) {
-//                System.out.println(string + "1" + String.format("%8s", Integer.toBinaryString(node.getByteValue() & 0xFF)).replace(' ', '0'));
                 stringBuilder.append("1" + String.format("%8s", Integer.toBinaryString(node.getByteValue() & 0xFF)).replace(' ', '0'));
                 bitCounter += 8;
-//                System.out.println("Bitzähler: " + bitZaehler);
             }
 
             preOrderTraversaslFuerHuffmanDatei2(node.getLeftNode(), string, stringBuilder);

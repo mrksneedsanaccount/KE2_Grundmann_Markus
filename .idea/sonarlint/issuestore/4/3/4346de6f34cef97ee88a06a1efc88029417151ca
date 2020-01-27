@@ -1,0 +1,31 @@
+
+osquid:S3776…"RRefactor this method to reduce its Cognitive Complexity from 22 to the 15 allowed.(Û½×Ôûÿÿÿÿ
+esquid:S20952"NUse try-with-resources or close this "RandomAccessFile" in a "finally" clause.(€Žªó
+Usquid:S4973J"9Use the "equals" method if value comparison was intended.(ïÈ¦˜ÿÿÿÿÿ
+Usquid:S4973O"9Use the "equals" method if value comparison was intended.(Ð™“ãúÿÿÿÿ
+Dsquid:S1481´",Remove this unused "counter" local variable.(ŒÂëó
+`squid:S1854Â"CRemove this useless assignment to local variable "toFileBAoStream".(›…ì•øÿÿÿÿ
+U
+squid:S106 "9Replace this use of System.out or System.err by a logger.(ð÷°Œüÿÿÿÿ
+@squid:S1148ç"#Use a logger to log this exception.(€ÉÔ…ýÿÿÿÿ
+ƒsquid:S2178—"fCorrect this "&" to "&&" and extract the right operand to a variable if it should always be evaluated.(ÒÊ’ùùÿÿÿÿ
+hsquid:CommentedOutCodeLineÑ"<This block of commented-out lines of code should be removed.(ªú°äúÿÿÿÿ
+Qsquid:S1481Â"4Remove this unused "toFileBAoStream" local variable.(›…ì•øÿÿÿÿ
+hsquid:S2095k"QUse try-with-resources or close this "BufferedInputStream" in a "finally" clause.(Áë¡
+P"squid:SwitchLastCaseIsDefaultCheck9""Add a default case to this switch.(’åÞ°
+U
+squid:S106Î"9Replace this use of System.out or System.err by a logger.(ãËðàúÿÿÿÿ
+P
+squid:S106ÿ"9Replace this use of System.out or System.err by a logger.(àµö‚
+hsquid:CommentedOutCodeLineË"<This block of commented-out lines of code should be removed.(ŸŒÍ›úÿÿÿÿ
+nsquid:S2095l"RUse try-with-resources or close this "BufferedOutputStream" in a "finally" clause.(ÿöØžøÿÿÿÿ
+0squid:S2178t"Correct this "|" to "||".(¥žˆ…
+Psquid:S4973T"9Use the "equals" method if value comparison was intended.(ß‡•û
+@squid:S1148’"#Use a logger to log this exception.(€ÉÔ…ýÿÿÿÿ
+O
+squid:S1065"9Replace this use of System.out or System.err by a logger.(‰¢®§
+U
+squid:S106Ž"9Replace this use of System.out or System.err by a logger.(í¹Š·øÿÿÿÿ
+@squid:S1148Ÿ"#Use a logger to log this exception.(€ÉÔ…ýÿÿÿÿ
+P
+squid:S106˜"9Replace this use of System.out or System.err by a logger.(ý…Í

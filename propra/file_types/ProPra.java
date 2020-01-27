@@ -3,7 +3,6 @@ package propra.file_types;
 import propra.exceptions.IllegalHeaderException;
 import propra.exceptions.InvalidChecksumException;
 import propra.exceptions.UnknownCompressionException;
-import propra.helpers.ImageFormats;
 import propra.helpers.ProjectConstants;
 
 import java.nio.ByteBuffer;
@@ -12,6 +11,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 
 public class ProPra extends FileTypeSuper {
+    public static final int CHECKSUM_CONSTANT = 65513;
     // .propra
     // 0-9 Formatkennung
     // 10-11 Bildbreite
@@ -38,9 +38,9 @@ public class ProPra extends FileTypeSuper {
     // (x+1)-y Rest
 
 
-    private long a = 0;
-    private long b = 1;
-    private long i = 1;
+    private int a = 0;
+    private int b = 1;
+    private int i = 1;
     private long sizeOfDatasegment;
     private int checksum;
 
@@ -103,8 +103,8 @@ public class ProPra extends FileTypeSuper {
     }
 
     public void calculateChecksum(byte dataByte) {
-        a = (a + (i + (dataByte & 0xff))) % 65513;
-        b = (b + a) % 65513;
+        a = (a + (i + (dataByte & 0xff))) % CHECKSUM_CONSTANT;
+        b = (b + a) % CHECKSUM_CONSTANT;
         i++;
 
     }
@@ -172,7 +172,7 @@ public class ProPra extends FileTypeSuper {
 
     int returnChecksum() {
         int temp = (int) Math.pow(2, 16);
-        return (int) (a * temp + b);
+        return a * temp + b;
     }
 
     @Override

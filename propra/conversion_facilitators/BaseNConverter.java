@@ -1,4 +1,4 @@
-package propra.imageconverter;
+package propra.conversion_facilitators;
 
 import propra.helpers.ProjectConstants;
 

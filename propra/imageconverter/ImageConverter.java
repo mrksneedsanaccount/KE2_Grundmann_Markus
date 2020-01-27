@@ -32,7 +32,7 @@ public class ImageConverter {
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("A critical exception has occured. The program has been terminated.");
-            System.exit(123);
+//            System.exit(123);
         }
 
 

@@ -1,0 +1,8 @@
+
+O
+squid:S1064"9Replace this use of System.out or System.err by a logger.(Ž»ôƒ
+?squid:S1148a"#Use a logger to log this exception.(€ÉÔ…ýÿÿÿÿ
+O
+squid:S106b"9Replace this use of System.out or System.err by a logger.(ÊÒÒ 
+gsquid:CommentedOutCodeLinet"<This block of commented-out lines of code should be removed.(–ŽÛŒûÿÿÿÿ
+csquid:S2095q"LUse try-with-resources or close this "BufferedWriter" in a "finally" clause.(¡¨¶ø

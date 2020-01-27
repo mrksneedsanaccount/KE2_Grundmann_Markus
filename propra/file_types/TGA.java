@@ -2,7 +2,6 @@ package propra.file_types;
 
 import propra.exceptions.IllegalHeaderException;
 import propra.exceptions.UnknownCompressionException;
-import propra.helpers.ImageFormats;
 import propra.helpers.ProjectConstants;
 
 import java.io.File;

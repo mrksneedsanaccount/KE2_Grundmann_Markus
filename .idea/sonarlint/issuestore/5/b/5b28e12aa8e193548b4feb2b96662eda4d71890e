@@ -1,0 +1,22 @@
+
+Lsquid:S1066"/Merge this if statement with the enclosing one.(íÍ–Áÿÿÿÿÿ
+bsquid:S1301\"KReplace this "switch" statement by "if" statements to increase readability.(ƒÎŞ†
+8squid:S1170,"!Make this final field static too.(ËÉ
+=squid:S1170-"!Make this final field static too.(Äû¡–şÿÿÿÿ
+=squid:S1170."!Make this final field static too.(¬Õ¹¦ıÿÿÿÿ
+8squid:S1170/"!Make this final field static too.(ğîåÄ
+8squid:S11700"!Make this final field static too.(­ª‰Ñ
+squid:S1186U"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(ûœ¨ãÿÿÿÿÿ
+squid:S1186n"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(ÖŠšŞüÿÿÿÿ
+squid:S1186s"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(˜ô¯çÿÿÿÿÿ
+squid:S1186x"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(ä–¥€ùÿÿÿÿ
+P"squid:SwitchLastCaseIsDefaultCheck\""Add a default case to this switch.(ƒÎŞ†
+Osquid:S1135®"2Complete the task associated to this TODO comment.(» æÿÿÿÿÿ
+Asquid:S1068,"*Remove this unused "bildID" private field.(ËÉ
+Ksquid:S1068-"/Remove this unused "farbPallete" private field.(Äû¡–şÿÿÿÿ
+Nsquid:S1068."2Remove this unused "palettenBeginn" private field.(¬Õ¹¦ıÿÿÿÿ
+Isquid:S1068/"2Remove this unused "palettenLaenge" private field.(ğîåÄ
+Qsquid:S10680":Remove this unused "groessePalleteneintrag" private field.(­ª‰Ñ
+Asquid:S10683"*Remove this unused "xcoord" private field.(ä¶¤…
+Jsquid:S10684"4Remove this unused "bildAttributByte" private field.(•íŸ
+csquid:CommentedOutCodeLine—"<This block of commented-out lines of code should be removed.(‘¯ç

@@ -3,7 +3,6 @@ package propra.conversion_facilitators;
 
 import propra.helpers.HelperMethods;
 import propra.helpers.ProjectConstants;
-import propra.imageconverter.BaseNConverter;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;

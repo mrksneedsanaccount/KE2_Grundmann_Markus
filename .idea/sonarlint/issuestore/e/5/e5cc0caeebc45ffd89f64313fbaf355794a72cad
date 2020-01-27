@@ -1,0 +1,16 @@
+
+‚squid:S2178j"fCorrect this "&" to "&&" and extract the right operand to a variable if it should always be evaluated.(û­œ’ÿÿÿÿÿ
+O
+squid:S106"9Replace this use of System.out or System.err by a logger.(¨îî%
+‚squid:S2178h"fCorrect this "&" to "&&" and extract the right operand to a variable if it should always be evaluated.(Æ½ÌÓÿÿÿÿÿ
+hsquid:S37768"RRefactor this method to reduce its Cognitive Complexity from 24 to the 15 allowed.(˜ˆr
+]squid:S2184-"FCast one of the operands of this multiplication operation to a "long".(¹Æ£¦
+osquid:S2293%"YReplace the type specification in this constructor call with the diamond operator ("<>").(Ì¾S
+gsquid:CommentedOutCodeLineY"<This block of commented-out lines of code should be removed.(”ŒÚÁüÿÿÿÿ
+d$squid:AssignmentInSubExpressionCheck‘".Extract the assignment out of this expression.(¬«÷ùÿÿÿÿ
+qsquid:S1450"ZRemove the "huffmanSize" field and declare it as a local variable in the relevant methods.(«¸å
+U
+squid:S106‘"9Replace this use of System.out or System.err by a logger.(¬«÷ùÿÿÿÿ
+osquid:S3776Š"RRefactor this method to reduce its Cognitive Complexity from 32 to the 15 allowed.(ü¦¢óıÿÿÿÿ
+wsquid:S1450"`Remove the "rleCompressedSize" field and declare it as a local variable in the relevant methods.(Ê¸
+Esquid:S1172Ì".Remove this unused method parameter "counter".(úŞ„\

@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="issues">
+    <option name="index">
+      <map>
+        <entry key="/a.dummy">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="/fragment.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="G:/C-Projects/Java/1/workspace/Test/src/testestTest.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="G:/KE2_ProPra/KE2_Reumiller_Maximilian/src/Test.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/.gitignore">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/propra/conversion_facilitators/BaseNConverter.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/propra/conversion_facilitators/Decode.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/propra/conversion_facilitators/Encode.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/propra/file_types/ImageFormats.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/propra/file_types/ProPra.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/propra/helpers/Huffman.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/propra/helpers/Pixel.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/propra/helpers/ProjectConstants.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Gebhardt-Weidl_Gabi/propra/imageconverter/converter/ConversionManager.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Gebhardt-Weidl_Gabi/propra/imageconverter/converter/Huffman.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Gebhardt-Weidl_Gabi/propra/imageconverter/imageformat/Propra.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Gebhardt-Weidl_Gabi/tests/test/imageconverter/CodingTestcases.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Gebhardt-Weidl_Gabi/tests/test/imageconverter/ConversionTests.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Gebhardt-Weidl_Gabi/tests/test/imageconverter/ConversionTestsAutoMode.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Gebhardt-Weidl_Gabi/tests/test/imageconverter/UNITTEST.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Gebhardt-Weidl_Gabi/tests/test/util/MD5Checksum.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/KE3_Koehler_Michael.plantuml">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/ArgumentHandler.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/ConverterException.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/ConverterPropraToTga.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/ConverterTgaToPropra.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/CopyCompressDecompressPropraFile.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/CopyCompressDecompressTgaFile.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/ImageConverter.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/Utility.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/autoMode/AutoMode.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/autoMode/ConverterPropraToTga.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/autoMode/ConverterTgaToPropra.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/autoMode/CopyCompressDecompressPropraFile.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/autoMode/CopyCompressDecompressTgaFile.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/autoMode/Utility.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/baseN/ConverterException.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/baseN/DecodeBaseN.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/formats/PropraFormat.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/formats/TgaFormat.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/huffman/HuffmanDecoding.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/huffman/HuffmanEncoding.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/imageconverter/ArgumentHandler.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/imageconverter/AutoMode.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/imageconverter/ConverterException.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/imageconverter/ConverterPropraToTga.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/imageconverter/ConverterTgaToPropra.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/imageconverter/CopyCompressDecompressPropraFile.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/imageconverter/CopyCompressDecompressTgaFile.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/imageconverter/ImageConverter.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/imageconverter/Utility.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Koehler_Michael/propra/propra/imageconverter/ConverterTgaToPropra.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_McKeever_Susanne/propra/imageconverter/HuffmanOutputStream.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_McKeever_Susanne/propra/imageconverter/Image.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_McKeever_Susanne/propra/imageconverter/Kodierer.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_McKeever_Susanne/propra/imageconverter/PixelInfo.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_McKeever_Susanne/src/Test.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Reumiller_Maximilian/propra/imageconverter/Encoding.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Reumiller_Maximilian/propra/imageconverter/Helper.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Reumiller_Maximilian/propra/imageconverter/ImageConverter.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Reumiller_Maximilian/propra/imageconverter/ImageFile.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Reumiller_Maximilian/propra/imageconverter/Options.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Reumiller_Maximilian/propra/imageconverter/UNITTEST.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Reumiller_Maximilian/propra/imageconverter/encoding/Encoding.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Reumiller_Maximilian/propra/imageconverter/imageformats/Helper.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Reumiller_Maximilian/propra/imageconverter/imageformats/HuffmanTree.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Reumiller_Maximilian/propra/imageconverter/imageformats/ImageFile.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Reumiller_Maximilian/propra/imageconverter/imageformats/ProPraImageFile.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Reumiller_Maximilian/propra/imageconverter/imageformats/TgaImageFile.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

@@ -1,0 +1,13 @@
+
+P
+squid:S106³"9Replace this use of System.out or System.err by a logger.(êù¬®
+hsquid:S1192"LUse already-defined constant 'BASE32' instead of duplicating its value here.(†Ó¢Áÿÿÿÿÿ
+U
+squid:S106±"9Replace this use of System.out or System.err by a logger.(è¸öşÿÿÿÿ
+Rsquid:S4034£":Replace this negation and "anyMatch()" with "noneMatch()".(äãê
+nsquid:S3776K"RRefactor this method to reduce its Cognitive Complexity from 33 to the 15 allowed.(“ñ‰ıÿÿÿÿ
+asquid:S30274"JPut single-quotes around '.' to use the faster "lastIndexOf(char)" method.(Š¹„é
+Wsquid:S4034":Replace this negation and "anyMatch()" with "noneMatch()".(şÃÄøÿÿÿÿ
+hsquid:S1192"LUse already-defined constant 'PROPRA' instead of duplicating its value here.(†Ó¢Áÿÿÿÿÿ
+ƒ"squid:ClassVariableVisibilityCheck"PMake mode a static final constant or non-public and provide accessors if needed.(ƒİääøÿÿÿÿ
+gsquid:S1192"KUse already-defined constant 'BASEN' instead of duplicating its value here.(†Ó¢Áÿÿÿÿÿ

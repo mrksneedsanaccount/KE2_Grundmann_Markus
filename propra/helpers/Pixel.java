@@ -1,5 +1,7 @@
 package propra.helpers;
 
+import propra.file_types.ImageFormats;
+
 import java.nio.ByteBuffer;
 
 public class Pixel {

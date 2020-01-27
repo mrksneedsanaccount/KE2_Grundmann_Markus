@@ -1,0 +1,13 @@
+
+?squid:S1148c"#Use a logger to log this exception.(€ÉÔ…ýÿÿÿÿ
+ssquid:S1450"WRemove the "alpahbet" field and declare it as a local variable in the relevant methods.(‚¤«Ðÿÿÿÿÿ
+nsquid:S00117O"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÎÊÐËüÿÿÿÿ
+Qsquid:S18546":Remove this useless assignment to local variable "offset".(õ¼ï­
+Gsquid:S14811"+Remove this unused "offset" local variable.(¼ý”äÿÿÿÿÿ
+gsquid:CommentedOutCodeLine^"<This block of commented-out lines of code should be removed.(ÀòŸŽúÿÿÿÿ
+gsquid:CommentedOutCodeLine?"<This block of commented-out lines of code should be removed.(ðšØÖüÿÿÿÿ
+O
+squid:S106$"9Replace this use of System.out or System.err by a logger.(Ž»ôƒ
+gsquid:CommentedOutCodeLine5"<This block of commented-out lines of code should be removed.(Ð°¶óüÿÿÿÿ
+gsquid:CommentedOutCodeLineA"<This block of commented-out lines of code should be removed.(Õ×ªúÿÿÿÿ
+csquid:S2095/"LUse try-with-resources or close this "BufferedReader" in a "finally" clause.(¦Õ²¨
