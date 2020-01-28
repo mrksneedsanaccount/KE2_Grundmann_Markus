@@ -16,8 +16,6 @@ import propra.helpers.ProjectConstants;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 
 import static propra.conversion_facilitators.CommandLineInterpreter.*;
 
@@ -192,6 +190,8 @@ public class Conversions {
                 //          the Converter stops saving them to its ByteArrayOutputstream.
                 //  2. The processed data will be written to the output file.
                 ByteArrayOutputStream toFileBAoStream = new ByteArrayOutputStream(ProjectConstants.BUFFER_CAPACITY);
+                File file;
+                BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(outputFile.getFilepath().toString(), true));
 
 
                 while ((limit = fileChannel.read(byteBuffer)) > -1) {
@@ -212,7 +212,10 @@ public class Conversions {
                         byte[] temp = stepwiseConverter.transferChunkOfProcessedData();
                         if (temp != null) {
                             outputFile.calculateChecksumOfArray(temp);
-                            Files.write(outputFile.getFilepath(), temp, StandardOpenOption.APPEND);
+//                            Files.write(outputFile.getFilepath(), temp, StandardOpenOption.APPEND);
+                            bufferedOutputStream.write(temp);
+
+
                         }
                     }
                     byteBuffer.clear();
@@ -226,6 +229,7 @@ public class Conversions {
                 addHeaderToOutputFile(outputFile, inputFile);
                 inputFile.checkChecksum();
 
+                bufferedOutputStream.close();
 
             } catch (IOException | UnknownCompressionException | InvalidChecksumException | ConversionException e) {
                 e.printStackTrace();

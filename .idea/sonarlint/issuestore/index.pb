@@ -35,3 +35,24 @@ b
 2propra/conversion_facilitators/BaseNConverter.java,b\a\ba5b79265ab9261a4d79abfd2fe6bb9a6b644c2c
 M
 propra/file_types/ProPra.java,9\e\9e045ae60a4205a3a3ffe75bc91cacac11abe014
+S
+#propra/Test/BaseNConverterTest.java,6\c\6ccde788af56de4e349387295e4f285f012480ab
+T
+$.idea/checkstyleidea-libs/readme.txt,0\7\07b7bfcbe4a27e2783b05ea0caae034a6bc036ec
+\
+,.idea/inspectionProfiles/Project_Default.xml,4\9\496a238a6afa168dbaf6efd37bb459331589579c
+S
+#.idea/sonarlint/issuestore/index.pb,9\f\9fe84ebb15faf917b7def6236dba604453cc61e0
+S
+#propra/file_types/ImageFormats.java,9\6\96833f5610df4e350128ef4dcdfebadf2ccfd505
+K
+propra/helpers/Huffman.java,c\5\c5e14bd74bfdbfa686b18bb575283b72801013e0
+:
+
+.gitignore,a\5\a5cc2925ca8258af241be7e5b0381edf30266302
+Y
+)propra/imageconverter/ImageConverter.java,5\e\5e6db138d1ef6a11b194a4ca4e8f8fe359422fcf
+_
+/propra/exceptions/InvalidChecksumException.java,6\b\6bd2d634be0fbcb1bdae81ff90c3cbac61fdea03
+q
+Apropra/compression_operations/FromHuffmanToOutputcompression.java,8\9\89eca5b8341c982b1fa82b1d4e7fee5e106b328a

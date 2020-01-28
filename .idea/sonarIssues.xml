@@ -3,12 +3,22 @@
   <component name="issues">
     <option name="index">
       <map>
+        <entry key="/Dummy.txt">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="/a.dummy">
           <value>
             <set />
           </value>
         </entry>
         <entry key="/fragment.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$APPLICATION_CONFIG_DIR$/scratches/scratch_1.java">
           <value>
             <set />
           </value>
@@ -28,7 +38,17 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/propra/compression_operations/AutoModule.java">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/propra/conversion_facilitators/BaseNConverter.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/propra/conversion_facilitators/Conversions.java">
           <value>
             <set />
           </value>
@@ -64,6 +84,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/propra/helpers/ProjectConstants.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/propra/imageconverter/ImageConverter.java">
           <value>
             <set />
           </value>

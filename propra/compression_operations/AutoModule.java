@@ -3,7 +3,6 @@ package propra.compression_operations;
 import propra.file_types.FileTypeSuper;
 import propra.helpers.HelperMethods;
 import propra.helpers.Huffman;
-import propra.helpers.Pixel;
 import propra.helpers.ProjectConstants;
 
 import java.io.ByteArrayOutputStream;
@@ -36,6 +35,7 @@ public class AutoModule {
     private String outputFileSuffix;
     private TreeMap<Long, String> treeMap = new TreeMap<Long, String>();
     private String prefferedCompression;
+    private static byte bytePixelCounter = 0;
 
 
 
@@ -84,11 +84,10 @@ public class AutoModule {
             byteBuffer.flip();
             while (byteBuffer.hasRemaining()) {
 
-                //
+
                 singleByte = byteBuffer.get();
                 if (autoInterface != null) // either uncompressed -> rle, or rle->rle;
                     autoInterface.run(singleByte);
-
 
                 // Huffman related operations: Either determining the size of a possible RLE datasegment for Huffman -> other,
                 // or filling the frequency array in order to determine the size of a
@@ -265,16 +264,20 @@ public class AutoModule {
          */
         public void run(byte singleByte) throws IOException {
 
-            pixelOne[byteCounter % 3] = singleByte;
+            pixelOne[bytePixelCounter] = singleByte;
 
-            if (byteCounter % 3 == 2) {
-                pixelOne = Pixel.transformPixel(pixelOne);
+            if ((bytePixelCounter++) == 2) {
+                if (bytePixelCounter == 3) {
+                    bytePixelCounter = 0;
+                }
+//            if (byteCounter % 3 == 2) {
+//                pixelOne = Pixel.transformPixel(pixelOne);
                 processedPixels++;
                 currentwidth++;
 
                 if (mode == Mode.START) {
                     mode = null;
-                } else if (mode == null && Arrays.equals(pixelOne, pixelPrevious)) {
+                } else if (mode == null && ( boolean test = Arrays.equals(pixelOne, pixelPrevious))){
                     if (counter != -1) {
                         saveToOutputStream(counter);
                     }

@@ -109,9 +109,18 @@ public class ProPra extends FileTypeSuper {
 
     }
 
+
+    public void calculateChecksum2(byte dataByte) {
+        a = (a + (i + (dataByte & 0xff))) < CHECKSUM_CONSTANT ? (a + (i + (dataByte & 0xff))) : (a + (i + (dataByte & 0xff))) - CHECKSUM_CONSTANT;
+        b = ((b + a) < CHECKSUM_CONSTANT) ? (b + a) : (b + a) - CHECKSUM_CONSTANT;
+        i = (i + 1 < CHECKSUM_CONSTANT) ? i + 1 : 0;
+
+    }
+
+
     public void calculateChecksumOfArray(byte[] byteArray) {
         for (byte singleByte : byteArray) {
-            calculateChecksum(singleByte);
+            calculateChecksum2(singleByte);
 
         }
 

@@ -10,6 +10,14 @@ public class Pixel {
     public static ImageFormats outputFormat;
     static int[] offsets;
     static byte[] pixel = new byte[3];
+    private static byte inR;
+    private static byte inB;
+    private static byte inG;
+
+    private static byte outR;
+    private static byte outB;
+    private static byte outG;
+
 
     public static void changePixelOrder(byte[] pixel, byte[] outputPixel, int[] offsets) {
         outputPixel[offsets[0]] = pixel[0];
@@ -68,27 +76,27 @@ public class Pixel {
         //        .tga BGR
         //        .prpra GBR
         //        RGB ist das Zwischenspeicherformat.
-        byte r;
-        byte g;
-        byte b;
+//        byte r;
+//        byte g;
+//        byte b;
 
         if (inputFormat == ImageFormats.BGR) {
-            b = inputPixel[0];
-            g = inputPixel[1];
-            r = inputPixel[2];
+            outB = inputPixel[0];
+            outG = inputPixel[1];
+            outR = inputPixel[2];
 
-            pixel[0] = r;
-            pixel[1] = g;
-            pixel[2] = b;
+            pixel[0] = outR;
+            pixel[1] = outG;
+            pixel[2] = outB;
 
         } else {
-            g = inputPixel[0];
-            b = inputPixel[1];
-            r = inputPixel[2];
+            outG = inputPixel[0];
+            outB = inputPixel[1];
+            outR = inputPixel[2];
 
-            pixel[0] = r;
-            pixel[1] = g;
-            pixel[2] = b;
+            pixel[0] = outR;
+            pixel[1] = outG;
+            pixel[2] = outB;
 
         }
         return pixel;
@@ -104,29 +112,29 @@ public class Pixel {
         //        .tga BGR
         //        .prpra GBR
         //        RGB ist das Zwischenspeicherformat.
-        byte r;
-        byte g;
-        byte b;
+//        byte r;
+//        byte g;
+//        byte b;
 
 
         if (outputFormat == ImageFormats.BGR) {
-            r = inputPixel[0];
-            g = inputPixel[1];
-            b = inputPixel[2];
+            inR = inputPixel[0];
+            outG = inputPixel[1];
+            inB = inputPixel[2];
 
-            pixel[0] = b;
-            pixel[1] = g;
-            pixel[2] = r;
+            pixel[0] = inB;
+            pixel[1] = inG;
+            pixel[2] = inR;
 
 
         } else {
-            r = inputPixel[0];
-            g = inputPixel[1];
-            b = inputPixel[2];
+            inR = inputPixel[0];
+            inG = inputPixel[1];
+            inB = inputPixel[2];
 
-            pixel[0] = g;
-            pixel[1] = b;
-            pixel[2] = r;
+            pixel[0] = inG;
+            pixel[1] = inB;
+            pixel[2] = inR;
 
         }
         return pixel;
