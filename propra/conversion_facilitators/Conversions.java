@@ -6,6 +6,7 @@ import propra.exceptions.ConversionException;
 import propra.exceptions.IllegalHeaderException;
 import propra.exceptions.InvalidChecksumException;
 import propra.exceptions.UnknownCompressionException;
+import propra.file_types.FachPra;
 import propra.file_types.FileTypeSuper;
 import propra.file_types.ProPra;
 import propra.file_types.TGA;
@@ -255,8 +256,11 @@ public class Conversions {
             case PROPRA:
                 inputFile = new ProPra(commandLineInterpreter.getInputPath(), commandLineInterpreter.getInputPath(), commandLineInterpreter.getInputSuffix());
                 break;
+            case FACHPRA:
+                inputFile = new FachPra(commandLineInterpreter.getInputPath(), commandLineInterpreter.getInputPath(), commandLineInterpreter.getInputSuffix());
+                break;
             default:
-                System.err.println("Illegal image format. This program only supports.tga and .propra. ");
+                System.err.println("Illegal image format. This program only supports.tga, fachpra and .propra. ");
                 System.exit(123);
         }
         if (commandLineInterpreter.getMode().equals(KE1CONVERSION)) {
@@ -266,6 +270,9 @@ public class Conversions {
         switch (commandLineInterpreter.outputSuffix) {
             case ProjectConstants.TGA:
                 outputFile = new TGA(inputFile, commandLineInterpreter.getOutputPath(), commandLineInterpreter.getOutputSuffix(), commandLineInterpreter.getMode());
+                break;
+            case ProjectConstants.FACHPRA:
+                outputFile = new FachPra(inputFile, commandLineInterpreter.getMode(), commandLineInterpreter.getOutputPath(), commandLineInterpreter.getOutputSuffix(), commandLineInterpreter.getMode());
                 break;
             case ProjectConstants.PROPRA:
                 outputFile = new ProPra(inputFile, commandLineInterpreter.getMode(), commandLineInterpreter.getOutputPath(), commandLineInterpreter.getOutputSuffix(), commandLineInterpreter.getMode());

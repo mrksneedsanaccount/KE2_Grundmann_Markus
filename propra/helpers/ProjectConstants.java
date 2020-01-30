@@ -21,4 +21,5 @@ public class ProjectConstants {
     public static final int MAX_COLOR_VALUES = 256;
     public static final String AUTO = "auto";
     final public static String BASE32HEX = "0123456789ABCDEFGHIJKLMNOPQRSTUV";
+    public static final String FACHPRA = ".fachpra"; // neue Dateiendung.
 }

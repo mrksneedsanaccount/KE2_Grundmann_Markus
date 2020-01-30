@@ -76,9 +76,9 @@ public class Pixel {
         //        .tga BGR
         //        .prpra GBR
         //        RGB ist das Zwischenspeicherformat.
-//        byte r;
-//        byte g;
-//        byte b;
+        //        byte r;
+        //        byte g;
+        //        byte b;
 
         if (inputFormat == ImageFormats.BGR) {
             outB = inputPixel[0];
@@ -88,6 +88,12 @@ public class Pixel {
             pixel[0] = outR;
             pixel[1] = outG;
             pixel[2] = outB;
+        } else if (inputFormat == ImageFormats.RGB) {
+
+            pixel[0] = inputPixel[0];
+            pixel[1] = inputPixel[1];
+            pixel[2] = inputPixel[2];
+
 
         } else {
             outG = inputPixel[0];
@@ -125,6 +131,14 @@ public class Pixel {
             pixel[0] = inB;
             pixel[1] = inG;
             pixel[2] = inR;
+        } else if (outputFormat == ImageFormats.RGB) {
+            inR = inputPixel[0];
+            outG = inputPixel[1];
+            inB = inputPixel[2];
+
+            pixel[0] = inR;
+            pixel[1] = inG;
+            pixel[2] = inB;
 
 
         } else {

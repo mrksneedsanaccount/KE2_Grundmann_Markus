@@ -1,0 +1,32 @@
+
+€squid:S4165£"hRemove this useless assignment; "frequenzen" already holds the assigned value along all execution paths.(‚¬ªñ
+Tsquid:S1444"8Make this "public static bitMaskForDecoding" field final(„üù¢ùÿÿÿÿ
+†squid:S1319."oThe type of the "hashMap" object should be an interface such as "Map" rather than the implementation "HashMap".(„•µ¾
+Šsquid:S1319¡"mThe return type of this method should be an interface such as "Map" rather than the implementation "HashMap".(•ŠôÌùÿÿÿÿ
+Œsquid:S1319×"oThe type of the "hashMap" object should be an interface such as "Map" rather than the implementation "HashMap".(òÈ­ôıÿÿÿÿ
+{squid:S1488‘"cImmediately return this expression instead of assigning it to the temporary variable "huffmanTree".(¢–ˆ”
+‘"squid:ClassVariableVisibilityCheck"^Make bitMaskForDecoding a static final constant or non-public and provide accessors if needed.(„üù¢ùÿÿÿÿ
+9squid:S2386"Make this member "protected".(„üù¢ùÿÿÿÿ
+jsquid:S1602&"SRemove useless curly braces around statement and then remove useless return keyword(ÆŠ
+l squid:LabelsShouldNotBeUsedCheck0";Refactor the code to remove this label and the need for it.(ıÚÌ€ùÿÿÿÿ
+5squid:S10650"Remove this unused label.(ıÚÌ€ùÿÿÿÿ
+jsquid:ModifiersOrderCheckˆ"EReorder the modifiers to comply with the Java Language Specification.(ìÿ‘D
+Ssquid:S1854‹";Remove this useless assignment to local variable "newnode".(¶ÀÖí
+Xsquid:S1854";Remove this useless assignment to local variable "newnode".(ŠÙéÃúÿÿÿÿ
+Osquid:S1135÷"2Complete the task associated to this TODO comment.(ö»ôôûÿÿÿÿ
+~squid:S2178£"fCorrect this "&" to "&&" and extract the right operand to a variable if it should always be evaluated.(¦®ßˆ
+csquid:CommentedOutCodeLine»"<This block of commented-out lines of code should be removed.(Œµ Í
+csquid:CommentedOutCodeLineÀ"<This block of commented-out lines of code should be removed.(àìãÓ
+hsquid:CommentedOutCodeLineÄ"<This block of commented-out lines of code should be removed.(Ÿõğíûÿÿÿÿ
+hsquid:CommentedOutCodeLineË"<This block of commented-out lines of code should be removed.(Ü‹Í–üÿÿÿÿ
+csquid:CommentedOutCodeLineÏ"<This block of commented-out lines of code should be removed.(èÖˆ¬
+hsquid:CommentedOutCodeLineØ"<This block of commented-out lines of code should be removed.(ë’Ä§ıÿÿÿÿ
+csquid:CommentedOutCodeLineŞ"<This block of commented-out lines of code should be removed.(Æñ²¼
+csquid:CommentedOutCodeLineà"<This block of commented-out lines of code should be removed.(È¦åù
+hsquid:CommentedOutCodeLineâ"<This block of commented-out lines of code should be removed.(¼’ëøûÿÿÿÿ
+csquid:CommentedOutCodeLineğ"<This block of commented-out lines of code should be removed.(‹ˆÍ´
+hsquid:CommentedOutCodeLineô"<This block of commented-out lines of code should be removed.(¬ğØÔüÿÿÿÿ
+hsquid:CommentedOutCodeLine÷"<This block of commented-out lines of code should be removed.(éØ»Úûÿÿÿÿ
+csquid:CommentedOutCodeLineĞ"<This block of commented-out lines of code should be removed.(Ïª˜Ê
+csquid:CommentedOutCodeLineÜ"<This block of commented-out lines of code should be removed.(Ïª˜Ê
+bsquid:CommentedOutCodeLineî"<This block of commented-out lines of code should be removed.(½¹ä

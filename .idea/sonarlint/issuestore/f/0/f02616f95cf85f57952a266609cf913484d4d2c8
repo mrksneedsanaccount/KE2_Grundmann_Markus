@@ -1,23 +1,23 @@
 
 Usquid:S49735"9Use the "equals" method if value comparison was intended.(Ææ·šÿÿÿÿÿ
-O
-squid:S106&"9Replace this use of System.out or System.err by a logger.(¤°µË
-T
-squid:S106-"9Replace this use of System.out or System.err by a logger.(ì†ºñýÿÿÿÿ
+Psquid:S49738"9Use the "equals" method if value comparison was intended.(ƒùåó
+Osquid:S49736"9Use the "equals" method if value comparison was intended.(ÊûË
 Psquid:S49737"9Use the "equals" method if value comparison was intended.(„²«±
-O
-squid:S106,"9Replace this use of System.out or System.err by a logger.(‚Ãýþ
 T
 squid:S106/"9Replace this use of System.out or System.err by a logger.(£¼¹²ùÿÿÿÿ
-Osquid:S49736"9Use the "equals" method if value comparison was intended.(ÊûË
-T
-squid:S106."9Replace this use of System.out or System.err by a logger.(øäèÕùÿÿÿÿ
+bsquid:CommentedOutCodeLine2"<This block of commented-out lines of code should be removed.(üÌñÌ
+squid:S1186"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(³Þèòùÿÿÿÿ
 T
 squid:S106+"9Replace this use of System.out or System.err by a logger.(Þï²„ýÿÿÿÿ
+T
+squid:S106-"9Replace this use of System.out or System.err by a logger.(ì†ºñýÿÿÿÿ
+T
+squid:S106."9Replace this use of System.out or System.err by a logger.(øäèÕùÿÿÿÿ
 O
 squid:S1060"9Replace this use of System.out or System.err by a logger.(©¦‚Ü
-bsquid:CommentedOutCodeLine2"<This block of commented-out lines of code should be removed.(üÌñÌ
 ˜squid:S1186"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(¯í­¨
-squid:S1186"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(³Þèòùÿÿÿÿ
 wsquid:S00120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(×§ÝÐüÿÿÿÿ
-Psquid:S49738"9Use the "equals" method if value comparison was intended.(ƒùåó
+O
+squid:S106&"9Replace this use of System.out or System.err by a logger.(¤°µË
+O
+squid:S106,"9Replace this use of System.out or System.err by a logger.(‚Ãýþ

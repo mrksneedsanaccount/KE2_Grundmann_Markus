@@ -23,6 +23,7 @@ public abstract class FileTypeSuper {
     static final int PROPRA_HEADER_OFFSET = 28;
     static final int TGA_HEADER_OFFSET = 18;
     protected final byte bitsprobildpunkt = 24;
+    private final int FACHPRA_HEADER_OFFSET = 38; // neuer Header
     protected File file;
     protected short height;
     protected short width;
@@ -32,6 +33,8 @@ public abstract class FileTypeSuper {
     protected Path filepath;
     ImageFormats imageFormats;
     Orientation orientation = Orientation.TOP_LEFT;
+    protected boolean isCanHuffman;
+    protected boolean isCanRLE;
 
     public FileTypeSuper() {
 
@@ -58,6 +61,9 @@ public abstract class FileTypeSuper {
         if (outputSuffix.equals(ProjectConstants.PROPRA)) {
             header = new byte[PROPRA_HEADER_OFFSET];
         }
+        if (outputSuffix.equals(ProjectConstants.FACHPRA)) {//neuer Header
+            header = new byte[FACHPRA_HEADER_OFFSET];
+        }
         if (outputSuffix.equals(ProjectConstants.TGA)) {
             header = new byte[TGA_HEADER_OFFSET];
         }
@@ -77,6 +83,8 @@ public abstract class FileTypeSuper {
         this.file = file;
         if (inputSuffix.equals(ProjectConstants.PROPRA)) {
             header = new byte[PROPRA_HEADER_OFFSET];
+        } else if (inputSuffix.equals(ProjectConstants.FACHPRA)) { // neuer Header
+            header = new byte[TGA_HEADER_OFFSET];
         } else if (inputSuffix.equals(ProjectConstants.TGA)) {
             header = new byte[TGA_HEADER_OFFSET];
         } else {

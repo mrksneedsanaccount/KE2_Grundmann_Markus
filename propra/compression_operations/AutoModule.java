@@ -9,7 +9,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -61,18 +60,23 @@ public class AutoModule {
         // initialise the required objects to perform the stepwise determination of expected sizes of the debasements.
         AutoInterface autoInterface = null;
         FromHuffmanToOutputcompression fromHuffmanToOutputcompression = null;
-        if (inputFile.getCompression().equals(ProjectConstants.UNCOMPRESSED)) {
-            autoInterface = new UncompressedToRLEForFileSize(inputFile);
-        } else if (inputFile.getCompression().equals(ProjectConstants.RLE)) { // Just there in case of tails in the input file. Could probably be skipped for performance reasons.
-            autoInterface = new RLEtoRLEFileSIze(inputFile);
-        } else if (inputFile.getCompression().equals(ProjectConstants.HUFFMAN)) {
-            if (outputFileSuffix.equals(ProjectConstants.PROPRA)) {// Huffman compression is only relevant if the output file is a .propra file.
-                huffmanSize = (inputFile.getFilepath().toFile().length() - inputFile.getHeader().length);
-                treeMap.put(huffmanSize, ProjectConstants.HUFFMAN);
-            }
-            // if the input compression is Huffman we have to decompress it to determine the size of an RLE segment.
-            fromHuffmanToOutputcompression = new FromHuffmanToOutputcompression(inputFile);
-            fromHuffmanToOutputcompression.initialiseConversionForAuto(fileChannel, byteBuffer); // a special method that performs an RLE compression and only counts.
+        switch (inputFile.getCompression()) {
+            case ProjectConstants.UNCOMPRESSED:
+                autoInterface = new UncompressedToRLEForFileSize(inputFile);
+                break;
+            case ProjectConstants.RLE:  // Just there in case of tails in the input file. Could probably be skipped for performance reasons.
+                autoInterface = new RLEtoRLEFileSIze(inputFile);
+                break;
+            case ProjectConstants.HUFFMAN:
+                if (outputFileSuffix.equals(ProjectConstants.PROPRA) || outputFileSuffix.equals(ProjectConstants.FACHPRA)) {// Huffman compression is only relevant if the output file is a .propra file.
+                    huffmanSize = (inputFile.getFilepath().toFile().length() - inputFile.getHeader().length);
+                    treeMap.put(huffmanSize, ProjectConstants.HUFFMAN);
+                }
+                // if the input compression is Huffman we have to decompress it to determine the size of an RLE segment.
+                fromHuffmanToOutputcompression = new FromHuffmanToOutputcompression(inputFile);
+                fromHuffmanToOutputcompression.initialiseConversionForAuto(fileChannel, byteBuffer); // a special method that performs an RLE compression and only counts.
+
+                break;
         }
 
 
@@ -80,12 +84,17 @@ public class AutoModule {
         byte singleByte;
         // The stepwise loop to determine the potential sizes of the datasegments for RLE and Huffman compression.
 // Same principle as in Conversions.java but just with up to 2 compressions
-        while ((fileChannel.read(byteBuffer)) > 0) {
+        int limit = 0;
+        byte[] bytes = byteBuffer.array();
+        while ((limit = fileChannel.read(byteBuffer)) > 0) {
             byteBuffer.flip();
-            while (byteBuffer.hasRemaining()) {
+//            while (byteBuffer.hasRemaining()) { //performance test
+
+            for (int i = 0; i < limit; i++) {
 
 
-                singleByte = byteBuffer.get();
+                singleByte = bytes[i];
+//                singleByte = byteBuffer.get(); //performance test
                 if (autoInterface != null) // either uncompressed -> rle, or rle->rle;
                     autoInterface.run(singleByte);
 
@@ -100,14 +109,13 @@ public class AutoModule {
                 if (inputFile.getCompression().equals(ProjectConstants.HUFFMAN)) {
                     assert fromHuffmanToOutputcompression != null;
                     fromHuffmanToOutputcompression.run(singleByte);
-                } else if (inputFile.getCompression().equals(ProjectConstants.UNCOMPRESSED) & outputFileSuffix.equals(ProjectConstants.PROPRA)) {
+                } else if (inputFile.getCompression().equals(ProjectConstants.UNCOMPRESSED) && (outputFileSuffix.equals(ProjectConstants.PROPRA) || outputFileSuffix.equals(ProjectConstants.FACHPRA))) {
                     fillFrequencyArray(colourValueFrequencies, singleByte);
-                } else if (inputFile.getCompression().equals(ProjectConstants.RLE) & (outputFileSuffix.equals(ProjectConstants.PROPRA))) {
-
+                } else if (inputFile.getCompression().equals(ProjectConstants.RLE) && (outputFileSuffix.equals(ProjectConstants.PROPRA) || outputFileSuffix.equals(ProjectConstants.FACHPRA))) {
                     fillfreuencyArrayRLE(colourValueFrequencies, singleByte);
                 }
             }
-            byteBuffer.clear();
+//            byteBuffer.clear(); performance test
         }
 
 
@@ -119,11 +127,7 @@ public class AutoModule {
 
             if ((outputFileSuffix.equals(ProjectConstants.PROPRA))) {// determine size of the Huffman data segment + encoded Huffman tree.
                 // Determine the size of Huffman compressed datasegment.
-                Huffman.Tree tree = Huffman.buildHuffmanTreeFromFrequencies(colourValueFrequencies);
-                HashMap hashMap = tree.createHashMap();
-                long fileSize = Huffman.calculateBitLengthOfHuffmanEncodedDatasegment(colourValueFrequencies, hashMap);
-                long numberOfNodes = getNumberOfNodesInTreeBasedOnFrequencies(colourValueFrequencies);
-                double temp = (fileSize + Huffman.getCountOfBitsInStoredHuffmanTree(numberOfNodes)) / 8.0;
+                double temp = calculateHuffmanSIze(colourValueFrequencies);
                 huffmanSize = (long) (Math.ceil(temp));
                 treeMap.put(huffmanSize, ProjectConstants.HUFFMAN);
             }
@@ -149,10 +153,17 @@ public class AutoModule {
 
     }
 
+    public double calculateHuffmanSIze(long[] colourValueFrequencies) {
+        Huffman.Tree tree = Huffman.buildHuffmanTreeFromFrequencies(colourValueFrequencies);
+        HashMap hashMap = tree.createHashMap();
+        long fileSize = Huffman.calculateBitLengthOfHuffmanEncodedDatasegment(colourValueFrequencies, hashMap);
+        long numberOfNodes = getNumberOfNodesInTreeBasedOnFrequencies(colourValueFrequencies);
+        return (fileSize + Huffman.getCountOfBitsInStoredHuffmanTree(numberOfNodes)) / 8.0;
+    }
+
 
     /**
      * Responsible for filling up the frequency array for Huffman compression if input is uncompressed compressed.
-     *
      *
      * @param singleByte
      */
@@ -242,7 +253,9 @@ public class AutoModule {
         byte[] pixelPrevious = new byte[3];
         int totalSizeOfRLEDatasegment = 0;
         Mode mode = Mode.START;
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(128);
+        private boolean isEqualP1P2 = false;
+
 
         public UncompressedToRLEForFileSize(FileTypeSuper inputFile) {
             super(inputFile);
@@ -255,6 +268,15 @@ public class AutoModule {
             return totalSizeOfRLEDatasegment;
         }
 
+        private void assignPixelOneToPixelPrevious() {
+            System.arraycopy(pixelOne, 0, pixelPrevious, 0, 3);
+        }
+
+        public void checkIfP1AndP2AreEqual() {
+            if (mode != Mode.START) {// Changed because the method was performing Arrays.equals up to 3 times
+                isEqualP1P2 = (pixelOne[0] == pixelPrevious[0] && pixelOne[1] == pixelPrevious[1] && pixelOne[2] == pixelPrevious[2]);
+            }
+        }
 
         /**
          * This is basically the same as the run(Byte singleByte) Method that you can find in UncompressedToRLE3,
@@ -267,31 +289,33 @@ public class AutoModule {
             pixelOne[bytePixelCounter] = singleByte;
 
             if ((bytePixelCounter++) == 2) {
-                if (bytePixelCounter == 3) {
-                    bytePixelCounter = 0;
-                }
+                bytePixelCounter = 0;
+
 //            if (byteCounter % 3 == 2) {
 //                pixelOne = Pixel.transformPixel(pixelOne);
                 processedPixels++;
                 currentwidth++;
 
+                checkIfP1AndP2AreEqual();
+
+
                 if (mode == Mode.START) {
                     mode = null;
-                } else if (mode == null && ( boolean test = Arrays.equals(pixelOne, pixelPrevious))){
+                } else if (mode == null && isEqualP1P2) {
                     if (counter != -1) {
                         saveToOutputStream(counter);
                     }
                     counter = 1;
                     outputStream.write(pixelOne);
                     mode = Mode.RLE;
-                } else if (mode == Mode.RLE && Arrays.equals(pixelOne, pixelPrevious)) {
+                } else if (mode == Mode.RLE && isEqualP1P2) {
                     counter++;
                     mode = Mode.RLE;
                     if (counter == 127) {
                         saveToOutputStream(counter | 0x80);
                     }
 
-                } else if (!Arrays.equals(pixelOne, pixelPrevious)) {
+                } else if (!isEqualP1P2) {
                     if (mode == Mode.RLE) {
                         saveToOutputStream(counter | 0x80);
                     } else {
@@ -303,11 +327,11 @@ public class AutoModule {
                     }
                 }
                 if (currentwidth == imagewidth) {
-                    if ((Arrays.equals(pixelOne, pixelPrevious) && mode == Mode.RLE) && counter < 127) {
+                    if ((isEqualP1P2 && mode == Mode.RLE) && counter < 127) {
                         saveToOutputStream(counter | 0x80);
-                    } else if ((Arrays.equals(pixelOne, pixelPrevious) && mode == Mode.START) && counter == -1) {
+                    } else if ((isEqualP1P2 && mode == Mode.START) && counter == -1) {
                         // nichts tun, da das zweite Pixel schon gelesen wurde.
-                    } else if (!(Arrays.equals(pixelOne, pixelPrevious)) && mode == null && counter < 127) {
+                    } else if (!(isEqualP1P2) && mode == null && counter < 127) {
                         counter++;
                         outputStream.write((pixelOne));
                         saveToOutputStream(counter);
@@ -320,11 +344,10 @@ public class AutoModule {
                     mode = Mode.START;
                     currentwidth = 0;
                 }
-                System.arraycopy(pixelOne, 0, pixelPrevious, 0, 3);
+                assignPixelOneToPixelPrevious();
             }
             byteCounter++;
         }
-
 
         /**
          * This is basically the same as the saveToOutputStream(int counter) Method that you can find in UncompressedToRLE3,
@@ -337,7 +360,7 @@ public class AutoModule {
             totalSizeOfRLEDatasegment += outputStream.size();
             outputStream.reset();
             this.counter = -1;
-            if (Arrays.equals(pixelOne, pixelPrevious)) {
+            if (isEqualP1P2) {
                 mode = Mode.START;
             } else {
                 mode = null;

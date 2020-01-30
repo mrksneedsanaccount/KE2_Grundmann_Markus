@@ -18,6 +18,7 @@ public class CommandLineInterpreter {
     public static final String ENCODE = "--encode-";
     static final String TGA = ".tga";
     static final String PROPRA = ".propra";
+    static final String FACHPRA = ".fachpra";
     static final String BASEN = ".base-n";
     static final String BASE32 = ".base-32";
     private static final String HUFFMAN = "huffman";
@@ -25,7 +26,7 @@ public class CommandLineInterpreter {
     private static final String INPUT = "--input=";
     private static final String OUTPUT = "--output=";
     private static final String COMPRESSION = "--compression=";
-    private static final String[] FILETYPES = {".tga", ".propra", ".base-32", ".base-n"};
+    private static final String[] FILETYPES = {TGA, PROPRA, BASE32, BASEN, FACHPRA};
     public String mode = null;
     String inputSuffix;
     String outputSuffix;

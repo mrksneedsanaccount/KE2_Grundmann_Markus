@@ -1,11 +1,17 @@
 
-P"squid:SwitchLastCaseIsDefaultCheck'""Add a default case to this switch.(ÇžÒ»
-P"squid:SwitchLastCaseIsDefaultCheck4""Add a default case to this switch.(ÇžÒ»
-†"squid:ClassVariableVisibilityCheck
-"XMake outputFormat a static final constant or non-public and provide accessors if needed.(ºº°Ž
 +squid:S1700"Rename field "pixel"(‹¯‰²
+P"squid:SwitchLastCaseIsDefaultCheck<""Add a default case to this switch.(ÇžÒ»
+psquid:S1450"RRemove the "inB" field and declare it as a local variable in the relevant methods.(®ï¦8’û˜ëþ-
+usquid:S1450"RRemove the "inR" field and declare it as a local variable in the relevant methods.(òÑáåüÿÿÿÿ8Ì“—ëþ-
+P"squid:SwitchLastCaseIsDefaultCheck/""Add a default case to this switch.(ÇžÒ»
 Š"squid:ClassVariableVisibilityCheck	"WMake inputFormat a static final constant or non-public and provide accessors if needed.(ûÛ–Ëÿÿÿÿÿ
-Msquid:S1444	"1Make this "public static inputFormat" field final(ûÛ–Ëÿÿÿÿÿ
-Qsquid:S1118":Add a private constructor to hide the implicit public one.(Æ·ô
+isquid:CommentedOutCodeLineO"<This block of commented-out lines of code should be removed.(ýÀÔ‹8Þ‡ëþ-
+isquid:CommentedOutCodeLines"<This block of commented-out lines of code should be removed.(ýÀÔ‹8žò•ëþ-
 Isquid:S1444
 "2Make this "public static outputFormat" field final(ºº°Ž
+Xsquid:S1118":Add a private constructor to hide the implicit public one.(Æ·ô8Üæëþ-
+†"squid:ClassVariableVisibilityCheck
+"XMake outputFormat a static final constant or non-public and provide accessors if needed.(ºº°Ž
+qsquid:S1450"SRemove the "outB" field and declare it as a local variable in the relevant methods.(ÁõÈÇ8 ÆŒëþ-
+Msquid:S1444	"1Make this "public static inputFormat" field final(ûÛ–Ëÿÿÿÿÿ
+qsquid:S1450"SRemove the "outR" field and declare it as a local variable in the relevant methods.(®‹ç²8êžŒëþ-

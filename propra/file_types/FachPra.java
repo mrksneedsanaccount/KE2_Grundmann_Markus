@@ -10,8 +10,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Arrays;
 
-public class ProPra extends FileTypeSuper {
-    public static final int CHECKSUM_CONSTANT = 65513;
+public class FachPra extends FileTypeSuper {
+
+    private static final int CHECKSUM_CONSTANT = 65513;
+    private static final String FACH_PRA_WS_19 = "FachPraWS19";
     // .propra
     // 0-9 Formatkennung
     // 10-11 Bildbreite
@@ -45,11 +47,10 @@ public class ProPra extends FileTypeSuper {
     private int checksum;
 
 
-
     // Konstruktor für die Eingabedatei
-    public ProPra(Path inputPath, Path inputPath1, String inputSuffix) throws UnknownCompressionException {
+    public FachPra(Path inputPath, Path inputPath1, String inputSuffix) throws UnknownCompressionException {
         super(inputPath, inputPath1.toFile(), inputSuffix);
-        imageFormats = ImageFormats.GBR;
+        imageFormats = ImageFormats.RGB;
         // TODO Auto-generated constructor stub
         sizeOfDatasegment = headerbb.getLong(16);
         checksum = headerbb.getInt(24);
@@ -66,7 +67,7 @@ public class ProPra extends FileTypeSuper {
      * @param mode1
      * @throws UnknownCompressionException
      */
-    public ProPra(FileTypeSuper inputFile, String mode, Path outputPath, String outputSuffix, String mode1) throws UnknownCompressionException {
+    public FachPra(FileTypeSuper inputFile, String mode, Path outputPath, String outputSuffix, String mode1) throws UnknownCompressionException {
         // TODO Auto-generated constructor stub
         super(inputFile, outputPath, outputSuffix, mode1);
         imageFormats = ImageFormats.GBR;
@@ -77,8 +78,7 @@ public class ProPra extends FileTypeSuper {
     @Override
     public byte[] buildHeader(FileTypeSuper inputfile) throws UnknownCompressionException {
         // TODO Auto-generated method stub
-        String formatkennung = "ProPraWS19";
-        headerbb.put(formatkennung.getBytes());
+        headerbb.put(FACH_PRA_WS_19.getBytes());
         headerbb.putShort(10, width);
         headerbb.putShort(12, height);
         headerbb.put(14, bitsprobildpunkt);
@@ -89,20 +89,6 @@ public class ProPra extends FileTypeSuper {
         return headerbb.array();
     }
 
-    @Override
-    public void checkChecksum() throws InvalidChecksumException {
-        // Prüfsumme zum Test berechnen
-        int cs1 = returnChecksum();
-        System.out.println("berechnete Prüfsumme: " + cs1);
-        // Prüfsumme des Datei extrahieren.
-        System.out.println("Prüfsumme: " + checksum);
-        if (!(checksum == cs1)) {
-            throw new InvalidChecksumException("Checksum is incorrect. Source file possibly corrupted."
-                    + "\n" + "Output file has not been deleted."
-            );
-        }
-    }
-
     public void calculateChecksum(byte dataByte) {
         a = (a + (i + (dataByte & 0xff))) % CHECKSUM_CONSTANT;
         b = (b + a) % CHECKSUM_CONSTANT;
@@ -110,14 +96,12 @@ public class ProPra extends FileTypeSuper {
 
     }
 
-
     public void calculateChecksum2(byte dataByte) {
         a = (a + (i + (dataByte & 0xff))) < CHECKSUM_CONSTANT ? (a + (i + (dataByte & 0xff))) : (a + (i + (dataByte & 0xff))) - CHECKSUM_CONSTANT;
         b = ((b + a) < CHECKSUM_CONSTANT) ? (b + a) : (b + a) - CHECKSUM_CONSTANT;
         i = (i + 1 < CHECKSUM_CONSTANT) ? i + 1 : 0;
 
     }
-
 
     public void calculateChecksumOfArray(byte[] byteArray) {
         int size = byteArray.length;
@@ -140,6 +124,20 @@ public class ProPra extends FileTypeSuper {
             calculateChecksum(pixelArray[j]);
         }
 
+    }
+
+    @Override
+    public void checkChecksum() throws InvalidChecksumException {
+        // Prüfsumme zum Test berechnen
+        int cs1 = returnChecksum();
+        System.out.println("berechnete Prüfsumme: " + cs1);
+        // Prüfsumme des Datei extrahieren.
+        System.out.println("Prüfsumme: " + checksum);
+        if (!(checksum == cs1)) {
+            throw new InvalidChecksumException("Checksum is incorrect. Source file possibly corrupted."
+                    + "\n" + "Output file has not been deleted."
+            );
+        }
     }
 
     @Override
@@ -166,7 +164,7 @@ public class ProPra extends FileTypeSuper {
             throw new IllegalHeaderException("Unknown compression information in stored header.");
         }
         // Testen, ob ProPraWS19 im Header steht
-        String s = "ProPraWS19";
+        String s = FACH_PRA_WS_19;
         byte[] header = new byte[10];
         System.arraycopy(headerbb.array(), 0, header, 0, 10);
         if (!(Arrays.equals(s.getBytes(StandardCharsets.UTF_8),
@@ -238,5 +236,4 @@ public class ProPra extends FileTypeSuper {
 
 
 }
-
 
