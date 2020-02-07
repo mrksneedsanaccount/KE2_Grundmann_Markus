@@ -80,7 +80,7 @@ public class ConvertToHuffman extends ConversionSuper {
         inputCompressionToUncompressedConverter.run(singleByte); //1.
         tempByteArray = inputCompressionToUncompressedConverter.returnByteArray();
         if (tempByteArray != null) {
-            toHuffmanConverter.runIteratingOverArray(tempByteArray); //2.
+            toHuffmanConverter.runIteratingOverArray(tempByteArray.length, tempByteArray); //2.
         }
         processedPixels = inputCompressionToUncompressedConverter.getProcessedPixels(); //3.
 
@@ -143,14 +143,14 @@ public class ConvertToHuffman extends ConversionSuper {
                 }
             }
             // End of the compression operation is reached when this condition is met, before the last byte has been sent on.
-            if (((totalNumberOfPixelsInInputImage) * 3 == processedByte) & offset != 7) {
+            if (((totalNumberOfPixelsInInputImage) * 3 == processedByte) && offset != 7) {
                 byteArrayOutputStream.write(buffer);
             }
             bitStringBuilder.setLength(0);
         }
 
         @Override
-        public void runIteratingOverArray(byte[] tempByteArray) throws IOException {
+        public void runIteratingOverArray(int limit, byte[] tempByteArray) throws IOException {
             for (byte b : tempByteArray) {
                 run(b);
             }

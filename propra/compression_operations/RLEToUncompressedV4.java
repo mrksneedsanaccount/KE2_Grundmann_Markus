@@ -20,6 +20,15 @@ public class RLEToUncompressedV4 extends ConversionSuper {
         super(inputFile);
     }
 
+    public byte[] getOutputArray() {
+
+
+        byteArrayOutputStream.reset();
+
+
+        return null;
+    }
+
     public void run(byte singleByte) throws IOException {
         // How this method is supposed to work:
         // 1. This method determines if the passed byte is a or counter part of a Pixel.
@@ -44,19 +53,19 @@ public class RLEToUncompressedV4 extends ConversionSuper {
                 mode = Mode.RLE_PACKET;
             }
         } else if (counter > 0) {//2.
-            pixel[pixelByteCounter % 3] = singleByte;
-            if (pixelByteCounter % 3 == 2) {
+            pixel[pixelByteCounter] = singleByte;
+            if (pixelByteCounter++ == 2) {
+                pixelByteCounter = 0;
                 pixel = Pixel.transformPixel(pixel);
 
                 if (mode == Mode.RAW_PACKET) {
-                    byteArrayOutputStream.write(pixel);
-
+                    byteArrayOutputStream.write(pixel, 0, 3);
                     counter--;
                     processedPixels++;
 
                 } else {
                     while (counter > 0) {
-                        byteArrayOutputStream.write(pixel);
+                        byteArrayOutputStream.write(pixel, 0, 3);
                         counter--;
                         processedPixels++;
                     }
@@ -64,27 +73,13 @@ public class RLEToUncompressedV4 extends ConversionSuper {
             }
             if (counter == 0) {// signals that the next byte is going to be a counter.
                 mode = Mode.COUNTER;
-        }
-            pixelByteCounter++;
+            }
         }
     }
 
     enum Mode {
         RAW_PACKET, RLE_PACKET, COUNTER
     }
-
-    public byte[] getOutputArray(){
-
-
-        byteArrayOutputStream.reset();
-
-
-
-        return null;
-    }
-
-
-
 
 
 }

@@ -61,7 +61,7 @@ public class BaseNConverter {
                 alphabetTable[alphabet.charAt(i)] = (byte) i;
             } else {
                 System.err.println("Duplicate elements in alphabet. Please Check your inputfile");
-                System.exit(123);
+                // System.exit(123);
             }
         }
         return alphabetTable;

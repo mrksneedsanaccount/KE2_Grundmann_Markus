@@ -1,23 +1,23 @@
 
-Usquid:S49735"9Use the "equals" method if value comparison was intended.(Ææ·šÿÿÿÿÿ
-Psquid:S49738"9Use the "equals" method if value comparison was intended.(ƒùåó
 Osquid:S49736"9Use the "equals" method if value comparison was intended.(ÊûË
-Psquid:S49737"9Use the "equals" method if value comparison was intended.(„²«±
-T
-squid:S106/"9Replace this use of System.out or System.err by a logger.(£¼¹²ùÿÿÿÿ
-bsquid:CommentedOutCodeLine2"<This block of commented-out lines of code should be removed.(üÌñÌ
-squid:S1186"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(³Þèòùÿÿÿÿ
-T
-squid:S106+"9Replace this use of System.out or System.err by a logger.(Þï²„ýÿÿÿÿ
-T
-squid:S106-"9Replace this use of System.out or System.err by a logger.(ì†ºñýÿÿÿÿ
 T
 squid:S106."9Replace this use of System.out or System.err by a logger.(øäèÕùÿÿÿÿ
-O
-squid:S1060"9Replace this use of System.out or System.err by a logger.(©¦‚Ü
-˜squid:S1186"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(¯í­¨
+bsquid:CommentedOutCodeLine2"<This block of commented-out lines of code should be removed.(üÌñÌ
+Usquid:S49735"9Use the "equals" method if value comparison was intended.(Ææ·šÿÿÿÿÿ
+T
+squid:S106-"9Replace this use of System.out or System.err by a logger.(ì†ºñýÿÿÿÿ
 wsquid:S00120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(×§ÝÐüÿÿÿÿ
-O
-squid:S106&"9Replace this use of System.out or System.err by a logger.(¤°µË
+squid:S1186"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(³Þèòùÿÿÿÿ
+Psquid:S49737"9Use the "equals" method if value comparison was intended.(„²«±
+Psquid:S49738"9Use the "equals" method if value comparison was intended.(ƒùåó
+T
+squid:S106+"9Replace this use of System.out or System.err by a logger.(Þï²„ýÿÿÿÿ
 O
 squid:S106,"9Replace this use of System.out or System.err by a logger.(‚Ãýþ
+˜squid:S1186"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(¯í­¨
+O
+squid:S106&"9Replace this use of System.out or System.err by a logger.(¤°µË
+T
+squid:S106/"9Replace this use of System.out or System.err by a logger.(£¼¹²ùÿÿÿÿ
+O
+squid:S1060"9Replace this use of System.out or System.err by a logger.(©¦‚Ü

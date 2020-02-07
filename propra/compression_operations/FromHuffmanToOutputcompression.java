@@ -139,10 +139,11 @@ public class FromHuffmanToOutputcompression extends ConversionSuper {
     public void run(byte singleByte) throws IOException {
         huffmanToUncompressedConverter.run(singleByte);
         if (huffmanToUncompressedConverter.howManyBytesProcessed() > 0) {
-            uncompressedToOutputCompressionConverter.runIteratingOverArray(huffmanToUncompressedConverter.returnByteArray());
+            uncompressedToOutputCompressionConverter.runIteratingOverArray(huffmanToUncompressedConverter.byteArrayOutputStream.size(), huffmanToUncompressedConverter.returnByteArray());
             processedPixels = uncompressedToOutputCompressionConverter.getProcessedPixels();
         }
     }
+
 
     /**
      * This class is responsible for stepwise converting of Huffman encoded data to

@@ -89,7 +89,7 @@ public abstract class FileTypeSuper {
             header = new byte[TGA_HEADER_OFFSET];
         } else {
             System.out.println("This Program only supports the TARGA and the ProPra2019 formats, please check your inputfile.");
-            System.exit(123);
+            // System.exit(123);
         }
         try {
             // Speichere den Header der Eingabedatei in ihren Objekten Objekt.
@@ -99,7 +99,7 @@ public abstract class FileTypeSuper {
             inputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
-            System.exit(123);
+            // System.exit(123);
         }
         headerbb = ByteBuffer.wrap(header).order(ByteOrder.LITTLE_ENDIAN);
         setHeightAndWidth();
@@ -132,6 +132,8 @@ public abstract class FileTypeSuper {
     public abstract void calculateChecksumOfArray(byte[] pixel);
 
     public abstract void calculateChecksumOfByteBuffer(ByteBuffer pixelBuffer, int limit);
+
+    public abstract void calculateChecksumOfByteArray(byte[] pixelBuffer, int limit);
 
     /**
      * Vervollständigt die Metadaten des Ausgabeobjekts, so weit wie möglich, bevor der Header geschrieben wird.

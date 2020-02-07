@@ -58,3 +58,5 @@ q
 Apropra/compression_operations/FromHuffmanToOutputcompression.java,8\9\89eca5b8341c982b1fa82b1d4e7fee5e106b328a
 `
 0propra/compression_operations/AutoInterface.java,4\a\4aef2c39eb64439181dd36a70f83b41b989aea58
+N
+propra/file_types/FachPra.java,f\c\fca3e72fe0bfe6cebfe2ae5828e7608255426975

@@ -10,7 +10,7 @@ public class ByteBufferHelpers {
             byteBuffer.clear();
             if (inFileChannel.read(byteBuffer) < 0) {
                 System.err.println("Something went wrong when reading the encoded Huffman tree.");
-                System.exit(123);
+                // System.exit(123);
             }
             byteBuffer.flip();
         }

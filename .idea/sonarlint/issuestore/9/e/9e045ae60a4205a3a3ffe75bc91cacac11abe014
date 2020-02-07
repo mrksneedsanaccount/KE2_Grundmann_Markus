@@ -1,16 +1,18 @@
 
-Ksquid:S1068,"5Remove this unused "sizeOfDatasegment" private field.(›Ì…
-O
-squid:S106_"9Replace this use of System.out or System.err by a logger.(Ü±ë
-Nsquid:S1135E"2Complete the task associated to this TODO comment.(ƒŠ® úÿÿÿÿ
-Nsquid:S1135N"2Complete the task associated to this TODO comment.(» æÿÿÿÿÿ
-Osquid:S1135"2Complete the task associated to this TODO comment.(» æÿÿÿÿÿ
-Nsquid:S11354"2Complete the task associated to this TODO comment.(ƒŠ® úÿÿÿÿ
-Gsquid:S1066’"/Merge this if statement with the enclosing one.(‰É‡à
+Esquid:S1940c")Use the opposite operator ("!=") instead.(³Â·Ğüÿÿÿÿ
 T
-squid:S106a"9Replace this use of System.out or System.err by a logger.(¬£İõşÿÿÿÿ
-™squid:S1186­"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(×«–ñ
-Bsquid:S1172D"+Remove this unused method parameter "mode".(Ä’Š®
-½%squid:RedundantThrowsDeclarationCheckD"‹Remove the declaration of thrown exception 'propra.exceptions.UnknownCompressionException', as it cannot be thrown from constructor's body.(Ä’Š®
-Osquid:S1135½"2Complete the task associated to this TODO comment.(» æÿÿÿÿÿ
-Esquid:S1940b")Use the opposite operator ("!=") instead.(³Â·Ğüÿÿÿÿ
+squid:S106b"9Replace this use of System.out or System.err by a logger.(¬£İõşÿÿÿÿ
+Osquid:S1135“"2Complete the task associated to this TODO comment.(» æÿÿÿÿÿ
+Nsquid:S11355"2Complete the task associated to this TODO comment.(ƒŠ® úÿÿÿÿ
+½%squid:RedundantThrowsDeclarationCheckE"‹Remove the declaration of thrown exception 'propra.exceptions.UnknownCompressionException', as it cannot be thrown from constructor's body.(Ä’Š®
+Ksquid:S1068,"5Remove this unused "sizeOfDatasegment" private field.(›Ì…
+Gsquid:S1066˜"/Merge this if statement with the enclosing one.(‰É‡à
+Osquid:S1135Ã"2Complete the task associated to this TODO comment.(» æÿÿÿÿÿ
+jsquid:CommentedOutCodeLine€"<This block of commented-out lines of code should be removed.(ú§Ç€8ËôŸµÿ-
+Nsquid:S1135F"2Complete the task associated to this TODO comment.(ƒŠ® úÿÿÿÿ
+™squid:S1186³"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(×«–ñ
+O
+squid:S106`"9Replace this use of System.out or System.err by a logger.(Ü±ë
+Bsquid:S1172E"+Remove this unused method parameter "mode".(Ä’Š®
+osquid:CommentedOutCodeLineƒ"<This block of commented-out lines of code should be removed.(éØ»Úûÿÿÿÿ8ËôŸµÿ-
+Nsquid:S1135O"2Complete the task associated to this TODO comment.(» æÿÿÿÿÿ

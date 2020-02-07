@@ -43,7 +43,7 @@ public class ProPra extends FileTypeSuper {
     private int i = 1;
     private long sizeOfDatasegment;
     private int checksum;
-
+    private int r;
 
 
     // Konstruktor für die Eingabedatei
@@ -89,6 +89,50 @@ public class ProPra extends FileTypeSuper {
         return headerbb.array();
     }
 
+    public void calculateChecksum(byte dataByte) {
+        a = (a + (i + (dataByte & 0xff))) % CHECKSUM_CONSTANT;
+        b = (b + a) % CHECKSUM_CONSTANT;
+        i++;
+
+    }
+
+    public void calculateChecksum2(byte dataByte) {
+
+        r = dataByte & 0xff;
+        a = (a + (this.i + r)) < CHECKSUM_CONSTANT ? (a + (this.i + r)) : (a + (this.i + r)) - CHECKSUM_CONSTANT;
+        b = ((b + a) < CHECKSUM_CONSTANT) ? (b + a) : (b + a) - CHECKSUM_CONSTANT;
+        this.i = (this.i + 1 < CHECKSUM_CONSTANT) ? this.i + 1 : 0;
+
+    }
+
+    public void calculateChecksumOfArray(byte[] byteArray) {
+        int size = byteArray.length;
+        for (int j = 0; j < size; j++) {
+            calculateChecksum2(byteArray[j]);
+
+        }
+    }
+
+    @Override
+    public void calculateChecksumOfByteArray(byte[] byteArray, int limit) {
+
+        for (int j = 0; j < limit; j++) {
+            calculateChecksum2(byteArray[j]);
+        }
+
+    }
+
+    @Override
+    public void calculateChecksumOfByteBuffer(ByteBuffer byteBuffer, int limit) {
+        int startingPos = byteBuffer.limit() - limit;
+        int finalPos = byteBuffer.limit();
+        byte[] pixelArray = byteBuffer.array();
+        for (int j = startingPos; j < finalPos; j++) {
+            calculateChecksum(pixelArray[j]);
+        }
+
+    }
+
     @Override
     public void checkChecksum() throws InvalidChecksumException {
         // Prüfsumme zum Test berechnen
@@ -101,45 +145,6 @@ public class ProPra extends FileTypeSuper {
                     + "\n" + "Output file has not been deleted."
             );
         }
-    }
-
-    public void calculateChecksum(byte dataByte) {
-        a = (a + (i + (dataByte & 0xff))) % CHECKSUM_CONSTANT;
-        b = (b + a) % CHECKSUM_CONSTANT;
-        i++;
-
-    }
-
-
-    public void calculateChecksum2(byte dataByte) {
-        a = (a + (i + (dataByte & 0xff))) < CHECKSUM_CONSTANT ? (a + (i + (dataByte & 0xff))) : (a + (i + (dataByte & 0xff))) - CHECKSUM_CONSTANT;
-        b = ((b + a) < CHECKSUM_CONSTANT) ? (b + a) : (b + a) - CHECKSUM_CONSTANT;
-        i = (i + 1 < CHECKSUM_CONSTANT) ? i + 1 : 0;
-
-    }
-
-
-    public void calculateChecksumOfArray(byte[] byteArray) {
-        int size = byteArray.length;
-        for (int j = 0; j < size; j++) {
-            calculateChecksum2(byteArray[j]);
-        }
-
-//        for (byte singleByte : byteArray) {
-//            calculateChecksum2(singleByte);
-//
-//        }
-
-    }
-
-    public void calculateChecksumOfByteBuffer(ByteBuffer byteBuffer, int limit) {
-        int startingPos = byteBuffer.limit() - limit;
-        int finalPos = byteBuffer.limit();
-        byte[] pixelArray = byteBuffer.array();
-        for (int j = startingPos; j < finalPos; j++) {
-            calculateChecksum(pixelArray[j]);
-        }
-
     }
 
     @Override

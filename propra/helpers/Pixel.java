@@ -84,22 +84,17 @@ public class Pixel {
             outB = inputPixel[0];
             outG = inputPixel[1];
             outR = inputPixel[2];
-
             pixel[0] = outR;
             pixel[1] = outG;
             pixel[2] = outB;
         } else if (inputFormat == ImageFormats.RGB) {
-
             pixel[0] = inputPixel[0];
             pixel[1] = inputPixel[1];
             pixel[2] = inputPixel[2];
-
-
         } else {
             outG = inputPixel[0];
             outB = inputPixel[1];
             outR = inputPixel[2];
-
             pixel[0] = outR;
             pixel[1] = outG;
             pixel[2] = outB;
@@ -125,31 +120,25 @@ public class Pixel {
 
         if (outputFormat == ImageFormats.BGR) {
             inR = inputPixel[0];
-            outG = inputPixel[1];
+            inG = inputPixel[1];
             inB = inputPixel[2];
-
             pixel[0] = inB;
             pixel[1] = inG;
             pixel[2] = inR;
         } else if (outputFormat == ImageFormats.RGB) {
             inR = inputPixel[0];
-            outG = inputPixel[1];
+            inG = inputPixel[1];
             inB = inputPixel[2];
-
             pixel[0] = inR;
             pixel[1] = inG;
             pixel[2] = inB;
-
-
         } else {
             inR = inputPixel[0];
             inG = inputPixel[1];
             inB = inputPixel[2];
-
             pixel[0] = inG;
             pixel[1] = inB;
             pixel[2] = inR;
-
         }
         return pixel;
     }

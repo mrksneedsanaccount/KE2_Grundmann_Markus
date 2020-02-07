@@ -88,15 +88,9 @@ public class AutoModule {
         byte[] bytes = byteBuffer.array();
         while ((limit = fileChannel.read(byteBuffer)) > 0) {
             byteBuffer.flip();
-//            while (byteBuffer.hasRemaining()) { //performance test
 
-            for (int i = 0; i < limit; i++) {
-
-
-                singleByte = bytes[i];
-//                singleByte = byteBuffer.get(); //performance test
                 if (autoInterface != null) // either uncompressed -> rle, or rle->rle;
-                    autoInterface.run(singleByte);
+                    autoInterface.runIteratingOverArray(limit, bytes);
 
                 // Huffman related operations: Either determining the size of a possible RLE datasegment for Huffman -> other,
                 // or filling the frequency array in order to determine the size of a
@@ -106,15 +100,19 @@ public class AutoModule {
                     break;
                 }
 
-                if (inputFile.getCompression().equals(ProjectConstants.HUFFMAN)) {
-                    assert fromHuffmanToOutputcompression != null;
-                    fromHuffmanToOutputcompression.run(singleByte);
-                } else if (inputFile.getCompression().equals(ProjectConstants.UNCOMPRESSED) && (outputFileSuffix.equals(ProjectConstants.PROPRA) || outputFileSuffix.equals(ProjectConstants.FACHPRA))) {
-                    fillFrequencyArray(colourValueFrequencies, singleByte);
-                } else if (inputFile.getCompression().equals(ProjectConstants.RLE) && (outputFileSuffix.equals(ProjectConstants.PROPRA) || outputFileSuffix.equals(ProjectConstants.FACHPRA))) {
-                    fillfreuencyArrayRLE(colourValueFrequencies, singleByte);
+            if (inputFile.getCompression().equals(ProjectConstants.HUFFMAN)) {
+                assert fromHuffmanToOutputcompression != null;
+                fromHuffmanToOutputcompression.runIteratingOverArray(limit, bytes);
+            } else if (inputFile.getCompression().equals(ProjectConstants.UNCOMPRESSED) && (outputFileSuffix.equals(ProjectConstants.PROPRA) || outputFileSuffix.equals(ProjectConstants.FACHPRA))) {
+                for (int i = 0; i < limit; i++) {
+                    fillFrequencyArray(colourValueFrequencies, bytes[i]);
+                }
+            } else if (inputFile.getCompression().equals(ProjectConstants.RLE) && (outputFileSuffix.equals(ProjectConstants.PROPRA) || outputFileSuffix.equals(ProjectConstants.FACHPRA))) {
+                for (int i = 0; i < limit; i++) {
+                    fillfreuencyArrayRLE(colourValueFrequencies, bytes[i]);
                 }
             }
+
 //            byteBuffer.clear(); performance test
         }
 

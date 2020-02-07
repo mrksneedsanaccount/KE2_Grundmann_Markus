@@ -127,6 +127,11 @@ public class FachPra extends FileTypeSuper {
     }
 
     @Override
+    public void calculateChecksumOfByteArray(byte[] pixelBuffer, int limit) {
+
+    }
+
+    @Override
     public void checkChecksum() throws InvalidChecksumException {
         // Prüfsumme zum Test berechnen
         int cs1 = returnChecksum();

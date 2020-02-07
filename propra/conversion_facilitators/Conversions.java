@@ -157,7 +157,7 @@ public class Conversions {
             } catch (IOException | InvalidChecksumException e) {
                 e.printStackTrace();
                 System.err.println("File could not be copied to provided output destination properly.");
-                System.exit(123);
+                // System.exit(123);
             }
         } else {
             try {
@@ -193,34 +193,32 @@ public class Conversions {
                 ByteArrayOutputStream toFileBAoStream = new ByteArrayOutputStream(ProjectConstants.BUFFER_CAPACITY);
                 File file;
                 BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(outputFile.getFilepath().toString(), true));
+                BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(inputFile.getFilepath().toString()));
+                bufferedInputStream.skip(fileChannel.position());
+                byte[] bA = byteBuffer.array();
 
 
-                while ((limit = fileChannel.read(byteBuffer)) > -1) {
-                    byteBuffer.flip();
-                    inputFile.calculateChecksumOfByteBuffer(byteBuffer, limit);
+//                while ((limit = fileChannel.read(byteBuffer)) > -1) {
+//                    byteBuffer.flip();
+                while ((limit = bufferedInputStream.read(bA)) > -1) {
+
+                    inputFile.calculateChecksumOfByteArray(bA, limit);
 
 
-                    while (byteBuffer.hasRemaining()) {
+//                    while (byteBuffer.hasRemaining()) {
 //                    for (int i = 0; i < limit; i++) {
+//
 
-                        if (stepwiseConverter.getProcessedPixels() == inputFile.getWidth() * inputFile.getHeight()) {
-                            System.out.println("Input image file has a tail." + '\n' + "The tail has been ignored");
-                            break;
-                        }
-//                        conversionSuper.run(byteBuffer.array()[i]);
-                        stepwiseConverter.run(byteBuffer.get());
-                        counter++;
-                        byte[] temp = stepwiseConverter.transferChunkOfProcessedData();
-                        if (temp != null) {
-                            outputFile.calculateChecksumOfArray(temp);
+                    stepwiseConverter.runIteratingOverArray(limit, bA);
+                    byte[] temp = stepwiseConverter.transferChunkOfProcessedData();
+                    if (temp != null) {
+                        outputFile.calculateChecksumOfArray(temp);
 //                            Files.write(outputFile.getFilepath(), temp, StandardOpenOption.APPEND);
-                            bufferedOutputStream.write(temp);
-
-
-                        }
+                        bufferedOutputStream.write(temp);
                     }
-                    byteBuffer.clear();
+
                 }
+                bufferedOutputStream.flush();
 
 
                 assert stepwiseConverter.getProcessedPixels() == inputFile.getWidth() * inputFile.getHeight() : "Number of processed pixels does not correspond to dimensions provided in the header";
@@ -229,12 +227,13 @@ public class Conversions {
                 // build the header for the output file and replace the current placeholder.
                 addHeaderToOutputFile(outputFile, inputFile);
                 inputFile.checkChecksum();
-
                 bufferedOutputStream.close();
+                bufferedInputStream.close();
+                fileChannel.close();
 
             } catch (IOException | UnknownCompressionException | InvalidChecksumException | ConversionException e) {
                 e.printStackTrace();
-                System.exit(123);
+                // System.exit(123);
             }
         }
 
@@ -261,7 +260,7 @@ public class Conversions {
                 break;
             default:
                 System.err.println("Illegal image format. This program only supports.tga, fachpra and .propra. ");
-                System.exit(123);
+                // System.exit(123);
         }
         if (commandLineInterpreter.getMode().equals(KE1CONVERSION)) {
             commandLineInterpreter.setMode(inputFile.getCompression());
@@ -279,7 +278,7 @@ public class Conversions {
                 break;
             default:
                 System.err.println("File extension not supported.");
-                System.exit(123);
+                // System.exit(123);
         }
 
     }

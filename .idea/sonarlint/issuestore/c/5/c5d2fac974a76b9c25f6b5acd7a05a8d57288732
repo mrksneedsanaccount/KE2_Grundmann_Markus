@@ -1,17 +1,19 @@
 
+Xsquid:S1118":Add a private constructor to hide the implicit public one.(Æ·ô8Üæëş-
+isquid:CommentedOutCodeLinet"<This block of commented-out lines of code should be removed.(ıÀÔ‹8Â€¦Ãÿ-
+qsquid:S1450"SRemove the "outR" field and declare it as a local variable in the relevant methods.(®‹ç²8êŒëş-
 +squid:S1700"Rename field "pixel"(‹¯‰²
 P"squid:SwitchLastCaseIsDefaultCheck<""Add a default case to this switch.(ÇÒ»
 psquid:S1450"RRemove the "inB" field and declare it as a local variable in the relevant methods.(®ï¦8’û˜ëş-
 usquid:S1450"RRemove the "inR" field and declare it as a local variable in the relevant methods.(òÑáåüÿÿÿÿ8Ì“—ëş-
-P"squid:SwitchLastCaseIsDefaultCheck/""Add a default case to this switch.(ÇÒ»
-Š"squid:ClassVariableVisibilityCheck	"WMake inputFormat a static final constant or non-public and provide accessors if needed.(ûÛ–Ëÿÿÿÿÿ
-isquid:CommentedOutCodeLineO"<This block of commented-out lines of code should be removed.(ıÀÔ‹8Ş‡ëş-
-isquid:CommentedOutCodeLines"<This block of commented-out lines of code should be removed.(ıÀÔ‹8ò•ëş-
-Isquid:S1444
-"2Make this "public static outputFormat" field final(ºº°
-Xsquid:S1118":Add a private constructor to hide the implicit public one.(Æ·ô8Üæëş-
 †"squid:ClassVariableVisibilityCheck
 "XMake outputFormat a static final constant or non-public and provide accessors if needed.(ºº°
-qsquid:S1450"SRemove the "outB" field and declare it as a local variable in the relevant methods.(ÁõÈÇ8 ÆŒëş-
+psquid:S1450"SRemove the "outG" field and declare it as a local variable in the relevant methods.(ÿ˜8‰­ÀÃÿ-
+Š"squid:ClassVariableVisibilityCheck	"WMake inputFormat a static final constant or non-public and provide accessors if needed.(ûÛ–Ëÿÿÿÿÿ
+isquid:CommentedOutCodeLineO"<This block of commented-out lines of code should be removed.(ıÀÔ‹8ÅÑ Ãÿ-
+Isquid:S1444
+"2Make this "public static outputFormat" field final(ºº°
 Msquid:S1444	"1Make this "public static inputFormat" field final(ûÛ–Ëÿÿÿÿÿ
-qsquid:S1450"SRemove the "outR" field and declare it as a local variable in the relevant methods.(®‹ç²8êŒëş-
+usquid:S1450"RRemove the "inG" field and declare it as a local variable in the relevant methods.(Æè®şÿÿÿÿ8‰­ÀÃÿ-
+qsquid:S1450"SRemove the "outB" field and declare it as a local variable in the relevant methods.(ÁõÈÇ8’Ô¶ÿ-
+P"squid:SwitchLastCaseIsDefaultCheck/""Add a default case to this switch.(ÇÒ»

@@ -50,7 +50,7 @@ public class Encode {
         double temp = (int) (Math.log(alpahbet.length()) / Math.log(2));
         if (temp % 1 != 0 || alpahbet.length() > 64) {
             System.err.println("Invalid number of elements in Alphabet.");
-            System.exit(123);
+            // System.exit(123);
         }
 
 
@@ -97,7 +97,7 @@ public class Encode {
             e.printStackTrace();
             System.err.println("This error is most likely caused by problems related to reading the input," +
                     " or writing to the output path");
-            System.exit(123);
+            // System.exit(123);
 
         }
 

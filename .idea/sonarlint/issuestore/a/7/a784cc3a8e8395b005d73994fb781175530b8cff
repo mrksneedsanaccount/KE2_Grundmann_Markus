@@ -1,7 +1,7 @@
 
-osquid:ModifiersOrderCheck"EReorder the modifiers to comply with the Java Language Specification.(óÂ“øÿÿÿÿ
-gsquid:S1192"KUse already-defined constant 'BASEN' instead of duplicating its value here.(ÕÄ¦Êûÿÿÿÿ
-hsquid:S1192"LUse already-defined constant 'PROPRA' instead of duplicating its value here.(ÕÄ¦Êûÿÿÿÿ
+Qsquid:S1118":Add a private constructor to hide the implicit public one.(´–ÂÙ
 hsquid:S1192"LUse already-defined constant 'BASE32' instead of duplicating its value here.(ÕÄ¦Êûÿÿÿÿ
 9squid:S2386"Make this member "protected".(ÕÄ¦Êûÿÿÿÿ
-Qsquid:S1118":Add a private constructor to hide the implicit public one.(´–ÂÙ
+hsquid:S1192"LUse already-defined constant 'PROPRA' instead of duplicating its value here.(ÕÄ¦Êûÿÿÿÿ
+gsquid:S1192"KUse already-defined constant 'BASEN' instead of duplicating its value here.(ÕÄ¦Êûÿÿÿÿ
+vsquid:ModifiersOrderCheck"EReorder the modifiers to comply with the Java Language Specification.(óÂ“øÿÿÿÿ8¦Ãÿ-

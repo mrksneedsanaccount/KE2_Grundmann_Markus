@@ -121,6 +121,11 @@ public class TGA extends FileTypeSuper {
     }
 
     @Override
+    public void calculateChecksumOfByteArray(byte[] pixelBuffer, int limit) {
+
+    }
+
+    @Override
     public void checkForErrorsInHeader() throws IllegalHeaderException {
         super.checkForErrorsInHeader();
         // image dimensions

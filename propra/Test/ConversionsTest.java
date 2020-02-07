@@ -1,6 +1,7 @@
 package propra.Test;
 
 import groovy.util.GroovyTestCase;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -103,7 +104,7 @@ class ConversionsTest extends GroovyTestCase {
                 Arguments.of(new String[]{"--input=../KE3_Testbilder/test_05_huffman.propra", "--output=../KE3_Konvertiert/test_05_AUTO.propra", "--compression=auto"}, "27a43d00a199f86d6c171864cb0cffc8"),
                 Arguments.of(stringToStringArray("--input=../KE3_Konvertiert/test_05_AUTO.propra --output=../KE3_Theo_Konvertiert/test_05_AUTO_rle.tga --compression=rle"), stringToLowerCase("EB8EBC447530DCEC6A4980295FE33BA6")),
 
-                Arguments.of(new String[]{"--input=../KE3_TestBilder/test_05.tga", "--output=../KE3_Konvertiert/test_05_AUTO.propra", "--compression=auto"}, "5dbee06877f0dc403e6ae613c5c57788"),
+                Arguments.of(new String[]{"--input=../KE3_TestBilder/test_05.tga", "--output=../KE3_Konvertiert/test_05_AUTO.propra", "--compression=auto"}, "27a43d00a199f86d6c171864cb0cffc8"),
 
 
                 Arguments.of(new String[]{"--input=../KE1_Konvertiert/test_02_AUTO.propra", "--output=../KE1_Konvertiert/test_02_huffmanTOUncompressed.propra", "--compression=uncompressed"}, "7898c68cf3d07f2ed48cd0491bd8f3f2"),
@@ -327,28 +328,33 @@ class ConversionsTest extends GroovyTestCase {
 //
         CommandLineInterpreter commandLineInterpreter = new CommandLineInterpreter();
         commandLineInterpreter.interpretInputs((String[]) args);
-//        String test = (String) args[1];
 
-
-//        if (test.startsWith(ProjectConstants.OUTPUT)) {
-//            Conversions conversions = new Conversions(commandLineInterpreter);
-//            conversions.initializeConversions();
-//            conversions.setPixels();
-//            conversions.executeConversion();
-//
-//            assertEquals(conversions.getInputFile().getWidth() * conversions.getInputFile().getHeight(), conversions.getConversionSuper().getProcessedPixels());
-//        } else if (test.startsWith(ProjectConstants.ENCODE)) {
-//            propra.conversion_facilitators.Encode encode = new Encode(commandLineInterpreter);
-//            encode.exectueConversion();
-//
-//        } else if (test.startsWith(ProjectConstants.DECODE)) {
-//            propra.conversion_facilitators.Decode decode = new Decode(commandLineInterpreter);
-//            decode.executeConversion();
-//        }
 
         System.out.println("Filesize: " + commandLineInterpreter.getOutputPath().toFile().length());
         assertEquals(md5, getMD5Checksum(commandLineInterpreter.getOutputPath().toString()));
 
 
     }
+
+
+    @Test
+    public void test() {
+
+        propra.imageconverter.ImageConverter.main(stringToStringArray("--input=G:\\ProPra\\Gabi\\KE2_konvertiert\\test_grosses_bild_uncompressed.tga --output=../KE2_Konvertiert/test_grosses_unkomprimiert_zu_komprimiert.propra --compression=rle"));
+        for (int i = 0; i < 0; i++) {
+            propra.imageconverter.ImageConverter.main(stringToStringArray("--input=G:\\ProPra\\Gabi\\KE2_konvertiert\\test_grosses_bild_uncompressed.tga --output=../KE2_Konvertiert/test_grosses_unkomprimiert_zu_komprimiert.propra --compression=rle"));
+            propra.imageconverter.ImageConverter.main(stringToStringArray("--input=G:\\ProPra\\Gabi\\KE2_konvertiert\\test_grosses_bild_uncompressed.tga --output=../KE2_Konvertiert/test_grosses_unkomprimiert_zu_komprimiert.propra --compression=rle"));
+            propra.imageconverter.ImageConverter.main(stringToStringArray("--input=G:\\ProPra\\Gabi\\KE2_konvertiert\\test_grosses_bild_uncompressed.tga --output=../KE2_Konvertiert/test_grosses_unkomprimiert_zu_komprimiert.propra --compression=rle"));
+            propra.imageconverter.ImageConverter.main(stringToStringArray("--input=G:\\ProPra\\Gabi\\KE2_konvertiert\\test_grosses_bild_uncompressed.tga --output=../KE2_Konvertiert/test_grosses_unkomprimiert_zu_komprimiert.propra --compression=rle"));
+            propra.imageconverter.ImageConverter.main(stringToStringArray("--input=G:\\ProPra\\Gabi\\KE2_konvertiert\\test_grosses_bild_uncompressed.tga --output=../KE2_Konvertiert/test_grosses_unkomprimiert_zu_komprimiert.propra --compression=rle"));
+            propra.imageconverter.ImageConverter.main(stringToStringArray("--input=G:\\ProPra\\Gabi\\KE2_konvertiert\\test_grosses_bild_uncompressed.tga --output=../KE2_Konvertiert/test_grosses_unkomprimiert_zu_komprimiert.propra --compression=rle"));
+            propra.imageconverter.ImageConverter.main(stringToStringArray("--input=G:\\ProPra\\Gabi\\KE2_konvertiert\\test_grosses_bild_uncompressed.tga --output=../KE2_Konvertiert/test_grosses_unkomprimiert_zu_komprimiert.propra --compression=rle"));
+            propra.imageconverter.ImageConverter.main(stringToStringArray("--input=G:\\ProPra\\Gabi\\KE2_konvertiert\\test_grosses_bild_uncompressed.tga --output=../KE2_Konvertiert/test_grosses_unkomprimiert_zu_komprimiert.propra --compression=rle"));
+        }
+
+
+        assertEquals("test", "test");
+    }
+
+
 }

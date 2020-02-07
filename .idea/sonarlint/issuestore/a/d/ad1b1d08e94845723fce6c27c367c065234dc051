@@ -1,10 +1,12 @@
 
-csquid:CommentedOutCodeLine¾"<This block of commented-out lines of code should be removed.(…àÞ
-O
-squid:S106S"9Replace this use of System.out or System.err by a logger.(‚Ô¬Ì
-?squid:S1148]"#Use a logger to log this exception.(€ÉÔ…ýÿÿÿÿ
+Fsquid:S1148e"#Use a logger to log this exception.(€ÉÔ…ýÿÿÿÿ8Íªéµÿ-
+Usquid:S11355"2Complete the task associated to this TODO comment.(ƒŠ® úÿÿÿÿ8ø•€Äÿ-
+V
+squid:S106["9Replace this use of System.out or System.err by a logger.(‚Ô¬Ì8Íªéµÿ-
+squid:S00116"`Rename this field "FACHPRA_HEADER_OFFSET" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(«ë‚†8ø•€Äÿ-
+jsquid:CommentedOutCodeLineÆ"<This block of commented-out lines of code should be removed.(…àÞ8Íªéµÿ-
+?squid:S1170"!Make this final field static too.(«ë‚†8ø•€Äÿ-
+rsquid:ModifiersOrderCheck¾"EReorder the modifiers to comply with the Java Language Specification.(Ÿ…€Û8Íªéµÿ-
+hsquid:S2674b"JCheck the return value of the "read" call to see how many bytes were read.(¥™¢8Íªéµÿ-
 8squid:S1170"!Make this final field static too.(ü§–×
-Nsquid:S11352"2Complete the task associated to this TODO comment.(ƒŠ® úÿÿÿÿ
-asquid:S2674Z"JCheck the return value of the "read" call to see how many bytes were read.(¥™¢
-ksquid:ModifiersOrderCheck¶"EReorder the modifiers to comply with the Java Language Specification.(Ÿ…€Û
-hsquid:CommentedOutCodeLineÂ"<This block of commented-out lines of code should be removed.(éØ»Úûÿÿÿÿ
+osquid:CommentedOutCodeLineÊ"<This block of commented-out lines of code should be removed.(éØ»Úûÿÿÿÿ8Íªéµÿ-

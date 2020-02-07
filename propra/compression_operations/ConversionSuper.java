@@ -16,7 +16,8 @@ import java.nio.channels.FileChannel;
 public abstract class ConversionSuper {
 
     final int totalNumberOfPixelsInInputImage;
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    ByteBuffer byteBuffer;
+    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(40000);
     int processedPixels = 0;
     FileTypeSuper inputFile;
     Flags flag = null;
@@ -73,6 +74,17 @@ public abstract class ConversionSuper {
         }
     }
 
+    public void runByteBuffer() throws IOException {
+        for (int i = 0; i < byteBuffer.limit(); i++) {
+
+            run(byteBuffer.get());
+
+
+        }
+
+
+    }
+
     /**
      * Responsible for stepwise processing of the input file.
      *
@@ -85,13 +97,22 @@ public abstract class ConversionSuper {
      * Responsible for stepwise processing of preprocessed source file inputs.
      * Only necessary for Huffman -> other, or other -> Huffman.
      *
+     * @param limit
      * @param byteArray byte array containing image data.
      * @throws IOException
      */
-    void runIteratingOverArray(byte[] byteArray) throws IOException {
+    public void runIteratingOverArray(int limit, byte[] byteArray) throws IOException {
 
-        for (byte b : byteArray) {
-            run(b);
+
+        for (int i = 0; i < limit; i++) {
+
+            if (getProcessedPixels() == totalNumberOfPixelsInInputImage) {
+                System.out.println("Input image file has a tail." + '\n' + "The tail has been ignored");
+                break;
+            }
+            run(byteArray[i]);
+
+
         }
     }
 

@@ -23,6 +23,36 @@
             <set />
           </value>
         </entry>
+        <entry key="G:/C-Projects/Java/1/workspace/Test/src/IamATestFolder/InterfaceImplementer.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="G:/C-Projects/Java/1/workspace/Test/src/IamATestFolder/mainclass.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="G:/C-Projects/Java/1/workspace/Test/src/UncompressedToRLE/Main2.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="G:/C-Projects/Java/1/workspace/Test/src/UncompressedToRLE/Main2Test.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="G:/C-Projects/Java/1/workspace/Test/src/UncompressedToRLE/Main3.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="G:/C-Projects/Java/1/workspace/Test/src/UncompressedToRLE/UncompressedToRLE4.java">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="G:/C-Projects/Java/1/workspace/Test/src/testestTest.java">
           <value>
             <set />
@@ -38,7 +68,47 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/propra/Test/ConversionsTest.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/propra/compression_operations/AutoInterface.java">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/propra/compression_operations/AutoModule.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/propra/compression_operations/ConversionSuper.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/propra/compression_operations/ConvertToHuffman.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/propra/compression_operations/FromHuffmanToOutputcompression.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/propra/compression_operations/RLEToUncompressedV4.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/propra/compression_operations/UncompressedToRLE3.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/propra/compression_operations/UncompressedToUncompressed.java">
           <value>
             <set />
           </value>
@@ -84,6 +154,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/propra/file_types/ProPra.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/propra/file_types/TGA.java">
           <value>
             <set />
           </value>
@@ -144,6 +219,56 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/../KE3_Gebhardt-Weidl_Gabi/tests/test/util/MD5Checksum.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Grundmann_Markus/.gitignore">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Grundmann_Markus/propra/Test/BaseNConverterTest.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Grundmann_Markus/propra/Test/CommandLineInterpreterTest.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Grundmann_Markus/propra/Test/ConversionsTest.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Grundmann_Markus/propra/compression_operations/RLEToUncompressedV4.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Grundmann_Markus/propra/conversion_facilitators/Conversions.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Grundmann_Markus/propra/file_types/ProPra.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Grundmann_Markus/propra/helpers/ProjectConstants.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Grundmann_Markus/propra/imageconverter/BaseNConverter.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../KE3_Grundmann_Markus/propra/imageconverter/ImageConverter.java">
           <value>
             <set />
           </value>

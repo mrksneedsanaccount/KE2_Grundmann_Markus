@@ -1,15 +1,0 @@
-
-T
-squid:S106?"9Replace this use of System.out or System.err by a logger.(ù„¾ªúÿÿÿÿ
-Zsquid:HiddenFieldCheck^"8Rename "temp" which hides the field declared at line 20.(İÙœ‘
-_squid:HiddenFieldCheckN"8Rename "temp" which hides the field declared at line 20.(ÀïÉàıÿÿÿÿ
-Zsquid:S3034y">Prevent "int" promotion by adding "& 0xff" to this expression.(ªâ¬¹ıÿÿÿÿ
-Vsquid:S3034ª">Prevent "int" promotion by adding "& 0xff" to this expression.( á×÷
-t
-squid:S135p"YReduce the total number of break and continue statements in this loop to use at most one.(˜ïˆÿÿÿÿÿ
-=squid:S1168R"&Return an empty array instead of null.(¥¹ï
-[squid:S3034¦">Prevent "int" promotion by adding "& 0xff" to this expression.(öæ·“ûÿÿÿÿ
-ssquid:S1450"WRemove the "maskSize" field and declare it as a local variable in the relevant methods.(‹”œ“şÿÿÿÿ
-Usquid:S3034|">Prevent "int" promotion by adding "& 0xff" to this expression.(´ªöš
-Jsquid:S1068".Remove this unused "BITSINBYTE" private field.(É‡îüÿÿÿÿ
-hsquid:HiddenFieldCheck5"ARename "alphabetTable" which hides the field declared at line 27.(Ñ„Ğ›şÿÿÿÿ

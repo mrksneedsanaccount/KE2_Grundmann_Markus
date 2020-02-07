@@ -32,7 +32,7 @@ public class UncompressedToUncompressed extends ConversionSuper {
         pixel[byteCounter % 3] = singleByte;
         if (byteCounter % 3 == 2) {
             pixel = Pixel.transformPixel(pixel);
-            byteArrayOutputStream.write(pixel);
+            byteArrayOutputStream.write(pixel, 0, 3);
             processedPixels++;
         }
         byteCounter++;

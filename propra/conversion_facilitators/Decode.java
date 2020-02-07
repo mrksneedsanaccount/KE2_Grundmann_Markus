@@ -34,7 +34,7 @@ public class Decode {
         double temp = (int) (Math.log(alpahbet.length()) / Math.log(2));
         if (temp % 1 != 0) {
             System.err.println("Invalid number of elements in Alphabet.");
-            System.exit(123);
+            // System.exit(123);
         }
 
 
